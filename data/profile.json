@@ -467,7 +467,7 @@
           "role": "both"
         },
         {
-          "text": "With teammates Juan Cortes-Aguiar and Ravikiran Madichetty, pulled 7.17M hourly price candles across 839,613 markets (Oct 8 to 27, 2026) from PostgreSQL and S3 into Parquet with Python and built a reproducible Jupyter workflow published on GitHub.",
+          "text": "With teammates [names], pulled 7.17M hourly price candles across 839,613 markets (Oct 8 to 27, 2026) from PostgreSQL and S3 into Parquet with Python and built a reproducible Jupyter workflow published on GitHub.",
           "sources": [
             "Ashish_Singh_CV"
           ],
@@ -498,9 +498,9 @@
       "website": {
         "page": "kalshi-prediction-markets.html",
         "heading": "The 99-Cent Question: Kalshi Prediction Markets",
-        "text": "Project Details\nThe 99-Cent Question: Kalshi Prediction Markets\nThis STATS 414 midterm project, completed with Juan Cortes-Aguiar and Ravikiran Madichetty, asked how accurate Kalshi's prices are. Kalshi lets people trade yes/no contracts that pay $1 or $0, so a contract's price works as the crowd's probability. We analyzed every hourly candle in the course Kalshi database from Oct 8 to 27, 2026 (7.17 million rows across 839,613 markets) to see whether prices are calibrated and whether favorites priced at 90 to 99 cents are as safe as they look.\nThe exploratory work showed that sports and crypto dominate the platform, with sports at 76% of contracts traded and the top 1% of markets carrying 82% of volume. Prices were calibrated within half a point on average across 129,866 markets, with a favorite and long-shot bias at the extremes. Among 10,351 favorites (513 of which lost), Economics contracts, mostly AAA gas-price markets, lost 0.5% of the time versus 3.5% implied by price, a gap that held in every period.\nWe then split the favorites by date into train, validation, and test sets and tuned elastic-net logistic regression, random forest, and XGBoost models, each with and without volume, against the quoted price as a baseline. No model beat the price: it had the best test Brier score (0.04624), and volume added nothing. Buying every test favorite at the ask still lost $19.61 on 2,299 contracts, even though 95.0% of them won, before fees.\nThe raw Kalshi data is course material and is not published here, so this page shows the analysis and the presentation only.\nPresentation\nThe 99-Cent Question\nBack to Projects Contact Me"
+        "text": "Project Details\nThe 99-Cent Question: Kalshi Prediction Markets\nThis STATS 414 midterm project, completed with [names], asked how accurate Kalshi's prices are. Kalshi lets people trade yes/no contracts that pay $1 or $0, so a contract's price works as the crowd's probability. We analyzed every hourly candle in the course Kalshi database from Oct 8 to 27, 2026 (7.17 million rows across 839,613 markets) to see whether prices are calibrated and whether favorites priced at 90 to 99 cents are as safe as they look.\nThe exploratory work showed that sports and crypto dominate the platform, with sports at 76% of contracts traded and the top 1% of markets carrying 82% of volume. Prices were calibrated within half a point on average across 129,866 markets, with a favorite and long-shot bias at the extremes. Among 10,351 favorites (513 of which lost), Economics contracts, mostly AAA gas-price markets, lost 0.5% of the time versus 3.5% implied by price, a gap that held in every period.\nWe then split the favorites by date into train, validation, and test sets and tuned elastic-net logistic regression, random forest, and XGBoost models, each with and without volume, against the quoted price as a baseline. No model beat the price: it had the best test Brier score (0.04624), and volume added nothing. Buying every test favorite at the ask still lost $19.61 on 2,299 contracts, even though 95.0% of them won, before fees.\nThe raw Kalshi data is course material and is not published here, so this page shows the analysis and the presentation only.\nPresentation\nThe 99-Cent Question\nBack to Projects Contact Me"
       },
-      "content_hash": "f683312ea7cc1173"
+      "content_hash": "fa05cb7bbc0a1bf3"
     },
     {
       "id": "pneumonia-detection-with-llm-and-deep-learning",
@@ -623,7 +623,7 @@
           "role": "both"
         },
         {
-          "text": "Committee chair: Xiaowu Dai.",
+          "text": "Committee chair: [name].",
           "sources": [
             "Ashish_Singh_CV"
           ],
@@ -631,7 +631,7 @@
         }
       ],
       "website": null,
-      "content_hash": "0649ffe43a65f4ff"
+      "content_hash": "849799b1e14fb89f"
     },
     {
       "id": "university-of-california-los-angeles-ucla--b-s-statistics-and-data-science",
@@ -1003,10 +1003,10 @@
         "Ashish_Singh_CV"
       ],
       "items": [
-        "Singh, A. (2026). Ordinal Prediction of Chest Radiograph Urgency from Biomedical Vision-Language Model Embeddings: Penalized Cumulative-Logit Models, Calibration, and Conformal Uncertainty. M.S. thesis, University of California, Los Angeles. Chair: Xiaowu Dai.",
+        "Singh, A. (2026). Ordinal Prediction of Chest Radiograph Urgency from Biomedical Vision-Language Model Embeddings: Penalized Cumulative-Logit Models, Calibration, and Conformal Uncertainty. M.S. thesis, University of California, Los Angeles. Chair: [name].",
         "Singh, A. (2024, Mar). Predicting Heart Failure: Actuarial Mortality Modeling. Solo research paper and slide presentation.",
-        "Chou, N., Davis, A., Mohammadinik, K., Singh, A., and Woo, M. (2024, Jun). Civic Engagement Survey Analysis. Final report and presentation, STATS 141XP: Statistical Consulting, UCLA.",
-        "Cortes-Aguiar, J., Madichetty, R., and Singh, A. (2026, Oct). The 99-Cent Question: Kalshi Prediction Markets. Midterm presentation, STATS 414, UCLA."
+        "Singh, A. et al. (2024, Jun). Civic Engagement Survey Analysis. Final report and presentation, STATS 141XP: Statistical Consulting, UCLA.",
+        "Singh, A. et al. (2026, Oct). The 99-Cent Question: Kalshi Prediction Markets. Midterm presentation, STATS 414, UCLA."
       ]
     },
     {

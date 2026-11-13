@@ -26,8 +26,18 @@ def test_invalid_roles(role):
 
 @pytest.mark.parametrize(
     "d,band",
-    [(1, "Easy"), (2, "Easy"), (3, "Easy"), (4, "Medium"), (5, "Medium"), (6, "Medium"),
-     (7, "Hard"), (8, "Hard"), (9, "Expert"), (10, "Expert")],
+    [
+        (1, "Easy"),
+        (2, "Easy"),
+        (3, "Easy"),
+        (4, "Medium"),
+        (5, "Medium"),
+        (6, "Medium"),
+        (7, "Hard"),
+        (8, "Hard"),
+        (9, "Expert"),
+        (10, "Expert"),
+    ],
 )
 def test_difficulty_band(d, band):
     assert meta.validate_difficulty(d) == d

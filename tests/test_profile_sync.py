@@ -18,11 +18,14 @@ def env(tmp_path):
     shutil.copy(FIXTURES / "content.yaml", resume)
     site = tmp_path / "site"
     shutil.copytree(FIXTURES / "site", site)
+    local = tmp_path / "data" / "local"
+    local.mkdir(parents=True)
+    (local / "redact_names.txt").write_text("Pat Example\nRobin Sample\nDana Advisor\n")
     return {
         "resume": resume,
         "site": site,
         "out": tmp_path / "data" / "profile.json",
-        "local": tmp_path / "data" / "local",
+        "local": local,
     }
 
 
@@ -195,3 +198,31 @@ def test_main_missing_source_exit_code(monkeypatch, tmp_path, capsys):
     monkeypatch.setenv("SITE_PATH", str(tmp_path))
     assert sync.main([]) == 2
     assert "RESUME_CONTENT_PATH" in capsys.readouterr().err
+
+
+def test_other_peoples_names_removed(env):
+    report = run(env)
+    text = env["out"].read_text()
+    for name in ("Pat Example", "Robin Sample", "Dana Advisor", "Example, P.", "Sample, R."):
+        assert name not in text
+    assert report.name_redactions == 6
+    p = json.loads(text)
+    vision = by_id(p)["vision-side-project"]
+    assert "With teammates [names], labeled 500 images." in [b["text"] for b in vision["bullets"]]
+    lab = by_id(p)["lab-of-examples--research-assistant"]
+    assert "Advised by [name] at the Davis, CA field station (UC Davis)." in [
+        b["text"] for b in lab["bullets"]
+    ]
+    papers = next(x for x in p["extras"] if x["title"] == "PAPERS AND PRESENTATIONS")
+    assert papers["items"] == [
+        "Person, T. et al. (2024, Jun). Fake Survey Study. Course report.",
+        "Person, T. (2025). Solo Fake Thesis. Advisor: [name].",
+    ]
+
+
+def test_missing_name_list_warns(env, caplog):
+    (env["local"] / "redact_names.txt").unlink()
+    report = run(env)
+    assert not report.name_list_found
+    assert "will NOT be removed" in caplog.text
+    assert "SKIPPED" in sync.format_report(report)

@@ -63,6 +63,7 @@ documents:
             date: Jun 2024
             bullets:
               - Trained a small CNN on CIFAR-10 in PyTorch.
+              - With teammates Pat Example and Robin Sample, labeled 500 images.
 
   Test_Person_CV:
     header: *header
@@ -79,6 +80,7 @@ documents:
             date: 2023
             bullets:
               - Cleaned survey data in R.
+              - "Advised by Dana Advisor at the Davis, CA field station (UC Davis)."
       - title: PROJECTS
         entries:
           - org: *demo_name
@@ -101,6 +103,10 @@ documents:
       - title: RELEVANT COURSEWORK
         skills:
           - [Modeling, "Regression (STATS 100), Bayesian Methods"]
+      - title: PAPERS AND PRESENTATIONS
+        items:
+          - "Example, P., Person, T., and Sample, R. (2024, Jun). Fake Survey Study. Course report."
+          - "Person, T. (2025). Solo Fake Thesis. Advisor: Dana Advisor."
       - title: LANGUAGES
         text: English, Spanish
 

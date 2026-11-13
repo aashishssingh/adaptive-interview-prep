@@ -4,7 +4,11 @@
 The GitHub repo is **public**. Treat everything committed as public.
 
 - Never commit secrets (API keys, tokens, `.env`), phone numbers, email addresses,
-  or anything from `data/local/`.
+  other people's names (teammates, advisors, co-authors), or anything from `data/local/`.
+- Other people's names are listed privately in `data/local/redact_names.txt` (gitignored,
+  never commit it) and replaced with `[name]` by the profile sync. Add new names there.
+  Never put a real phone number, email, or name in code comments, tests, or fixtures: use
+  obviously fake values (555 numbers, example.com, "Pat Example").
 - Before every push:
   1. `git ls-files | grep -E '(^|/)\.env$'` must print nothing (and nothing under `data/local/`).
   2. Grep the diff being pushed for API-key patterns, phone numbers, and email addresses, e.g.
@@ -16,6 +20,8 @@ The GitHub repo is **public**. Treat everything committed as public.
      grep -nE 'sk-[A-Za-z0-9_-]{16,}|sk-ant-[A-Za-z0-9_-]+|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{20,}|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|\+?\(?[0-9]{3}\)?[ .-]?[0-9]{3}[ .-]?[0-9]{4}'
      ```
      Investigate every hit; fake test values must be obviously fake.
+  3. Grep the same diff for every name in `data/local/redact_names.txt` (both "First Last" and
+     "Last, F." forms). There must be no hits.
 
 ## Scope
 - Tracks are **DS** (Data Scientist) and **MLE** (ML/AI Engineer) only. No data engineer track for now.

@@ -17,6 +17,7 @@ import yaml
 
 from prep.config import PROJECT_ROOT, load_settings
 from prep.profile import changes as ch
+from prep.profile import redact as redact_mod
 from prep.profile import site as site_mod
 from prep.profile.merge import build_profile_core
 from prep.profile.pii import find_pii, scrub
@@ -41,6 +42,8 @@ class SyncReport:
     snapshot: Path | None
     redactions: int
     skipped_archived: list[str]
+    name_redactions: int = 0
+    name_list_found: bool = False
     unmatched_pages: list[str] = field(default_factory=list)
     projects_without_page: list[str] = field(default_factory=list)
     site_cards_without_entity: list[str] = field(default_factory=list)
@@ -67,7 +70,10 @@ def load_aliases(path: Path | None) -> dict[str, str]:
 
 
 def build_profile(
-    resume_path: Path, site_path: Path, aliases_path: Path | None = None
+    resume_path: Path,
+    site_path: Path,
+    aliases_path: Path | None = None,
+    redact_path: Path | None = None,
 ) -> tuple[dict[str, Any], SyncReport]:
     check_sources(resume_path, site_path)
     data = extract(load_yaml(resume_path))
@@ -105,18 +111,30 @@ def build_profile(
         "site_pages": site_pages,
     }
     profile, redactions = scrub(profile)
+    names = redact_mod.load_names(redact_path)
+    if not names:
+        log.warning(
+            "No private name list at %s: other people's names will NOT be removed", redact_path
+        )
+    patterns = redact_mod.name_patterns(names)
+    profile, name_redactions = redact_mod.redact(profile, patterns)
     for ent in profile["entities"]:
         ent["content_hash"] = ch.content_hash(ent)
 
-    leftover = find_pii(json.dumps(profile, ensure_ascii=False))
+    dumped = json.dumps(profile, ensure_ascii=False)
+    leftover = find_pii(dumped)
     if leftover:  # defensive: scrub() should make this impossible
         raise RuntimeError(f"PII survived scrubbing ({len(leftover)} matches); not writing")
+    if redact_mod.surviving_names(dumped, patterns):  # defensive, as above
+        raise RuntimeError("A listed name survived redaction; not writing")
 
     report = SyncReport(
         profile=profile,
         changes={},
         snapshot=None,
         redactions=redactions,
+        name_redactions=name_redactions,
+        name_list_found=bool(names),
         skipped_archived=data.skipped_archived,
         unmatched_pages=[p.name for p in unmatched_pages],
         projects_without_page=no_page,
@@ -134,9 +152,12 @@ def run_sync(
     local_dir: Path = DEFAULT_LOCAL,
     aliases_path: Path | None = DEFAULT_ALIASES,
     now: datetime | None = None,
+    redact_path: Path | None = None,
 ) -> SyncReport:
+    """``redact_path`` defaults to ``<local_dir>/redact_names.txt`` (private, gitignored)."""
     now = now or datetime.now()
-    profile, report = build_profile(resume_path, site_path, aliases_path)
+    redact_path = redact_path or local_dir / "redact_names.txt"
+    profile, report = build_profile(resume_path, site_path, aliases_path, redact_path)
     old = ch.load_profile(out_path)
     changes = ch.diff_profiles(old, profile)
     new_text = json.dumps(profile, indent=2, ensure_ascii=False) + "\n"
@@ -170,6 +191,8 @@ def format_report(report: SyncReport) -> str:
         f"Documents used: {', '.join(p['documents'])}",
         f"Archived documents skipped: {', '.join(report.skipped_archived) or 'none'}",
         f"PII redactions: {report.redactions}",
+        "Name redactions: "
+        + (str(report.name_redactions) if report.name_list_found else "SKIPPED (no name list)"),
         "",
         f"{'id':<72} {'type':<22} {'role':<5} {'bullets':>7}  website",
     ]
