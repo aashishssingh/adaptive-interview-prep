@@ -1,0 +1,20 @@
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Environments / caches
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# Local private state
+*.db
+data/local/
+
+# OS
+.DS_Store

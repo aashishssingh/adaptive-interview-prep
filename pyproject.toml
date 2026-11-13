@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prep"
+version = "0.0.1"
+description = "Adaptive interview prep for Data Scientist and ML/AI Engineer roles"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Ashish Singh" }]
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit",
+    "pyyaml",
+    "beautifulsoup4",
+    "python-dotenv",
+    "anthropic",
+    "openai",
+    "duckdb",
+    "pandas",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[tool.setuptools.packages.find]
+include = ["prep*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
