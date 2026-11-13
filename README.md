@@ -27,6 +27,18 @@ cp .env.example .env   # then edit paths / keys
 streamlit run app/Home.py
 ```
 
+## Profile sync
+Builds `data/profile.json` (public-safe: no phone numbers or emails) from your resume
+`content.yaml` and portfolio website, set via `RESUME_CONTENT_PATH` and `SITE_PATH` in `.env`:
+
+```bash
+python -m prep.profile.sync
+```
+
+The previous profile is snapshotted to `data/local/snapshots/`, and added/removed/changed entity
+ids go to `data/local/profile_changes.json`. Entries that are the same thing under different
+names can be merged in `data/profile_aliases.yaml`.
+
 ## Test
 ```bash
 pytest

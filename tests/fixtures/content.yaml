@@ -1,0 +1,118 @@
+# Test fixture. All personal data here is fake (555 numbers, example.com).
+header: &header
+  name: Test Person
+  items:
+    - {text: "(555) 010-0199"}
+    - {text: jane.doe@example.com, url: "mailto:jane.doe@example.com"}
+
+edu: &edu
+  org: Example University
+  date: May 2024
+  title: B.S., Statistics
+  loc: Somewhere, CA
+
+acme_head: &acme_head
+  org: Acme Corp
+  date: Jan 2025 — Present
+  title: Data Intern
+  loc: Remote
+
+demo_name: &demo_name Demo Forecasting Project
+
+documents:
+  Test_Person_Data_Scientist:
+    header: *header
+    sections:
+      - title: EDUCATION
+        entries: [*edu]
+      - title: SKILLS
+        skills:
+          - [Programming, "Python (pandas, NumPy), SQL"]
+      - title: EXPERIENCE
+        entries:
+          - <<: *acme_head
+            bullets:
+              - Built a churn model in Python that cut false positives by 20%.
+              - Ran   A/B tests on pricing pages with a two-sided t-test.
+              - Wrote a weekly KPI report for the growth team.
+              - "Reach me at jane.doe@example.com or 555-010-0199 about this report."
+      - title: PROJECTS
+        entries:
+          - org: *demo_name
+            date: Mar 2024
+            bullets:
+              - Forecast weekly demand with gradient boosting and quantile loss.
+
+  Test_Person_ML_AI_Engineer:
+    header: *header
+    sections:
+      - title: SKILLS
+        skills:
+          - [Programming, "python (pandas, NumPy), PyTorch"]
+          - [MLOps, "Docker, CI"]
+      - title: EXPERIENCE
+        entries:
+          - <<: *acme_head
+            bullets:
+              - Built a churn model in Python that cut false positives by 20%.
+              - Ran A/B tests on the pricing pages with a two-sided t-test.
+              - Deployed the churn model behind a FastAPI service in Docker.
+      - title: PROJECTS
+        entries:
+          - org: Vision Side Project
+            date: Jun 2024
+            bullets:
+              - Trained a small CNN on CIFAR-10 in PyTorch.
+
+  Test_Person_CV:
+    header: *header
+    cv: true
+    sections:
+      - title: EDUCATION
+        entries:
+          - <<: *edu
+            date: Expected May 2024
+      - title: RESEARCH EXPERIENCE
+        entries:
+          - org: Lab of Examples
+            title: Research Assistant
+            date: 2023
+            bullets:
+              - Cleaned survey data in R.
+      - title: PROJECTS
+        entries:
+          - org: *demo_name
+            date: Mar 2024
+            bullets:
+              - Forecast weekly demand with gradient boosting and a quantile loss.
+      - title: TEACHING, MENTORING AND SERVICE
+        entries:
+          - org: Example DataFest
+            title: Volunteer Mentor
+            bullets:
+              - Mentored student teams.
+      - title: ADDITIONAL EXPERIENCE
+        entries:
+          - org: Corner Cafe
+            title: Barista
+            date: 2020
+            bullets:
+              - Made coffee.
+      - title: RELEVANT COURSEWORK
+        skills:
+          - [Modeling, "Regression (STATS 100), Bayesian Methods"]
+      - title: LANGUAGES
+        text: English, Spanish
+
+  Test_Person_Data_Analyst:
+    archived: true
+    header: *header
+    sections:
+      - title: SKILLS
+        skills:
+          - [Archived Label, "Archived Skill"]
+      - title: PROJECTS
+        entries:
+          - org: Archived Only Project
+            bullets:
+              - This bullet must never appear.

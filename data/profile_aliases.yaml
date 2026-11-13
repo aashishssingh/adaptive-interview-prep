@@ -1,0 +1,5 @@
+# Entity ids that name the same thing differently across resumes, mapped to one canonical id.
+# Used by `python -m prep.profile.sync` when merging entries. Ids are slugs of org (+ "--" + title).
+aliases:
+  # The CV lists the thesis under RESEARCH EXPERIENCE; the role resumes list it under PROJECTS.
+  m-s-thesis-ucla-department-of-statistics-and-data-science--graduate-researcher: m-s-thesis-ordinal-prediction-of-chest-radiograph-urgency

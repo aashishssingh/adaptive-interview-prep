@@ -1,7 +1,7 @@
 # Roadmap
 
 - [x] **Phase 0 — Skeleton**: package layout, config, question metadata conventions (`prep/meta.py`), tests, docs.
-- [ ] **Phase 1 — Profile sync**: resume `content.yaml` + website pages → `data/profile.json`.
+- [x] **Phase 1 — Profile sync**: resume `content.yaml` + website pages → `data/profile.json` (`python -m prep.profile.sync`; change log in `data/local/profile_changes.json`).
 - [ ] **Phase 2 — Foundational question bank + schema**.
 - [ ] **Phase 3 — Streamlit practice UI + SQLite history**: each question card shows the role badge/color and "Difficulty N/10 · Band"; filters by role and difficulty range.
 - [ ] **Phase 4 — LLM project-question generator**: explain / justify / challenge / extend depths.

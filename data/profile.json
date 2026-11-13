@@ -1,0 +1,1033 @@
+{
+  "schema_version": 1,
+  "documents": [
+    "Ashish_Singh_Data_Scientist",
+    "Ashish_Singh_ML_AI_Engineer",
+    "Ashish_Singh_Data_Engineer",
+    "Ashish_Singh_CV"
+  ],
+  "entities": [
+    {
+      "id": "ucla-alumni-association--data-processing-and-analysis-intern",
+      "type": "experience",
+      "org": "UCLA Alumni Association",
+      "title": "Data Processing and Analysis Intern",
+      "date": "Aug 2026 — Present",
+      "loc": "Los Angeles, California (Remote)",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_Data_Scientist",
+        "Ashish_Singh_ML_AI_Engineer",
+        "Ashish_Singh_Data_Engineer",
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Resolved 32 Jira tickets end to end, one per alumni event or report, cleaning raw Excel submissions with Python scripts in Spyder and loading hundreds of attendee records into Blackbaud CRM through mass-add imports.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist",
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Pulled alumni data from the university data warehouse with the team's shared Python reporting package, fixing Python and library version conflicts so the scripts ran reliably for departments across campus.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Calculated alumni engagement metrics in Excel and designed department reports in Canva to UCLA brand standards, keeping Smartsheet trackers current so event hosts could follow each submission.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Ran the team's shared Python reporting package against the university data warehouse, resolving Python and library version conflicts so the scripts ran reliably for departments across campus.",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "Ran the intake workflow for alumni event attendance across 32 Jira tickets, extracting raw Excel submissions, cleaning and standardizing them with Python scripts, and bulk-loading hundreds of records into Blackbaud CRM through mass-add imports.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Pulled data from the university's Blackbaud data warehouse with the team's shared Python reporting package for departments, units, and areas across UCLA, resolving Python and library version conflicts so the scripts ran reliably.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer",
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Kept Smartsheet trackers and Jira tickets in sync with every load so event hosts and departments could see each submission's status, and calculated engagement metrics in Excel for alumni reports.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Resolved 32 Jira tickets end to end, one per alumni event or report, downloading and cleaning raw Excel attendance data and standardizing it with Python scripts in Spyder.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Loaded hundreds of attendee records into Blackbaud CRM through mass-add imports, keeping Smartsheet trackers and Jira tickets current so event hosts and departments could see where each submission stood.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Calculated engagement metrics in Excel and designed alumni reports in Canva to UCLA brand and formatting standards.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "7ccd4a97f13ea78e"
+    },
+    {
+      "id": "vetology-ai-teleradiology--ai-ml-intern-llm-evaluation",
+      "type": "experience",
+      "org": "Vetology (AI + Teleradiology)",
+      "title": "AI/ML Intern, LLM Evaluation",
+      "date": "Jun 2026 — Aug 2026",
+      "loc": "Los Angeles, California (Remote)",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_Data_Scientist",
+        "Ashish_Singh_ML_AI_Engineer",
+        "Ashish_Singh_Data_Engineer",
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Built a Python pipeline that used OpenAI GPT-4o-mini to classify free-text veterinary radiology reports for 52 diagnostic conditions across three datasets, and hand-scored 150 reports into a 2,600-label gold standard.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Showed accuracy was misleading under class imbalance: positives were only 4% to 10% of labels, so always answering \"normal\" would score 90% to 96%; reported per-condition sensitivity and specificity instead.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Found legacy radiologist labels disagreed with the gold standard in about 40% of canine thorax cells, and presented recommendations (radiologist review, class-imbalance fixes) to the Vetology team.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Built a Python application that used OpenAI GPT-4o-mini (temperature 0) to classify free-text veterinary radiology reports for 52 diagnostic conditions across three datasets, one call per condition with JSON-configurable prompts.",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "Hand-scored 150 reports into a 2,600-label gold standard and evaluated per-condition confusion matrices, showing accuracy was misleading because positives were only 4% to 10% of labels.",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "Rebuilt the 231-line script with Claude Code into a modular package with unit tests, eight-worker concurrency, a response cache, and credentials moved to environment variables.",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "Shipped the codebase to GitHub with controls that keep client data and credentials out, and presented results and recommendations to the Vetology team.",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "Built a Python pipeline that sent free-text veterinary radiology reports to OpenAI GPT-4o-mini, one call per condition for 52 conditions across three datasets, driven by JSON-configurable prompts.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Rebuilt the original 231-line script into a modular package with unit tests, eight-worker concurrency, a response cache, and credentials moved from code to environment variables.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Validated outputs against a hand-scored 2,600-label gold standard and shipped the codebase to GitHub with controls that keep client data and credentials out of the repository.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Built a Python application that used OpenAI GPT-4o-mini (temperature 0) to classify free-text veterinary radiology reports for 52 diagnostic conditions across three datasets (canine thorax, feline thorax, canine abdomen), scoring each condition in its own call with nine shared rules and JSON-configurable prompts.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Hand-scored 150 reports into a gold standard of 2,600 condition-level labels and produced per-condition confusion matrices (accuracy, sensitivity, specificity) in Vetology's output template.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Showed with an offline keyword baseline that accuracy overstated performance (positives were only 4% to 10% of labels, so always answering \"normal\" scores 90% to 96%), and found legacy radiologist labels disagreed with the gold standard in about 40% of canine thorax cells.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Recommended a radiologist review of the gold standard and fixes for class imbalance and negative bias before the next evaluation, and presented the methodology and results to the Vetology team.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Rebuilt the 231-line script with Claude Code into a modular package with unit tests, eight-worker concurrency, a response cache, and environment-variable credentials, and documented how manual coding compared with AI-assisted development.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "dc0055165e648106"
+    },
+    {
+      "id": "vectorsurv-uc-davis--research-assistant",
+      "type": "experience",
+      "org": "VectorSurv (UC Davis)",
+      "title": "Research Assistant",
+      "date": "Aug 2024 — May 2025",
+      "loc": "Davis, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_Data_Scientist",
+        "Ashish_Singh_ML_AI_Engineer",
+        "Ashish_Singh_Data_Engineer",
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Designed preprocessing pipelines in R (raster, tidyverse) to extract, clean, and structure large 8-band satellite imagery datasets (2020 to 2023) with a postdoctoral researcher and analytics team.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist",
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Performed geospatial and multispectral analysis and built ggplot2 visualizations that flagged high-risk areas and suitable mosquito habitats for targeted disease surveillance.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist",
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Designed and implemented preprocessing pipelines in R (raster, tidyverse) to extract, clean, and structure large remote-sensing datasets from 8-band satellite imagery (2020 to 2023), speeding up downstream analysis.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Collaborated with a postdoctoral researcher and analytics team to turn the processed imagery into geospatial and multispectral analyses and ggplot2 visualizations that flagged high-risk areas for mosquito-borne disease exposure.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Collaborated with a postdoctoral researcher and analytics team to analyze 8-band satellite imagery (2020 to 2023) in R, producing an environmental risk assessment that flagged high-risk areas for mosquito-borne disease exposure.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Designed and implemented preprocessing pipelines in R (raster, tidyverse) to extract, clean, and structure large remote-sensing datasets, speeding up downstream analysis.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Performed geospatial and multispectral analysis and built ggplot2 visualizations of spectral trends, identifying locations suitable for mosquito habitats to support targeted surveillance.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "2e79ea6dfae8eb57"
+    },
+    {
+      "id": "m-s-thesis-ordinal-prediction-of-chest-radiograph-urgency",
+      "type": "project",
+      "org": "M.S. Thesis: Ordinal Prediction of Chest Radiograph Urgency",
+      "title": "Graduate Researcher",
+      "date": "Sep 2026 — Present",
+      "loc": "Los Angeles, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_Data_Scientist",
+        "Ashish_Singh_ML_AI_Engineer",
+        "Ashish_Singh_Data_Engineer",
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Modeled a three-level urgency outcome (normal, chronic/incidental, acute) for 3,597 expert-coded chest radiograph studies from frozen BiomedCLIP vision-language embeddings, scored once on a locked test set.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Fit a ridge-penalized proportional-odds model (test calibration slope 0.99); after a Brant-type test rejected parallel slopes, a penalized partial proportional-odds model cut test log-loss by 0.016 (95% CI 0.010 to 0.022).",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Showed split conformal sets covered only two-thirds of acute studies despite nominal overall coverage; class-conditional calibration restored 90% coverage.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Used frozen BiomedCLIP (ViT-B/16) embeddings of 7,113 chest radiographs to predict a three-level urgency outcome with ridge-penalized ordinal models in Python (scikit-learn, statsmodels).",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "Recalibrated zero-shot BiomedCLIP with temperature and class-bias scaling, and built class-conditional conformal prediction sets that restored 90% coverage on acute studies.",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "Built a study-level dataset from 3,851 reports and 7,466 images, documenting each exclusion down to 3,597 studies, with a 70/15/15 split that keeps every patient's images in one split and a test set locked until the end.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Defined a three-level urgency outcome (normal, chronic/incidental, acute) for 3,597 expert-coded studies (7,113 images) from the Indiana University chest radiograph collection, estimated a 4.6% label error rate with a stratified 60-study review, and split the cohort 70/15/15 by patient with a test set used exactly once.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Modeled the outcome from frozen BiomedCLIP (ViT-B/16) embeddings with ridge-penalized multinomial, proportional-odds, and partial proportional-odds models; the proportional-odds model was well calibrated (test calibration slope 0.99), and after a Brant-type test rejected parallel slopes, the partial model cut test log-loss by 0.016 (95% CI 0.010 to 0.022).",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Showed zero-shot BiomedCLIP ranked studies reasonably but was badly miscalibrated until temperature and class-bias recalibration.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Verified split conformal coverage against finite-sample theory and showed marginal sets covered only two-thirds of acute studies; class-conditional calibration restored 90% coverage.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Predicted twelve secondary findings with ridge logistic regression, using DeLong intervals for AUC and Holm and Benjamini-Hochberg multiplicity control; performance intervals came from a study-level bootstrap (B = 2,000).",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "b39dd07051c0c68d"
+    },
+    {
+      "id": "the-99-cent-question-kalshi-prediction-markets-stats-414",
+      "type": "project",
+      "org": "The 99-Cent Question: Kalshi Prediction Markets (STATS 414)",
+      "title": null,
+      "date": "Oct 2026",
+      "loc": null,
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_Data_Scientist",
+        "Ashish_Singh_ML_AI_Engineer",
+        "Ashish_Singh_Data_Engineer",
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "With a 3-person team, built a Python pipeline that pulled 7.17M hourly price candles across 839,613 markets from PostgreSQL and S3 into Parquet, then defined a study set of 10,351 favorites priced at 90 to 99 cents.",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Tuned elastic-net logistic regression, random forest, and XGBoost models on date-based splits; none beat the quoted price, which had the best test Brier score (0.04624).",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "Found Economics favorites lost only 0.5% of the time versus 3.5% implied (event-level bootstrap 95% CI: -3.4 to -2.6 points).",
+          "sources": [
+            "Ashish_Singh_Data_Scientist"
+          ],
+          "role": "ds"
+        },
+        {
+          "text": "With a 3-person team, built a reproducible Python pipeline (PostgreSQL and S3 to Parquet to Jupyter notebooks) over 7.17M hourly candles from 839,613 markets, published on GitHub.",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "Tuned elastic-net logistic regression, random forest, and XGBoost in scikit-learn pipelines on date-based splits with no event leakage; the quoted price still had the best test Brier score (0.04624).",
+          "sources": [
+            "Ashish_Singh_ML_AI_Engineer"
+          ],
+          "role": "mle"
+        },
+        {
+          "text": "With a 3-person team, built a Python ingestion pipeline that queried a PostgreSQL database (psycopg2) in batches and downloaded files from S3, landing 7.17M hourly price candles across 839,613 markets as Parquet files partitioned by day.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Joined candles with market and event metadata into a 10,351-row study table, and documented data-quality gaps (missing days and partial hours) so every downstream result accounted for them.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Kept credentials out of the public GitHub repo with environment variables and made the full workflow reproducible as executable Jupyter notebooks, from raw data to models and slides.",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Built leakage-free date-based train, validation, and test splits and tuned elastic-net logistic regression, random forest, and XGBoost; the quoted price had the best test Brier score (0.04624).",
+          "sources": [
+            "Ashish_Singh_Data_Engineer"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "With teammates Juan Cortes-Aguiar and Ravikiran Madichetty, pulled 7.17M hourly price candles across 839,613 markets (Oct 8 to 27, 2026) from PostgreSQL and S3 into Parquet with Python and built a reproducible Jupyter workflow published on GitHub.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Exploratory analysis: sports drove 76% of volume, the top 1% of markets carried 82%, and prices were calibrated within half a point on average with a favorite and long-shot bias at the extremes.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Defined 10,351 favorites priced at 90 to 99 cents (513 losses) and tuned elastic-net logistic regression, random forest, and XGBoost on date-based splits; the quoted price had the best test Brier score (0.04624).",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Found Economics favorites lost 0.5% of the time versus 3.5% implied (event-level bootstrap 95% CI of -3.4 to -2.6 points); buying every test favorite at the ask still lost $19.61 on 2,299 contracts.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": {
+        "page": "kalshi-prediction-markets.html",
+        "heading": "The 99-Cent Question: Kalshi Prediction Markets",
+        "text": "Project Details\nThe 99-Cent Question: Kalshi Prediction Markets\nThis STATS 414 midterm project, completed with Juan Cortes-Aguiar and Ravikiran Madichetty, asked how accurate Kalshi's prices are. Kalshi lets people trade yes/no contracts that pay $1 or $0, so a contract's price works as the crowd's probability. We analyzed every hourly candle in the course Kalshi database from Oct 8 to 27, 2026 (7.17 million rows across 839,613 markets) to see whether prices are calibrated and whether favorites priced at 90 to 99 cents are as safe as they look.\nThe exploratory work showed that sports and crypto dominate the platform, with sports at 76% of contracts traded and the top 1% of markets carrying 82% of volume. Prices were calibrated within half a point on average across 129,866 markets, with a favorite and long-shot bias at the extremes. Among 10,351 favorites (513 of which lost), Economics contracts, mostly AAA gas-price markets, lost 0.5% of the time versus 3.5% implied by price, a gap that held in every period.\nWe then split the favorites by date into train, validation, and test sets and tuned elastic-net logistic regression, random forest, and XGBoost models, each with and without volume, against the quoted price as a baseline. No model beat the price: it had the best test Brier score (0.04624), and volume added nothing. Buying every test favorite at the ask still lost $19.61 on 2,299 contracts, even though 95.0% of them won, before fees.\nThe raw Kalshi data is course material and is not published here, so this page shows the analysis and the presentation only.\nPresentation\nThe 99-Cent Question\nBack to Projects Contact Me"
+      },
+      "content_hash": "f683312ea7cc1173"
+    },
+    {
+      "id": "pneumonia-detection-with-llm-and-deep-learning",
+      "type": "project",
+      "org": "Pneumonia Detection with LLM and Deep Learning",
+      "title": null,
+      "date": "Jan 2026 — Mar 2026",
+      "loc": null,
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Fine-tuned a large language model with CNN-based feature extraction in PyTorch to classify chest X-rays for pneumonia, applying torchvision augmentation and normalization.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "fb63c305898563c9"
+    },
+    {
+      "id": "predicting-heart-failure-mortality-for-actuarial-risk",
+      "type": "project",
+      "org": "Predicting Heart Failure Mortality for Actuarial Risk",
+      "title": null,
+      "date": "Jan 2024 — Mar 2024",
+      "loc": null,
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Modeled mortality on a 368-patient, 60-predictor dataset from the Faisalabad Institute of Cardiology in Python, using VIF to reduce multicollinearity to 7 key predictors.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Compared Logistic Regression, SGD SVM, and Random Forest with GridSearchCV; Random Forest reached 98.2% accuracy and 0.99 ROC AUC.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Framed machine learning as a complement to traditional actuarial methods, covering risk segmentation, underwriting, validation, interpretability, and model governance.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": {
+        "page": "heart-failure.html",
+        "heading": "Predicting Heart Failure",
+        "text": "Project Details\nPredicting Heart Failure\nI evaluated whether machine learning can improve mortality prediction for actuarial risk assessment using a 368-patient heart failure dataset with 60 clinical, demographic, and cardiovascular predictors. The analysis compared Logistic Regression, SGD SVM, and Random Forest models against actuarial concerns like risk segmentation, underwriting precision, model validation, interpretability, and governance.\nAfter cleaning the data, reducing multicollinearity with VIF, and narrowing the model to seven key predictors, the Random Forest model produced the strongest result with 98.2% accuracy and a 0.99 ROC AUC. The project frames machine learning as a complement to traditional actuarial methods rather than a replacement, with clear caution around small-sample reliability and real-world model risk.\nPaper\nActuarial Mortality Modeling Paper\nResearch paper focused on machine learning, mortality prediction, and actuarial risk segmentation.\nRead Paper\nPresentation\nPredicting Heart Failure\nBack to Projects Contact Me"
+      },
+      "content_hash": "9224feeba93b03a3"
+    },
+    {
+      "id": "civic-engagement-survey-analysis-stats-141xp-consulting",
+      "type": "project",
+      "org": "Civic Engagement Survey Analysis (STATS 141XP Consulting)",
+      "title": null,
+      "date": "Apr 2024 — Jun 2024",
+      "loc": null,
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Led text mining of open-ended student survey responses with NLTK and sentiment analysis in Python for a 5-person consulting team, and helped clean the data and frame the research question.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Visualized response trends with pandas, NumPy, and matplotlib to recommend changes for future Civic Engagement courses.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": {
+        "page": "civic-engagement.html",
+        "heading": "Civic Engagement Survey Analysis",
+        "text": "Project Details\nCivic Engagement Survey Analysis\nI cleaned and validated survey response data with Python to improve the reliability of analysis and reporting. Using pandas, NumPy, NLTK, and matplotlib, I analyzed student responses, visualized trends, and interpreted sentiment to identify factors that could improve engagement and behavior in Civic courses.\nPaper\nFinal Report\nResearch paper for the Civic Engagement Survey Analysis project.\nRead Paper\nPresentation\nCivic Engagement Programming Survey\nBack to Projects Contact Me"
+      },
+      "content_hash": "af96591471010c00"
+    },
+    {
+      "id": "university-of-california-los-angeles-ucla--m-s-applied-statistics-and-data-science",
+      "type": "education",
+      "org": "University of California, Los Angeles (UCLA)",
+      "title": "M.S., Applied Statistics and Data Science",
+      "date": "Dec 2026",
+      "loc": "Los Angeles, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_Data_Scientist",
+        "Ashish_Singh_ML_AI_Engineer",
+        "Ashish_Singh_Data_Engineer",
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Thesis: Ordinal Prediction of Chest Radiograph Urgency from Biomedical Vision-Language Model Embeddings: Penalized Cumulative-Logit Models, Calibration, and Conformal Uncertainty.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Committee chair: Xiaowu Dai.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "0649ffe43a65f4ff"
+    },
+    {
+      "id": "university-of-california-los-angeles-ucla--b-s-statistics-and-data-science",
+      "type": "education",
+      "org": "University of California, Los Angeles (UCLA)",
+      "title": "B.S., Statistics and Data Science",
+      "date": "Jul 2024",
+      "loc": "Los Angeles, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_Data_Scientist",
+        "Ashish_Singh_ML_AI_Engineer",
+        "Ashish_Singh_Data_Engineer",
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [],
+      "website": null,
+      "content_hash": "cf2662d8336211ca"
+    },
+    {
+      "id": "american-statistical-association-asa-datafest-at-ucla--volunteer-mentor",
+      "type": "service",
+      "org": "American Statistical Association (ASA) DataFest at UCLA",
+      "title": "Volunteer Mentor",
+      "date": null,
+      "loc": "Los Angeles, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Mentored undergraduate teams with UCLA faculty and MASDS students during a 48-hour data analysis competition, helping students frame questions about a complex real-world dataset and present their findings.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "1e929635f4c3d95b"
+    },
+    {
+      "id": "asucla--senior-service-supervisor",
+      "type": "additional_experience",
+      "org": "ASUCLA",
+      "title": "Senior Service Supervisor",
+      "date": "Jan 2026 — Present",
+      "loc": "Los Angeles, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Promoted from Customer Service Representative (Jan 2026) to Customer Service Supervisor (Jun 2026) and Senior Service Supervisor (Aug 2026).",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Lead cafe openings and closings, help build staff schedules, take inventory, order stock and supplies, and reconcile daily sales reports against register totals.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        },
+        {
+          "text": "Resolved customer service issues and helped train new hires in compliance with food safety regulations.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "89ac1be7828e5a23"
+    },
+    {
+      "id": "yoloberry-yogurt--store-lead",
+      "type": "additional_experience",
+      "org": "YoloBerry Yogurt",
+      "title": "Store Lead",
+      "date": "May 2025 — Sep 2025",
+      "loc": "Davis, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Ran register operations and led a steady team workflow in a fast-paced service environment.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "5b1d49c2169c5a05"
+    },
+    {
+      "id": "bluebird-limo-inc--office-assistant",
+      "type": "additional_experience",
+      "org": "Bluebird Limo Inc.",
+      "title": "Office Assistant",
+      "date": "Dec 2019 — Sep 2025",
+      "loc": "Woodland, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Scheduled vehicle maintenance, handled customer requests, and assigned and supervised drivers for reservations.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "a85d205d411b50e7"
+    },
+    {
+      "id": "costco-wholesale--night-merchandise-associate",
+      "type": "additional_experience",
+      "org": "Costco Wholesale",
+      "title": "Night Merchandise Associate",
+      "date": "Oct 2024 — Jan 2025",
+      "loc": "Woodland, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Restocked freezers, coolers, and aisles and helped members find products.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "92e639784cba8c41"
+    },
+    {
+      "id": "amazon--processing-lead-transportation-logistics",
+      "type": "additional_experience",
+      "org": "Amazon",
+      "title": "Processing Lead, Transportation Logistics",
+      "date": "Aug 2020 — Jun 2022",
+      "loc": "Vacaville, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Led a 12-person team, trained staff on package processing software, and troubleshot processing errors to keep delivery schedules on track.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "3f82fa48caaa7521"
+    },
+    {
+      "id": "ymca-of-the-usa--referee-and-coach",
+      "type": "additional_experience",
+      "org": "YMCA of the USA",
+      "title": "Referee and Coach",
+      "date": "Nov 2018 — Aug 2020",
+      "loc": "Woodland, California",
+      "role": "both",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "bullets": [
+        {
+          "text": "Refereed games and ran practices for children ages 5 to 12, focused on safety and sportsmanship.",
+          "sources": [
+            "Ashish_Singh_CV"
+          ],
+          "role": "both"
+        }
+      ],
+      "website": null,
+      "content_hash": "fe4a2a23c357847c"
+    }
+  ],
+  "skills": {
+    "Programming & Querying": [
+      "Python (pandas, NumPy, scikit-learn, XGBoost, PyTorch, matplotlib)",
+      "R (tidyverse, ggplot2)",
+      "SQL (PostgreSQL, SQL Server)",
+      "Python (pandas, NumPy, scikit-learn, statsmodels, XGBoost, PyTorch, torchvision, NLTK, matplotlib)",
+      "R (tidyverse, ggplot2, raster, stringr, rvest, httr)",
+      "LaTeX"
+    ],
+    "Statistics & Machine Learning": [
+      "GLMs",
+      "penalized ordinal (proportional-odds) and elastic-net models",
+      "tree ensembles",
+      "mixed models",
+      "Bayesian methods",
+      "neural networks",
+      "LLM evaluation",
+      "class imbalance",
+      "calibration",
+      "conformal prediction",
+      "bootstrap",
+      "multiple testing",
+      "penalized ordinal (proportional-odds and partial proportional-odds) and elastic-net models",
+      "CNNs",
+      "multiple testing (Holm, Benjamini-Hochberg)",
+      "experimental design and A/B testing",
+      "text mining and sentiment analysis"
+    ],
+    "Data & Tools": [
+      "ETL",
+      "data cleaning",
+      "Jupyter",
+      "Git/GitHub",
+      "AWS S3",
+      "Hugging Face",
+      "LLM APIs (OpenAI, Anthropic, Gemini)",
+      "Tableau",
+      "Power BI",
+      "Excel",
+      "Blackbaud CRM",
+      "Jira",
+      "ETL pipelines",
+      "data cleaning and documentation",
+      "Spyder",
+      "Parquet"
+    ],
+    "Machine Learning & AI": [
+      "PyTorch",
+      "torchvision",
+      "scikit-learn",
+      "statsmodels",
+      "XGBoost",
+      "Hugging Face",
+      "LLM APIs (OpenAI, Anthropic, Gemini)",
+      "BiomedCLIP embeddings",
+      "CNNs",
+      "neural networks"
+    ],
+    "Modeling & Evaluation": [
+      "LLM evaluation against gold standards",
+      "prompt engineering",
+      "confusion matrices (accuracy, sensitivity, specificity)",
+      "elastic-net and cumulative-logit models",
+      "tree ensembles",
+      "calibration",
+      "conformal prediction",
+      "bootstrap"
+    ],
+    "Engineering & Data": [
+      "Python packaging and unit testing",
+      "concurrency",
+      "response caching",
+      "Claude Code",
+      "Git/GitHub",
+      "SQL (PostgreSQL, SQL Server)",
+      "AWS S3",
+      "Parquet",
+      "Jupyter",
+      "R"
+    ],
+    "Data Engineering": [
+      "ETL pipelines",
+      "batch data ingestion",
+      "data cleaning and validation",
+      "data quality checks",
+      "Parquet",
+      "CRM bulk imports",
+      "data documentation"
+    ],
+    "Languages & Databases": [
+      "Python (pandas, NumPy, psycopg2, requests)",
+      "SQL (PostgreSQL, SQL Server)",
+      "R (tidyverse, raster)"
+    ],
+    "Cloud & Tools": [
+      "AWS S3",
+      "Git/GitHub",
+      "unit testing",
+      "concurrency",
+      "response caching",
+      "OpenAI API",
+      "Jupyter",
+      "Spyder",
+      "Blackbaud CRM",
+      "Jira",
+      "Smartsheet",
+      "Excel",
+      "Tableau"
+    ],
+    "Analytics & ML": [
+      "scikit-learn",
+      "XGBoost",
+      "statistical modeling",
+      "bootstrap",
+      "calibration"
+    ],
+    "AI": [
+      "LLM application development and evaluation",
+      "prompt engineering",
+      "Claude Code",
+      "Hugging Face",
+      "LLM APIs (OpenAI, Anthropic, Gemini)",
+      "BiomedCLIP vision-language embeddings",
+      "zero-shot classification and recalibration"
+    ],
+    "Visualization & Business Tools": [
+      "Tableau",
+      "Power BI",
+      "Excel",
+      "Canva",
+      "Blackbaud CRM",
+      "Jira",
+      "Smartsheet"
+    ]
+  },
+  "coursework": {
+    "Probability & Modeling": [
+      "Probability Modeling (STATS 400)",
+      "Applied Regression (STATS 402)",
+      "Linear Models (STATS 100C)",
+      "Mathematical Statistics (STATS 100B)",
+      "Probability (STATS 100A)",
+      "Statistical Models in Finance (STATS C183/C283)",
+      "Linear Algebra (MATH 33A)",
+      "Multivariable Calculus (MATH 32A/32B)"
+    ],
+    "Experiments & Consulting": [
+      "Experimental Design (STATS 419)",
+      "Advanced Statistical Communication (STATS 421)",
+      "Practice of Statistical Consulting (STATS 140XP/141XP)",
+      "Design and Analysis of Experiments (STATS 101B)"
+    ],
+    "Computing & Data": [
+      "Statistical Computing and Programming (STATS 404)",
+      "Data Management (STATS 405)",
+      "Tools in Data Science (STATS 418)",
+      "Computational Statistics with R (STATS 102A)",
+      "Computation and Optimization (STATS 102B)",
+      "Monte Carlo Methods (STATS 102C)",
+      "Statistical Programming with R (STATS 20)"
+    ],
+    "Machine Learning & NLP": [
+      "Deep Learning (STATS 426)",
+      "Large Language Models in Text Mining (STATS 425)",
+      "Statistical Models and Data Mining (STATS 101C)",
+      "Text Mining Using R (STATS 133)",
+      "Introduction to Digital Humanities (DGT HUM 101)"
+    ]
+  },
+  "extras": [
+    {
+      "title": "PAPERS AND PRESENTATIONS",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "items": [
+        "Singh, A. (2026). Ordinal Prediction of Chest Radiograph Urgency from Biomedical Vision-Language Model Embeddings: Penalized Cumulative-Logit Models, Calibration, and Conformal Uncertainty. M.S. thesis, University of California, Los Angeles. Chair: Xiaowu Dai.",
+        "Singh, A. (2024, Mar). Predicting Heart Failure: Actuarial Mortality Modeling. Solo research paper and slide presentation.",
+        "Chou, N., Davis, A., Mohammadinik, K., Singh, A., and Woo, M. (2024, Jun). Civic Engagement Survey Analysis. Final report and presentation, STATS 141XP: Statistical Consulting, UCLA.",
+        "Cortes-Aguiar, J., Madichetty, R., and Singh, A. (2026, Oct). The 99-Cent Question: Kalshi Prediction Markets. Midterm presentation, STATS 414, UCLA."
+      ]
+    },
+    {
+      "title": "LANGUAGES",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "text": "English, Hindi, Punjabi"
+    },
+    {
+      "title": "REFERENCES",
+      "sources": [
+        "Ashish_Singh_CV"
+      ],
+      "text": "Available upon request."
+    }
+  ],
+  "site_pages": {
+    "about": "About Me\nData scientist in training, proud Punjabi-American, and lifelong competitor.\nI am completing an M.S. in Applied Statistics and Data Science at UCLA after earning my B.S. in Statistics and Data Science. My work combines Python, R, SQL, Tableau, and statistical modeling to answer practical questions from complex data.\nI am looking for opportunities in Data Science, AI Engineering, ML Engineering, analytics, and related fields where I can build data pipelines, evaluate models, communicate insights, and help teams make better decisions.\nCulture\nProud Punjabi-American\nMy background keeps me grounded, family-oriented, and connected to a culture built on resilience, hospitality, and community.\nCompetition\nBasketball and Volleyball\nI play basketball in my free time and played volleyball from sophomore through senior year of high school, serving as captain during my sophomore and senior seasons.\nSports\nKings and 49ers Fan\nI ride with the Sacramento Kings and San Francisco 49ers, which has taught me equal parts loyalty, patience, and high-pressure optimism.\nFood\nAlways Trying Something New\nI love exploring new restaurants and cuisines, especially Indian, Japanese, and Mexican food.\nCommunity\nMentoring at UCLA DataFest\nI volunteered with UCLA faculty and MASDS students at ASA DataFest, a 48-hour data analysis competition where undergraduate teams dig into a complex real-world dataset, build insights, and present their findings. Helping students think through data problems reminded me why I enjoy collaborative, practical analytics work.\nUCLA DataFest with faculty and MASDS students after mentoring and volunteering with student teams.\nView Skills Contact Me",
+    "experience": "Experience\nApplied analytics, research, operations, and team leadership experience.\nWork across LLM evaluation, remote-sensing research, alumni data operations and reporting, and customer-facing team leadership. This page focuses on the roles behind the resume.\nOpen Resume View LinkedIn\nAI/ML and Research Experience\nLLM evaluation, spatial data, and modeling pipelines\nTechnical experience using large language models, statistical programming, geospatial data, preprocessing pipelines, and visual analysis.\nVetology (AI + Teleradiology)\nAI/ML Intern, LLM Evaluation\nJun 2026 - Aug 2026 | Los Angeles, California | Remote\nBuilt a Python application that used large language models (OpenAI GPT-4o-mini, temperature 0) to classify free-text veterinary radiology reports across 52 diagnostic conditions in three datasets (canine thorax 21, feline thorax 21, canine abdomen 10), scoring each condition in its own call with nine shared rules and JSON-configurable prompts.\nHand-scored 50 reports per dataset (150 total) to build a gold standard of 2,600 condition-level labels, and generated per-condition confusion matrices (accuracy, sensitivity, specificity) in Vetology's output template.\nValidated the pipeline with an offline keyword-heuristic baseline that scored 91%, 96%, and 88% accuracy on canine thorax, feline thorax, and canine abdomen, then showed those scores overstate performance: positives made up only 10%, 7%, and 4% of labels, so answering \"normal\" every time would score 90%, 93%, and 96%.\nFound that the legacy radiologist labels in the source files disagreed with the hand-scored gold standard in about 40% of canine thorax cells.\nConcluded that two limits drive the high scores: the gold standard came from a non-radiologist, and the data has few positive cases, so models can lean on negative predictions. Recommended a professional radiologist review of the gold standard and a fix for the class imbalance and negative bias before the next evaluation.\nRebuilt the original 231-line script with Claude Code as a modular package with five unit tests, eight-worker concurrency, and a response cache, replaced a hard-coded API key with environment variables, and documented how manual coding compared with AI-assisted development.\nShipped the codebase to GitHub with controls that keep Vetology data and credentials out of the repository, then presented the methodology, results, and recommendations to the Vetology team.\nVectorSurv (UCD)\nResearch Assistant\nAug 2024 - May 2025 | Davis, California\nCollaborated with a postdoctoral researcher and analytics team to analyze 8-band satellite imagery from 2020 to 2023 using R, producing an environmental risk assessment by interpreting statistical model outputs that identified high-risk areas for mosquito-borne disease exposure.\nDesigned and implemented data-preprocessing pipelines in R (raster, tidyverse) to extract, clean, and structure large-scale remote-sensing datasets, enabling faster downstream analysis for the project.\nPerformed geospatial and multispectral analysis in R and created ggplot2 visualizations that modeled spectral trends, revealing locations with suitable conditions for mosquito habitats and supporting targeted surveillance.\nData Analytics Experience\nData operations and reporting work\nWork where I cleaned raw submissions, loaded records into CRM systems, and turned alumni data into reports for campus departments.\nUCLA Alumni Association\nData Processing and Analysis Intern\nAug 2026 - Present | Los Angeles, California | Remote\nResolved 32 Jira tickets end to end, one per alumni event or report, cleaning raw Excel submissions with Python scripts in Spyder and loading hundreds of attendee records into Blackbaud CRM through mass-add imports.\nPulled alumni data from the university data warehouse with the team's shared Python reporting package, fixing Python and library version conflicts so the scripts ran reliably for departments across campus.\nCalculated alumni engagement metrics in Excel and designed department reports in Canva to UCLA brand standards, keeping Smartsheet trackers current so event hosts could follow each submission.\nGeneral Operations and Leadership Experience\nCustomer-facing, logistics, and team leadership roles\nWork that built my communication, accountability, operational discipline, and ability to lead in fast-moving environments.\nASUCLA\nPart-time | Los Angeles, California | On-site\nSenior Service Supervisor\nAug 2026 - Present\nLead cafe openings and closings, making sure opening and closing procedures are followed.\nAssist with building staff schedules, taking inventory, and ordering food stock and supplies.\nComplete daily sales reports, checking that register totals reconcile and catching any shortages.\nCustomer Service Supervisor\nJun 2026 - Aug 2026\nResolved service issues with customers while keeping service quality high.\nHelped train new hires while maintaining compliance with food safety laws and regulations.\nCustomer Service Representative\nJan 2026 - Jun 2026\nOperate the register, handling customer transactions and payments.\nPrep and cook food for customers in compliance with food safety regulations.\nOpen and close the cafe, following proper cleaning and opening/closing procedures.\nWork as a barista, preparing beverages per food safety standards and operating espresso/coffee equipment safely.\nYoloBerry Yogurt\nStore Lead\nMay 2025 - Sep 2025 | Davis, California | On-site\nManaged register operations, assisted customers, and addressed inquiries to support smooth day-to-day store operations.\nPrepared fruit and toppings, washed dishes, swept floors, and maintained cleanliness and organization standards.\nCommunicated with team members to lead a steady workflow in a fast-paced service environment.\nBluebird Limo Inc\nOffice Assistant\nDec 2019 - Sep 2025 | Woodland, California | Hybrid\nManaged vehicle maintenance and cleaning schedules to meet safety and quality standards.\nHandled customer inquiries and requests while maintaining a positive company reputation.\nAssigned and supervised drivers for reservations, coordinating schedules and operational needs.\nCostco Wholesale\nNight Merchandise Associate\nOct 2024 - Jan 2025 | Woodland, California | On-site\nRestocked warehouse freezer, coolers, and aisles to maintain product freshness and organization.\nAssisted members in finding wholesale products and improving their shopping experience.\nMaintained clean and safe working environments through sweeping, mopping, and recycling.\nAmazon\nProcessing Lead in Transportation Logistics\nAug 2020 - Jun 2022 | Vacaville, California | On-site\nTrained personnel in package processing software to support efficiency and compliance with company standards.\nLed a 12-person team to streamline processing operations, including delivery schedule coordination.\nResolved programming and processing errors with an analytical approach to troubleshooting and diagnosis.\nYMCA of the USA\nReferee and Coach\nNov 2018 - Aug 2020 | Woodland, California | On-site\nManaged sports games for children ages 5-12, ensuring safety, sportsmanship, and rule enforcement.\nOversaw team practices and scheduling to provide equal opportunities for kids to improve in sports.\nDeveloped leadership, communication, and organizational skills in a fast-paced environment.",
+    "skills": "Skills\nTechnical skills for data science, analytics, and machine learning work.\nProgramming & Querying\nPython (pandas, NumPy, scikit-learn, XGBoost, PyTorch, matplotlib), R (tidyverse, ggplot2), SQL (PostgreSQL, SQL Server)\nStatistics & Machine Learning\nGLMs, elastic-net and cumulative-logit models, tree ensembles, mixed models, Bayesian methods, neural networks, calibration, conformal prediction, bootstrap, experimental design\nData & Tools\nETL, data cleaning, Jupyter, Git/GitHub, AWS S3, Hugging Face, LLM APIs (OpenAI, Anthropic, Gemini), Blackbaud CRM, Jira\nVisualization & BI\nTableau, Power BI, Excel, ggplot2, Canva, report design\nView Projects About Me",
+    "projects": "Projects\nSelected data science, AI, and machine learning projects.\nML / AI Projects\nMachine learning, AI, and predictive modeling.\nPrediction Markets | Oct 2026 Details\nThe 99-Cent Question: Kalshi Prediction Markets\nAs part of a three-person team, analyzed 7.2M hourly Kalshi candles to test whether favorites priced at 90-99 cents win as often as their price implies. Compared price-only logistic, elastic-net, random forest, and XGBoost models on 10,351 favorites, and none beat the quoted price on test Brier score.\nDeep Learning | Jan 2026 - Mar 2026 Details\nPneumonia Detection with LLM & Deep Learning\nFine-tuned a large language model with CNN-based feature extraction to classify chest X-rays for pneumonia detection using PyTorch, torchvision, NumPy, augmentation, and normalization.\nActuarial ML | Jan 2024 - Mar 2024 Details\nPredicting Heart Failure\nCompared Logistic Regression, SGD SVM, and Random Forest models on a 368-patient heart failure dataset to assess mortality prediction, risk segmentation, underwriting relevance, and model governance for an actuarial audience.\nPredictive Modeling | Sep 2023 - Dec 2023 Details\nPredicting Alcoholic Status Using Person's Vitals\nCleaned and transformed data in R, then applied machine learning, predictive modeling, and data mining techniques to analyze factors contributing to alcoholism in a Kaggle analytics competition.\nNLP | Jan 2024 - Mar 2024 Details\nSentiment Analysis of Harry Potter and Star Wars\nScraped and compiled franchise scripts, then applied text mining and sentiment analysis to compare emotional tone, narrative structure, word frequency, sentiment trends, and thematic parallels.\nData Analytics / Science Projects\nAnalytics, dashboards, research, and applied data science.\nGeospatial Analytics | Aug 2024 - May 2025 Details\nRemote Sensing Risk Analysis\nAnalyzed 8-band satellite imagery with R, raster, tidyverse, and ggplot2 to identify environmental conditions associated with mosquito-borne disease exposure risk.\nData Visualization | Jan 2024 - Mar 2024 Details\nLos Angeles Crime Research\nBuilt an HTML research website, cleaned crime datasets, implemented Tableau dashboards, and used R web scraping packages like rvest and httr to analyze crime patterns and trends.\nSurvey Analytics | Apr 2024 - Jun 2024 Details\nCivic Engagement Survey Analysis\nCleaned and validated survey data with Python, pandas, and NumPy, then used NLTK, matplotlib, and sentiment analysis to study student responses and inform future Civic course development.\nDiscuss a Project View Experience"
+  }
+}

@@ -76,3 +76,29 @@ def difficulty_label(difficulty: int) -> str:
     """Display string, e.g. ``"Difficulty 7/10 · Hard"``."""
     d = validate_difficulty(difficulty)
     return f"Difficulty {d}/{DIFFICULTY_MAX} · {difficulty_band(d)}"
+
+
+# --- role from resume sources -------------------------------------------------------------
+# Project-based questions get their role from which resumes a source bullet appears on.
+DS_DOCUMENT_SUFFIX = "Data_Scientist"
+MLE_DOCUMENT_SUFFIX = "ML_AI_Engineer"
+
+
+def role_from_sources(sources: list[str] | set[str] | tuple[str, ...]) -> str:
+    """Only on a Data_Scientist resume -> "ds"; only on ML_AI_Engineer -> "mle";
+    on both of them, or on neither (e.g. CV-only) -> "both"."""
+    on_ds = any(s.endswith(DS_DOCUMENT_SUFFIX) for s in sources)
+    on_mle = any(s.endswith(MLE_DOCUMENT_SUFFIX) for s in sources)
+    if on_ds and not on_mle:
+        return "ds"
+    if on_mle and not on_ds:
+        return "mle"
+    return "both"
+
+
+def combine_roles(roles: list[str] | set[str] | tuple[str, ...]) -> str:
+    """"ds" or "mle" if every role is that value, otherwise (including empty) "both"."""
+    distinct = {validate_role(r) for r in roles}
+    if len(distinct) == 1:
+        return distinct.pop()
+    return "both"
