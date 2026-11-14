@@ -78,8 +78,10 @@ def difficulty_label(difficulty: int) -> str:
     return f"Difficulty {d}/{DIFFICULTY_MAX} · {difficulty_band(d)}"
 
 
-# --- role from resume sources -------------------------------------------------------------
-# Project-based questions get their role from which resumes a source bullet appears on.
+# --- provenance role hint from resume sources ---------------------------------------------
+# Records which resumes a profile bullet appears on (the bullet-level `role` in profile.json).
+# This is only a hint for the question generator: a question's role is assigned from what the
+# question tests (see CLAUDE.md, "Question metadata").
 DS_DOCUMENT_SUFFIX = "Data_Scientist"
 MLE_DOCUMENT_SUFFIX = "ML_AI_Engineer"
 

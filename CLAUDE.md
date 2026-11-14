@@ -35,8 +35,11 @@ Every question has `role` and `difficulty`, as defined in `prep/meta.py`:
 - `difficulty`: integer 1–10 (1 easiest). Bands: 1–3 Easy, 4–6 Medium, 7–8 Hard, 9–10 Expert.
 - Later phases add `observed_difficulty` learned from answer history. The authored `difficulty`
   is **never overwritten**.
-- Project-based questions get their role from which resumes the source bullet appears on:
-  only Data_Scientist → `ds`; only ML_AI_Engineer → `mle`; both, or neither (e.g. CV-only) → `both`.
+- Every question's role (ds|mle|both) is assigned from what the question tests: ds = statistics,
+  experimentation, analysis, interpreting and communicating results; mle = building, deploying,
+  scaling or evaluating ML/LLM systems and engineering practices; both = genuinely tests both.
+  For project questions, the source bullet's resume provenance (sources/role in profile.json) is
+  a hint passed to the generator, not the rule.
 
 ## Engineering rules
 - Every module gets pytest tests. Run `pytest` and `ruff check .` before finishing any task.
