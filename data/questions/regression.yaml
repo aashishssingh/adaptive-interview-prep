@@ -1,0 +1,390 @@
+questions:
+  - id: regression-0001
+    type: short_answer
+    role: ds
+    difficulty: 2
+    topic: regression
+    subtopic: interpreting coefficients
+    tags: [ols, interpretation, healthcare]
+    prompt: >-
+      In a linear regression of systolic blood pressure (mmHg) on BMI, age and sex, the BMI
+      coefficient is 0.8. Interpret it in one sentence.
+    est_minutes: 1
+    answer: Holding age and sex fixed, each one-unit higher BMI is associated with 0.8 mmHg higher average systolic blood pressure.
+    explanation: >-
+      A coefficient is the expected difference in the outcome per unit difference in the
+      predictor, with the other included predictors held constant. It is an association, not a
+      causal effect, unless the design supports causal interpretation. It describes averages,
+      not every individual.
+
+  - id: regression-0002
+    type: multiple_choice
+    role: ds
+    difficulty: 3
+    topic: regression
+    subtopic: logistic regression
+    tags: [logistic regression, odds ratio, insurance]
+    prompt: >-
+      In a logistic regression predicting whether a claim is fraudulent, the coefficient on
+      "claim filed within 30 days of policy start" is 0.69. What does it mean?
+    est_minutes: 2
+    options:
+      - The odds of fraud are about 2 times higher for such claims, holding other variables fixed.
+      - The probability of fraud is about 2 times higher for such claims.
+      - The probability of fraud is 0.69 higher for such claims.
+      - The odds of fraud are 69% higher for such claims.
+    answer_index: 0
+    explanation: >-
+      Logistic coefficients are on the log-odds scale: exp(0.69) ≈ 1.99, an odds ratio of about
+      2. The strongest distractor equates odds and probability. Doubling the odds roughly
+      doubles the probability only when the outcome is rare. At a 40% baseline, doubled odds
+      give about 57%, not 80%. "69% higher odds" misreads the log-odds coefficient as a
+      percentage change.
+
+  - id: regression-0003
+    type: coding_python
+    role: ds
+    difficulty: 4
+    topic: regression
+    subtopic: least squares
+    tags: [ols, closed form, implementation]
+    prompt: >-
+      Write simple_ols(x, y). It fits y = a + b·x by ordinary least squares and returns
+      [intercept, slope]. Do not use numpy. Raise ValueError if the lists differ in length, have
+      fewer than 2 points, or if x is constant.
+    hints:
+      - "slope = Σ(x − x̄)(y − ȳ) / Σ(x − x̄)²; intercept = ȳ − slope · x̄"
+    est_minutes: 8
+    function_name: simple_ols
+    starter_code: |
+      def simple_ols(x, y):
+          raise NotImplementedError
+    reference_solution: |
+      def simple_ols(x, y):
+          if len(x) != len(y) or len(x) < 2:
+              raise ValueError("need two equal-length lists with at least 2 points")
+          mx = sum(x) / len(x)
+          my = sum(y) / len(y)
+          sxx = sum((xi - mx) ** 2 for xi in x)
+          if sxx == 0:
+              raise ValueError("x is constant; slope is undefined")
+          sxy = sum((xi - mx) * (yi - my) for xi, yi in zip(x, y))
+          slope = sxy / sxx
+          return [my - slope * mx, slope]
+    test_cases:
+      - args: [[1, 2, 3, 4], [3, 5, 7, 9]]
+        expected: [1.0, 2.0]
+      - args: [[22, 25, 28, 31, 35], [118, 121, 127, 129, 136]]
+        expected: [87.30155642023344, 1.3793774319066154]
+      - args: [[0, 1], [5, 2]]
+        expected: [5.0, -3.0]
+      - args: [[1, 2, 3], [2, 2, 2]]
+        expected: [2.0, 0.0]
+      - args: [[3, 3, 3], [1, 2, 3]]
+        expected: {__raises__: ValueError}
+      - args: [[1, 2], [1]]
+        expected: {__raises__: ValueError}
+    explanation: >-
+      Minimizing Σ(y − a − bx)² gives the normal equations, whose solution is the centered
+      covariance over variance for the slope. The fitted line passes through (x̄, ȳ). A constant
+      x makes the denominator zero, so the slope is not identifiable. That is the
+      one-dimensional case of perfect multicollinearity.
+
+  - id: regression-0004
+    type: free_text
+    role: ds
+    difficulty: 4
+    topic: regression
+    subtopic: assumptions
+    tags: [ols assumptions, diagnostics, residuals]
+    prompt: >-
+      List the main assumptions of linear regression, how you would check each, and which of
+      them matter for prediction versus for inference (p-values, confidence intervals).
+    est_minutes: 7
+    model_answer: >-
+      (1) Linearity: the mean of y is linear in the predictors as specified. Check residuals
+      against fitted values and each predictor, and use splines if needed. (2) Independence of
+      errors. Check the design (clustering, repeated measures, time order) and residual
+      autocorrelation. (3) Homoscedasticity, or constant error variance. Check with a
+      scale-location plot, and use robust (HC) standard errors or transform if violated.
+      (4) Normality of errors, using a Q-Q plot. It matters mainly for small-sample inference;
+      with large n the CLT helps. (5) No perfect multicollinearity; check VIFs. (6) Exogeneity:
+      errors uncorrelated with the predictors (no omitted confounders or measurement error) if
+      coefficients are to be interpreted. For prediction, what matters most is linearity (a
+      correct functional form) and that new data resemble the training data. Independence and
+      homoscedasticity affect prediction intervals but not point predictions. For inference,
+      independence and homoscedasticity are crucial for valid standard errors, normality
+      matters in small samples, and exogeneity is crucial for interpreting coefficients.
+      Influential points (Cook's distance, leverage) can distort both.
+    rubric:
+      - "Lists linearity, independence, homoscedasticity, normality and no perfect multicollinearity"
+      - "Gives a concrete diagnostic for at least three assumptions (residual plots, Q-Q, VIF, autocorrelation)"
+      - "Distinguishes what matters for prediction vs inference"
+      - "Mentions remedies such as robust SEs, transformations or splines"
+      - "Mentions influential points or exogeneity/omitted variable bias"
+
+  - id: regression-0005
+    type: multiple_choice
+    role: ds
+    difficulty: 5
+    topic: regression
+    subtopic: count models
+    tags: [poisson regression, negative binomial, overdispersion, healthcare]
+    prompt: >-
+      You model the number of emergency visits per member per year. The mean is 0.8 and the
+      variance is 3.1. Members were enrolled for different lengths of time. Which model is most
+      appropriate?
+    est_minutes: 3
+    options:
+      - Negative binomial regression with log(months enrolled) as an offset
+      - Poisson regression with months enrolled as a predictor
+      - Linear regression on the visit count
+      - Logistic regression on any visit vs none
+    answer_index: 0
+    explanation: >-
+      The variance far exceeds the mean, so the data are overdispersed. A Poisson model would
+      understate the standard errors. The negative binomial (or a quasi-Poisson) model allows
+      extra variance. Varying exposure is handled with an offset, log(exposure), which models
+      the rate per unit time with its coefficient fixed at 1. The strongest distractor uses
+      Poisson, ignoring overdispersion, and includes exposure as a free covariate instead of an
+      offset. Logistic regression throws away count information.
+
+  - id: regression-0006
+    type: short_answer
+    role: ds
+    difficulty: 5
+    topic: regression
+    subtopic: glm offsets
+    tags: [glm, offset, exposure, insurance]
+    prompt: >-
+      In a Poisson GLM for auto claim counts, policies have different exposure (years in
+      force). How do you include exposure, and what does the model then estimate?
+    est_minutes: 2
+    answer: Add log(exposure) as an offset (coefficient fixed at 1); the model then estimates claim rates per policy-year.
+    explanation: >-
+      With a log link, log E[count] = log(exposure) + Xβ, so E[count]/exposure = exp(Xβ). The
+      coefficients describe multiplicative effects on the claim frequency per unit exposure.
+      Fitting exposure as a free predictor would let its coefficient deviate from 1 and mix
+      exposure with risk.
+
+  - id: regression-0007
+    type: free_text
+    role: ds
+    difficulty: 5
+    topic: regression
+    subtopic: multicollinearity
+    tags: [multicollinearity, vif, ridge]
+    prompt: >-
+      Two predictors in your cost model, number of prescriptions and number of chronic
+      conditions, have correlation 0.92. What happens to the regression, how do you detect it,
+      and what would you do about it?
+    est_minutes: 5
+    model_answer: >-
+      Strong collinearity makes the individual coefficients unstable. Their standard errors
+      inflate, signs can flip with small data changes, and each may look non-significant even
+      though jointly they matter. Predictions within the range of the training data are usually
+      still fine, because the model identifies the combined effect well. Detect it with the
+      correlation matrix and variance inflation factors (VIF > 5-10 is a common warning), with
+      condition numbers, and by watching coefficients change when one variable is dropped.
+      Remedies depend on the goal. For prediction, ridge regression or simply accepting it.
+      For interpretation, combine the variables into a single index, keep the one that answers
+      the business question, or report a joint test of both. Do not drop a variable just
+      because it is collinear if it is a needed confounder.
+    rubric:
+      - "Explains inflated SEs and unstable/sign-flipping coefficients"
+      - "Notes predictions can remain accurate despite unstable coefficients"
+      - "Detects with VIF or condition number (with a rough threshold)"
+      - "Offers goal-dependent remedies (ridge, combine variables, joint tests)"
+
+  - id: regression-0008
+    type: multiple_choice
+    role: ds
+    difficulty: 6
+    topic: regression
+    subtopic: interactions
+    tags: [interaction terms, interpretation]
+    prompt: >-
+      A model is fit as y = b0 + b1·treated + b2·female + b3·(treated × female) + error, with
+      binary treated and female. What is the treatment effect for female patients?
+    est_minutes: 2
+    options:
+      - b1 + b3
+      - b1
+      - b3
+      - b1 + b2 + b3
+    answer_index: 0
+    explanation: >-
+      For females (female = 1), moving from untreated to treated changes y by b1 + b3, because
+      b3 is how much the treatment effect differs for females. b1 alone is the effect for males
+      (female = 0), the strongest distractor. b1 + b2 + b3 is the difference between treated
+      females and untreated males, which mixes in the sex difference b2.
+
+  - id: regression-0009
+    type: free_text
+    role: ds
+    difficulty: 7
+    topic: regression
+    subtopic: bad controls
+    tags: [mediator, collider, causal inference, healthcare cost]
+    prompt: >-
+      To estimate the effect of a new surgical technique on total hospital cost, an analyst
+      regresses cost on technique and controls for length of stay "to make the comparison
+      fair". Why is this a problem? Give the general rule for choosing control variables.
+    est_minutes: 6
+    model_answer: >-
+      Length of stay is plausibly caused by the technique. A less invasive procedure shortens
+      stays, and shorter stays lower cost. LOS is therefore a mediator on the causal path.
+      Controlling for it blocks part of the effect and estimates only the direct effect not
+      through LOS, usually understating the total effect the business cares about. It can also
+      introduce collider bias: if LOS is also affected by unmeasured patient frailty, which also
+      affects cost, conditioning on LOS creates a spurious association between technique and
+      frailty. The rule: adjust for pre-treatment confounders, meaning common causes of
+      treatment and outcome. Do not adjust for variables affected by the treatment (mediators,
+      colliders, post-treatment variables). A causal DAG makes the choice explicit. Estimate
+      direct effects only with formal mediation analysis and its stronger assumptions.
+    rubric:
+      - "Identifies length of stay as a post-treatment mediator"
+      - "Explains that adjusting for it removes part of the total effect (biasing toward the direct effect)"
+      - "Mentions collider bias via unmeasured common causes of LOS and cost"
+      - "States the rule: adjust for pre-treatment confounders, not post-treatment variables"
+      - "Mentions a causal DAG or formal mediation analysis for direct effects"
+
+  - id: regression-0010
+    type: multiple_choice
+    role: ds
+    difficulty: 7
+    topic: regression
+    subtopic: separation
+    tags: [logistic regression, separation, firth, penalization]
+    prompt: >-
+      Fitting a logistic regression for a rare complication, the software warns that fitted
+      probabilities of 0 or 1 occurred. One coefficient is 24.7 with a standard error of 3,800.
+      What is happening, and what is the best fix?
+    est_minutes: 3
+    options:
+      - Quasi-complete separation; use penalized (Firth) logistic regression or another regularized/Bayesian fit
+      - Multicollinearity; drop one of the correlated predictors
+      - Overdispersion; switch to a negative binomial model
+      - The model has converged; the large coefficient just means a strong effect
+    answer_index: 0
+    explanation: >-
+      A predictor (or combination) perfectly separates outcomes for some observations, so the
+      MLE does not exist. The coefficient drifts toward infinity and the SE explodes. Wald tests
+      become meaningless. Firth's bias-reduced likelihood, ridge/L1 penalties, or weakly
+      informative priors give finite, sensible estimates. Use profile-likelihood intervals.
+      Collinearity also inflates SEs, but it does not produce fitted probabilities of exactly
+      0/1 with diverging coefficients.
+
+  - id: regression-0011
+    type: free_text
+    role: ds
+    difficulty: 8
+    topic: regression
+    subtopic: tweedie and frequency-severity models
+    tags: [tweedie, glm, insurance pricing, zero inflation]
+    prompt: >-
+      You need to model annual loss cost per auto policy. Most policies have $0 losses, and the
+      rest are continuous and right-skewed. Compare a frequency-severity approach with a single
+      Tweedie GLM. What link, distribution and offset choices would you make, and how would you
+      validate the model?
+    est_minutes: 10
+    model_answer: >-
+      Frequency-severity: model claim counts with a Poisson or negative binomial GLM, using a
+      log link and log(exposure) as an offset. Separately, model claim severity, given a claim,
+      with a gamma (or lognormal) GLM with a log link, on claims only. Expected loss cost is
+      frequency × severity. This shows which factors drive how often versus how big. A Tweedie
+      compound Poisson-gamma GLM with power 1 < p < 2 models pure premium directly. It has a
+      point mass at zero plus a continuous positive part, a log link and an exposure offset (or
+      weights). It is simpler and directly optimizes the target, but assumes the same
+      predictors act on frequency and severity in a linked way. Choose p by profile likelihood
+      or cross-validation (often 1.5-1.7). Large losses usually need capping or a separate
+      large-loss load, because one catastrophic claim can dominate the severity fit. Validate on
+      a holdout, with an out-of-time period if possible. Use lift charts and double-lift charts
+      against the current rating plan, Gini or Lorenz curves for segmentation, actual-to-
+      expected ratios by segment, and deviance. Check that predicted totals reconcile with
+      actual totals (balance) and that factors are stable over time.
+    rubric:
+      - "Describes frequency (Poisson/NB with exposure offset) × severity (gamma, claims only)"
+      - "Describes Tweedie compound Poisson-gamma with 1 < p < 2 and its zero mass"
+      - "Uses a log link and handles exposure correctly"
+      - "Addresses large-loss capping or loading"
+      - "Validates with holdout/out-of-time lift or double-lift charts, Gini, and actual-to-expected by segment"
+
+  - id: regression-0012
+    type: free_text
+    role: ds
+    difficulty: 9
+    topic: regression
+    subtopic: coefficient instability
+    tags: [simpson's paradox, confounding, model specification, causal reasoning]
+    prompt: >-
+      In a regression of 30-day readmission on a care-coordination program, the program's
+      coefficient is negative (protective) with no covariates, but positive after adding a
+      severity score. Leadership asks "which is the real answer?" Walk through the possible
+      explanations and how you would decide which model answers their question.
+    est_minutes: 12
+    model_answer: >-
+      Possible explanations: (1) Confounding. If sicker patients are enrolled more often and
+      severity raises readmission, the crude estimate is biased. But that would make the crude
+      estimate look harmful, not protective. Here the crude estimate looks protective, so
+      perhaps healthier patients were enrolled. Either way, the adjusted estimate removes
+      confounding by severity if severity is measured before enrollment. (2) Severity is
+      post-treatment. If the score was recorded after enrollment and the program changes it,
+      for example through more thorough documentation, it is a mediator or collider, and
+      adjusting biases the estimate. (3) Simpson's paradox from heterogeneous mixes across
+      severity strata. (4) Measurement error in severity, giving residual confounding.
+      (5) Model misspecification, such as a nonlinear severity effect or interactions, or small
+      cells and separation making the estimate unstable. (6) Selection: who gets enrolled and
+      who survives to be readmitted (death as a competing risk). To decide: write the causal
+      question (the effect of offering or enrolling), draw a DAG, and establish when severity
+      was measured. Adjust only for pre-enrollment confounders. Check overlap and stratified
+      estimates, and compare propensity-score and outcome-model estimates. Run sensitivity
+      analyses for unmeasured confounding. Report the estimate that matches the causal question
+      with its uncertainty, not whichever has the preferred sign. Recommend a randomized or
+      stepped-wedge rollout if the decision is consequential.
+    rubric:
+      - "Considers confounding by severity and reasons about the direction of bias"
+      - "Checks whether the severity score is pre- or post-treatment (mediator/collider risk)"
+      - "Mentions Simpson's paradox, measurement error, or misspecification as alternatives"
+      - "Uses a DAG and the causal question to choose the adjustment set"
+      - "Proposes diagnostics/sensitivity analyses and, if needed, a randomized design"
+
+  - id: regression-0013
+    type: free_text
+    role: both
+    difficulty: 10
+    topic: regression
+    subtopic: regulated pricing models
+    tags: [insurance pricing, glm vs gbm, fairness, interpretability, regulation]
+    prompt: >-
+      Design an auto-insurance pricing model that must be filed with regulators, be explainable
+      to customers, avoid unfair discrimination (including proxy discrimination), and still be
+      competitive. Compare GLM, GBM and hybrid approaches, and describe validation and fairness
+      testing.
+    est_minutes: 15
+    model_answer: >-
+      Regulators and customers need explainable, stable, monotonic rating factors, so a GLM
+      (Poisson or gamma, or Tweedie, with a log link) remains the backbone. It gives
+      multiplicative relativities that are easy to file and explain. GBMs capture
+      nonlinearities and interactions and usually win on lift, but they are harder to file and
+      explain. A common hybrid: use a GBM to discover interactions and nonlinear shapes, then
+      encode the useful ones into the GLM with splines, bands or interaction terms. Or fit the
+      GBM on GLM residuals with monotonic constraints and strong regularization, capping its
+      adjustment. Credibility: shrink thin segments toward broader groups with penalized GLMs
+      or hierarchical/credibility weighting. Fairness: exclude protected attributes, where the
+      law prohibits them. Test for proxy discrimination by checking whether rating variables
+      (credit, territory, vehicle) predict protected class and whether premiums differ across
+      groups after controlling for expected loss. Use controlled-for-proxy or
+      orthogonalization approaches where required. Document why each variable is causally or
+      actuarially justified. Validation: out-of-time holdout, lift and double-lift against the
+      current plan, Gini, actual-to-expected by segment and by protected-group proxies, stability
+      across years, rate dislocation analysis (how many customers see large changes), and
+      capping or transition rules. Also cover governance: model documentation, monitoring for
+      drift, and periodic re-filing.
+    rubric:
+      - "Explains why GLMs remain standard for filing (multiplicative, explainable relativities)"
+      - "Compares GBM strengths/weaknesses and proposes a concrete hybrid approach"
+      - "Addresses credibility/shrinkage for thin segments"
+      - "Tests for proxy discrimination, not just exclusion of protected attributes"
+      - "Validates with out-of-time lift/double-lift, Gini, and actual-to-expected by segment"
+      - "Mentions rate dislocation, monotonic constraints, or governance/monitoring"

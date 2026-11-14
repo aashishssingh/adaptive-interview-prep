@@ -99,7 +99,7 @@ def role_from_sources(sources: list[str] | set[str] | tuple[str, ...]) -> str:
 
 
 def combine_roles(roles: list[str] | set[str] | tuple[str, ...]) -> str:
-    """"ds" or "mle" if every role is that value, otherwise (including empty) "both"."""
+    """ "ds" or "mle" if every role is that value, otherwise (including empty) "both"."""
     distinct = {validate_role(r) for r in roles}
     if len(distinct) == 1:
         return distinct.pop()

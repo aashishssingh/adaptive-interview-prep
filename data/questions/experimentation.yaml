@@ -1,0 +1,374 @@
+questions:
+  - id: experimentation-0001
+    type: multiple_choice
+    role: ds
+    difficulty: 2
+    topic: experimentation
+    subtopic: randomization
+    tags: [randomization, confounding]
+    prompt: What is the main reason to randomly assign users to control and treatment in an A/B test?
+    est_minutes: 1
+    options:
+      - It balances both measured and unmeasured confounders between groups in expectation.
+      - It guarantees the two groups are identical on every covariate.
+      - It makes the sample representative of the whole population.
+      - It removes the need for a statistical test.
+    answer_index: 0
+    explanation: >-
+      Randomization makes treatment assignment independent of everything else, so differences
+      in outcomes can be attributed to the treatment, up to chance. It balances confounders in
+      expectation, including ones you never measured. The strongest distractor overstates this:
+      any single randomization can be imbalanced by chance, which is what statistical
+      inference accounts for. Representativeness is a different property, coming from random
+      sampling rather than random assignment.
+
+  - id: experimentation-0002
+    type: short_answer
+    role: ds
+    difficulty: 3
+    topic: experimentation
+    subtopic: experiment validity
+    tags: [a/a test, instrumentation, false positive rate]
+    prompt: What is an A/A test and what does it tell you?
+    est_minutes: 1
+    answer: Both groups get the same experience; it checks the platform's randomization, logging and false positive rate.
+    explanation: >-
+      With no real difference, about 5% of A/A tests should be significant at α = 0.05, and
+      traffic should split as configured. Too many significant results, or a sample ratio
+      mismatch, reveal bugs in assignment, logging or the variance calculation before they
+      corrupt real experiments.
+
+  - id: experimentation-0003
+    type: free_text
+    role: ds
+    difficulty: 4
+    topic: experimentation
+    subtopic: metrics
+    tags: [metric design, guardrails, healthcare]
+    prompt: >-
+      A telehealth company tests a new appointment-reminder text message intended to reduce
+      no-shows. Propose a primary metric, two guardrail metrics, and the randomization unit.
+      Justify each choice.
+    est_minutes: 6
+    model_answer: >-
+      Primary metric: the no-show rate per scheduled appointment, or the share of patients with
+      at least one no-show in the test window, attributed to the patient's assigned arm. It
+      maps directly to the goal and is sensitive to the change. Guardrails: (1) opt-out or
+      unsubscribe rate from texts, and patient complaints. (2) Same-day cancellations and
+      late-rescheduling rate: a reminder might shift no-shows into short-notice cancellations
+      that still waste slots. Also consider clinic utilization or appointment fill rate. Unit:
+      randomize by patient, not by appointment, because a patient with several appointments
+      would otherwise see both experiences. Analyze per patient, or per appointment with
+      cluster-robust standard errors. If clinic staff behavior could be affected, consider
+      clinic-level randomization. Pre-register the metric definitions and the test duration.
+    rubric:
+      - "Proposes a primary metric tied to no-shows with a clear denominator"
+      - "Gives two sensible guardrails (e.g., opt-outs/complaints, late cancellations, utilization)"
+      - "Chooses patient-level randomization and explains why not appointment-level"
+      - "Mentions analyzing at or adjusting for the randomization unit (cluster-robust SEs)"
+
+  - id: experimentation-0004
+    type: coding_python
+    role: ds
+    difficulty: 5
+    topic: experimentation
+    subtopic: sample ratio mismatch
+    tags: [srm, chi-square, data quality, implementation]
+    prompt: >-
+      Write srm_pvalue(control_n, treatment_n, treatment_share=0.5). It returns the p-value of a
+      chi-square goodness-of-fit test (1 degree of freedom) of the observed counts against the
+      expected split. Use only the standard library. For 1 degree of freedom,
+      p = erfc(sqrt(chi2 / 2)). Raise ValueError if the total is zero or treatment_share is not
+      strictly between 0 and 1.
+    hints:
+      - Expected counts are total × (1 − share) and total × share.
+    follow_ups:
+      - What p-value threshold would you use to alert on SRM, and why so strict?
+      - Name three common causes of SRM.
+    est_minutes: 10
+    function_name: srm_pvalue
+    starter_code: |
+      def srm_pvalue(control_n, treatment_n, treatment_share=0.5):
+          raise NotImplementedError
+    reference_solution: |
+      import math
+
+      def srm_pvalue(control_n, treatment_n, treatment_share=0.5):
+          total = control_n + treatment_n
+          if total <= 0:
+              raise ValueError("no users")
+          if not 0 < treatment_share < 1:
+              raise ValueError("treatment_share must be in (0, 1)")
+          exp_c = total * (1 - treatment_share)
+          exp_t = total * treatment_share
+          chi2 = (control_n - exp_c) ** 2 / exp_c + (treatment_n - exp_t) ** 2 / exp_t
+          return math.erfc(math.sqrt(chi2 / 2))
+    test_cases:
+      - args: [5000, 5000]
+        expected: 1.0
+      - args: [50000, 51000]
+        expected: 0.001651898732357364
+      - args: [10120, 9880]
+        expected: 0.08968602177036462
+      - kwargs: {control_n: 20000, treatment_n: 10000, treatment_share: 0.3333333333333333}
+        expected: 1.0
+      - args: [8000, 1950, 0.2]
+        expected: 0.3160976220289126
+      - args: [0, 0]
+        expected: {__raises__: ValueError}
+      - args: [10, 10, 1.0]
+        expected: {__raises__: ValueError}
+    explanation: >-
+      SRM compares the observed split with the configured one. A tiny p-value (platforms often
+      use p < 0.001 to limit false alarms across many experiments) means assignment or logging
+      is broken: bot filtering that differs by arm, redirects that lose users, crashes in one
+      variant, or late triggering. The effect estimate should not be trusted until the cause is
+      found. Note that 50,000 vs 51,000 looks close but is a clear SRM at that scale.
+
+  - id: experimentation-0005
+    type: multiple_choice
+    role: ds
+    difficulty: 5
+    topic: experimentation
+    subtopic: novelty and primacy effects
+    tags: [novelty effect, time effects]
+    prompt: >-
+      A redesigned claims-status page shows a +8% engagement lift in week 1, shrinking to +2% by
+      week 4. What is the best way to check whether this is a novelty effect?
+    est_minutes: 3
+    options:
+      - Plot the treatment effect by days since each user's first exposure, and compare new users with returning users.
+      - Run the test for one more week and report the cumulative average lift.
+      - Increase the sample size so the week-1 estimate is more precise.
+      - Switch to a one-sided test, since the effect is positive.
+    answer_index: 0
+    explanation: >-
+      A novelty effect decays with exposure time for existing users, while new users see no
+      "novelty" relative to an old design. Splitting by days since first exposure, and by new
+      vs returning users, separates true long-run effect from transient curiosity. The
+      cumulative average (the strongest distractor) mixes early and late periods and hides the
+      trend. More sample does not fix a time-varying effect.
+
+  - id: experimentation-0006
+    type: short_answer
+    role: ds
+    difficulty: 5
+    topic: experimentation
+    subtopic: variance reduction
+    tags: [cuped, variance reduction, covariates]
+    prompt: >-
+      With CUPED, the pre-experiment metric has correlation ρ = 0.7 with the in-experiment
+      metric. What fraction of the original variance remains after adjustment?
+    hints:
+      - The optimal adjustment removes the share of variance explained by the covariate.
+    est_minutes: 2
+    answer: 1 − ρ² = 1 − 0.49 = 0.51 (about a 49% variance reduction)
+    explanation: >-
+      CUPED uses Y_adj = Y − θ(X − mean(X)) with θ = Cov(Y, X)/Var(X). Then
+      Var(Y_adj) = Var(Y)(1 − ρ²). With ρ = 0.7, 51% of the variance remains, so the same
+      precision needs roughly half the sample. Using pre-period data keeps the adjustment
+      unbiased, because X cannot be affected by the treatment.
+
+  - id: experimentation-0007
+    type: free_text
+    role: ds
+    difficulty: 6
+    topic: experimentation
+    subtopic: sequential testing
+    tags: [peeking, optional stopping, sequential testing]
+    prompt: >-
+      A product manager checks the A/B test dashboard daily and wants to stop as soon as
+      p < 0.05. Explain why this is a problem, roughly how bad it is, and two principled ways to
+      allow early stopping.
+    est_minutes: 6
+    model_answer: >-
+      A fixed-horizon test controls type I error at 5% only if you analyze once, at the planned
+      sample size. Checking repeatedly and stopping at the first p < 0.05 gives the noise many
+      chances to cross the threshold. The false positive rate rises well above 5%: roughly 20%
+      or more with daily peeks over a few weeks, and toward 100% with unlimited peeking. Early
+      "wins" also overestimate the effect (a winner's curse). Principled options: (1) Group
+      sequential designs with an alpha-spending function (O'Brien-Fleming or Pocock
+      boundaries), with a fixed number of interim looks at stricter thresholds that preserve
+      overall α. (2) Always-valid inference, such as the mixture sequential probability ratio
+      test or confidence sequences, which allow continuous monitoring with valid error control.
+      Bayesian monitoring with a decision rule is another option, but its frequentist error
+      rates must still be checked by simulation. Also pre-commit to the minimum duration (whole
+      weeks, to cover weekly cycles).
+    rubric:
+      - "Explains repeated looks inflate type I error beyond 5%"
+      - "Gives a rough magnitude (substantially above 5%, growing with more looks)"
+      - "Mentions effect overestimation when stopping early on significance"
+      - "Describes group sequential/alpha-spending designs"
+      - "Describes always-valid methods (mSPRT, confidence sequences) or a properly calibrated Bayesian rule"
+
+  - id: experimentation-0008
+    type: free_text
+    role: ds
+    difficulty: 7
+    topic: experimentation
+    subtopic: simpson's paradox
+    tags: [simpson's paradox, ramp-up, traffic allocation]
+    prompt: >-
+      A test ran for two weeks with similar traffic each week. In week 1, treatment got 10% of
+      traffic. In week 2 it was ramped to 50%. Week 2 traffic came mostly from a broad
+      marketing campaign and converts at a much lower baseline rate. Treatment beat control
+      within each week, but the pooled analysis shows treatment losing. Explain what happened
+      and how to analyze it correctly.
+    est_minutes: 7
+    model_answer: >-
+      This is Simpson's paradox caused by allocation changing over time. With equal weekly
+      traffic N, treatment gets 0.1N users in week 1 and 0.5N in week 2, so about 83% of
+      treatment users come from the low-converting week 2. Control gets 0.9N and 0.5N, so only
+      about 36% of its users come from week 2. The pooled comparison mixes the treatment effect
+      with the week's baseline rate. Treatment is weighted toward the bad week, so its pooled
+      rate is dragged down and the sign flips. Correct analysis: treat week as a stratum. Estimate the effect within each week and
+      combine with weights that do not depend on allocation, such as the number of users per
+      week (or a regression with week fixed effects, or Cochran-Mantel-Haenszel). Better still,
+      avoid the issue by design. Analyze only the period after the final ramp, or keep the
+      allocation ratio constant and ramp by experiment eligibility instead. Also check that
+      users were not re-randomized on ramp, which would cause SRM and contamination.
+    rubric:
+      - "Identifies Simpson's paradox from time-varying allocation confounded with baseline rate"
+      - "Explains why the pooled arms are drawn from different week mixes"
+      - "Proposes stratified analysis by period (week fixed effects/CMH/user-weighted combination)"
+      - "Suggests a design fix (constant allocation ratio, analyze post-ramp only)"
+      - "Mentions checking for re-randomization or contamination during the ramp"
+
+  - id: experimentation-0009
+    type: multiple_choice
+    role: ds
+    difficulty: 7
+    topic: experimentation
+    subtopic: interference
+    tags: [sutva, interference, cluster randomization, switchback]
+    prompt: >-
+      A hospital system tests a new nurse-scheduling algorithm that assigns float nurses across
+      units in real time. Treated units draw from the same pool of float nurses as control
+      units. Which design best addresses the resulting bias?
+    est_minutes: 4
+    options:
+      - Randomize at the hospital level, or alternate the algorithm on and off over time periods (a switchback design), so treated and control units do not share the float pool at the same time
+      - Randomize individual units and include unit size as a regression covariate
+      - Randomize individual nurses to the algorithm
+      - Run a larger unit-level test so the interference averages out
+    answer_index: 0
+    explanation: >-
+      Treated and control units compete for the same float nurses, so treatment changes control
+      outcomes. That violates SUTVA, and the unit-level difference is biased, often
+      exaggerating the effect, as treatment "steals" resources from control. Randomizing at a
+      level where the shared resource is not split (whole hospitals), or switching all units
+      between regimes over time, removes the interference, at the cost of fewer effective units
+      and more variance. Covariate adjustment and larger samples do not remove the bias.
+
+  - id: experimentation-0010
+    type: free_text
+    role: ds
+    difficulty: 8
+    topic: experimentation
+    subtopic: ratio metrics
+    tags: [delta method, ratio metrics, unit of analysis]
+    prompt: >-
+      Users are randomized, but the metric is revenue per session, and users have very
+      different numbers of sessions. An analyst runs a t-test treating each session as an
+      independent observation. What is wrong, and how should the variance be computed?
+    est_minutes: 8
+    model_answer: >-
+      The randomization unit is the user, but the analysis treats sessions as independent.
+      Sessions from the same user are correlated, so the session-level variance underestimates
+      the true variance and the false positive rate is inflated. Revenue per session is a ratio
+      of two per-user sums: R = Σ revenue_u / Σ sessions_u. The denominator is random too, and
+      can differ between arms if the treatment changes session counts. Correct variance: treat
+      users as i.i.d. and use the delta method for the ratio of means. For R = Ȳ/X̄,
+      Var(R) ≈ (1/n)(Var(Y)/X̄² − 2Ȳ Cov(Y,X)/X̄³ + Ȳ² Var(X)/X̄⁴), using per-user totals Y and
+      X. Alternatively, run a user-level bootstrap. Also check whether the treatment changes the
+      number of sessions. If it does, revenue per session can move in a misleading direction
+      (for example, more but lower-value sessions), so report revenue per user too.
+    rubric:
+      - "Identifies the mismatch between randomization unit (user) and analysis unit (session)"
+      - "Explains correlated sessions make the naive variance too small"
+      - "Frames the metric as a ratio of per-user sums with a random denominator"
+      - "Uses the delta method (or user-level bootstrap) for the variance"
+      - "Warns that treatment-induced changes in the denominator can mislead; suggests per-user metrics"
+
+  - id: experimentation-0011
+    type: free_text
+    role: ds
+    difficulty: 9
+    topic: experimentation
+    subtopic: quasi-experiments
+    tags: [difference-in-differences, synthetic control, insurance, causal inference]
+    prompt: >-
+      An insurer can't randomize a premium discount for a telematics program. Regulators
+      approved it in 6 states starting in March. Leadership wants to know the effect on policy
+      retention. Design the analysis, state its assumptions, and explain how you would try to
+      falsify them.
+    est_minutes: 12
+    model_answer: >-
+      Use a difference-in-differences design. Compare the change in retention before and after
+      March in the 6 treated states with the change in untreated states, ideally at the policy
+      level with state and month fixed effects. The key assumption is parallel trends: absent
+      the discount, treated and control states' retention would have moved together. Also
+      assume no anticipation and no spillovers (customers moving or competitors reacting across
+      states), plus a stable composition of the policy pool. Falsification: event-study plots
+      showing flat pre-period differences, placebo tests with fake start dates and placebo
+      outcomes the discount should not affect, and checks for other simultaneous state-level
+      changes (rate filings, competitor entry). With few treated units, inference is delicate.
+      Use cluster-robust errors at the state level, wild cluster bootstrap, or permutation
+      inference across states. Synthetic control builds a weighted combination of control
+      states matching each treated state's pre-period trajectory, which is useful if parallel
+      trends is doubtful. Selection is another issue: only some customers opt into telematics.
+      Distinguish the effect of offering the program (intention to treat) from the effect of
+      enrolling, which needs an instrument or principal-stratification assumptions. Report the
+      sensitivity of results to the choice of control states.
+    rubric:
+      - "Proposes difference-in-differences (with fixed effects) or synthetic control"
+      - "States the parallel-trends, no-anticipation and no-spillover assumptions"
+      - "Proposes falsification: pre-trend event study, placebo dates/outcomes"
+      - "Addresses inference with few treated clusters (cluster bootstrap, permutation)"
+      - "Distinguishes the effect of offering the program from the effect of enrolling (self-selection)"
+
+  - id: experimentation-0012
+    type: free_text
+    role: both
+    difficulty: 10
+    topic: experimentation
+    subtopic: experimentation platforms
+    tags: [experimentation platform, long-term effects, surrogates, holdouts, interaction effects]
+    prompt: >-
+      You are asked to design the experimentation strategy and platform for a health-insurance
+      member app running ~50 concurrent experiments. Leadership cares about 12-month retention
+      and health outcomes, which take too long to measure in a 2-week test. How do you design
+      assignment, metrics, analysis and governance so decisions are fast but not wrong in the
+      long run?
+    follow_ups:
+      - How do you validate that a short-term metric is a good surrogate?
+      - When would you worry about interactions between concurrent experiments?
+    est_minutes: 15
+    model_answer: >-
+      Assignment: deterministic hashing of a stable member ID with per-experiment salts, so
+      assignment is reproducible and experiments are orthogonal. Use exclusion layers for
+      experiments that touch the same surface. Exposure logging should fire only when a member
+      actually encounters the change (triggered analysis), and automatic SRM checks should run
+      on every experiment. Metrics: a hierarchy of decision metrics (sensitive, short-term
+      proxies such as engagement with care-gap reminders), guardrails (complaints, call volume,
+      unsubscribes, latency), and long-term north-star metrics. Validate surrogates
+      empirically. Check across past experiments whether short-term effects predict long-term
+      effects, using surrogate indices or meta-analysis, rather than assuming they do. Long-run
+      protection: keep a persistent holdout (for example, 2-5% of members who receive no
+      launched changes) to measure the cumulative effect of the program on retention and health
+      outcomes. Also run long-running holdbacks for major launches. Analysis: variance
+      reduction (CUPED), correct units and delta-method variances, sequential testing for
+      monitoring, multiple-testing awareness across many metrics, and heterogeneous-effect
+      analysis with care (pre-registered segments, shrinkage). Interactions: default to
+      assuming additivity, but test for pairwise interactions between overlapping experiments
+      and isolate high-risk ones. Governance: pre-registration of hypotheses and primary
+      metrics, an experiment review board, automated scorecards, a launch decision framework,
+      and an ethics and regulatory review. Health-related changes need clinical sign-off and
+      equity checks across subgroups.
+    rubric:
+      - "Describes assignment infrastructure (stable hashing, layers/exclusion, exposure logging, SRM checks)"
+      - "Defines a metric hierarchy with guardrails and explains validating short-term surrogates"
+      - "Uses long-term holdouts/holdbacks to measure cumulative and long-run effects"
+      - "Covers analysis rigor (variance reduction, correct units, sequential testing, multiplicity)"
+      - "Addresses interactions between concurrent experiments"
+      - "Includes governance: pre-registration, review, ethics/equity checks for health changes"

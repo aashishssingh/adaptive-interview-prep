@@ -1,0 +1,304 @@
+questions:
+  - id: behavioral-0001
+    type: free_text
+    role: both
+    difficulty: 2
+    topic: behavioral
+    subtopic: learning and adaptability
+    tags: [star, learning, adaptability]
+    prompt: Tell me about a time you had to learn a new tool or technique quickly to deliver something.
+    hints:
+      - Pick one specific example and quantify how fast and what you delivered.
+    follow_ups:
+      - How did you know you had learned it well enough to rely on?
+      - What would you do differently next time?
+    est_minutes: 4
+    model_answer: >-
+      Structure the answer as STAR. Situation: a concrete context with a deadline. Task: what
+      you were responsible for and why the new tool was needed. Action: how you learned it
+      (official docs, a small prototype, asking an expert, reading existing code), how you
+      checked your understanding (tests, comparing against a known result), and how you managed
+      the risk of using something new. Result: what shipped and when, ideally with a number,
+      plus what you would reuse. Fictional sketch: "Our team needed a dashboard of claim
+      backlogs in two weeks, in a BI tool I had never used. I rebuilt one existing report in
+      the tool on day one to learn the data model, paired with an analyst for an hour on
+      filters, and validated my numbers against the existing SQL. We shipped on day nine, and
+      the backlog report cut a weekly manual process from 3 hours to 10 minutes." Interviewers
+      listen for a structured learning approach, ownership, validation rather than blind
+      trust, and reflection.
+    rubric:
+      - "Situation and task are specific, with a real constraint (deadline, stakes)"
+      - "Actions describe a deliberate learning strategy and use first-person 'I'"
+      - "Shows validation of the new work (tests, cross-checks) rather than blind trust"
+      - "Result is concrete and preferably quantified"
+      - "Includes reflection or a transferable lesson"
+
+  - id: behavioral-0002
+    type: free_text
+    role: both
+    difficulty: 3
+    topic: behavioral
+    subtopic: accountability
+    tags: [star, mistakes, accountability]
+    prompt: Tell me about a time you made a mistake in an analysis or in code. How did you handle it?
+    follow_ups:
+      - How did you communicate it, and to whom?
+      - What process change came out of it?
+    est_minutes: 5
+    model_answer: >-
+      Pick a real but recoverable mistake and own it plainly. Situation and task: what you were
+      producing and for whom. The mistake: state it directly ("I joined on the wrong date
+      column, so last month's numbers double counted refunds"). Action: how you discovered it,
+      how quickly you told the affected people, how you assessed the impact, how you fixed it,
+      and how you verified the fix. Result: the corrected outcome, and above all the systemic
+      change (a test, a checklist, a review step) that prevents a repeat. Fictional sketch: "I
+      noticed my retention numbers jumped on a dashboard refresh, traced it to my join
+      duplicating rows, told my manager and the two report consumers that afternoon, published
+      a corrected version with a note, and added a row-count test to the pipeline. It has
+      caught two similar issues since." Interviewers listen for honesty without excuses or
+      blame, speed and transparency of communication, impact assessment, and learning that
+      became process.
+    rubric:
+      - "Describes a real mistake clearly and takes ownership without blaming others"
+      - "Explains how it was detected and how impact was assessed"
+      - "Shows prompt, transparent communication to affected stakeholders"
+      - "Describes the fix and its verification"
+      - "Ends with a systemic prevention (test, checklist, review) and reflection"
+
+  - id: behavioral-0003
+    type: free_text
+    role: ds
+    difficulty: 4
+    topic: behavioral
+    subtopic: communication
+    tags: [star, stakeholder communication, data storytelling]
+    prompt: >-
+      Tell me about a time you explained a complex technical result to a non-technical
+      audience. How did you make sure they understood and could act on it?
+    follow_ups:
+      - What did you leave out, and why?
+      - How did you handle questions you could not answer on the spot?
+    est_minutes: 5
+    model_answer: >-
+      Situation and task: who the audience was, what decision they faced, and why the result
+      was hard (uncertainty, counterintuitive findings, statistical nuance). Action: start from
+      the decision and the answer ("bottom line first"), translate the metrics into their terms
+      (dollars, patients, hours), and use one clear visual instead of a model summary. Express
+      uncertainty plainly ("likely between X and Y"), anticipate their main objection, and
+      check understanding by asking what they would do with the result. Keep the technical
+      appendix ready for follow-ups. Result: the decision that was made, and evidence that
+      they understood it. Fictional sketch: "A model showed the readmission program helped only
+      high-risk patients. Instead of coefficients, I showed one chart of readmissions avoided
+      per 100 patients by risk tier, with ranges. The clinical director chose to target the
+      program, saving about 30% of its cost." Interviewers listen for audience awareness,
+      clarity, honest communication of uncertainty, and impact on a decision.
+    rubric:
+      - "Identifies the audience and the decision they needed to make"
+      - "Leads with the conclusion and translates results into business or clinical terms"
+      - "Communicates uncertainty honestly without jargon"
+      - "Checks understanding or adapts to questions"
+      - "States the resulting decision or impact"
+
+  - id: behavioral-0004
+    type: free_text
+    role: both
+    difficulty: 5
+    topic: behavioral
+    subtopic: conflict and collaboration
+    tags: [star, disagreement, collaboration]
+    prompt: >-
+      Tell me about a time you disagreed with a teammate or manager about a technical approach.
+      What happened?
+    follow_ups:
+      - What would have made you change your mind?
+      - How is your relationship with that person now?
+    est_minutes: 5
+    model_answer: >-
+      Situation and task: the decision at stake and the two positions, described fairly. Show
+      that you understood the other person's reasons. Action: how you made the disagreement
+      productive. Clarify the shared goal, make the tradeoffs explicit, and propose a way to
+      decide with evidence (a quick benchmark, a small pilot, criteria agreed upfront). Raise
+      it in the right forum, and disagree and commit if the decision goes the other way.
+      Result: what was decided, how it turned out, and what you learned, including if you were
+      wrong. Fictional sketch: "My lead wanted a deep model for claim triage, and I favored
+      gradient boosting given the 3-week timeline. I proposed a 2-day bake-off on the same
+      validation split, with latency and explainability as agreed criteria. Boosting was within
+      0.5 AUC points and much cheaper to serve, so we shipped it and kept the deep model as a
+      later experiment." Interviewers listen for respect, curiosity about the other view,
+      evidence-based resolution, and maturity about outcomes.
+    rubric:
+      - "Presents both positions fairly, showing understanding of the other view"
+      - "Focuses on shared goals and makes tradeoffs explicit"
+      - "Proposes an evidence-based way to resolve the disagreement"
+      - "Shows professional behavior (right forum, disagree and commit)"
+      - "Gives the outcome and a lesson, including openness to being wrong"
+
+  - id: behavioral-0005
+    type: free_text
+    role: both
+    difficulty: 6
+    topic: behavioral
+    subtopic: ambiguity and prioritization
+    tags: [star, ambiguity, prioritization, scoping]
+    prompt: >-
+      Tell me about a time you were given a vague request with a tight deadline. How did you
+      decide what to build, and what did you deliberately not do?
+    follow_ups:
+      - How did you confirm you were solving the right problem?
+      - How did you communicate the tradeoffs?
+    est_minutes: 6
+    model_answer: >-
+      Situation and task: the request as given ("figure out why claims costs are up"), the
+      deadline, and the stakeholder. Action: turn ambiguity into a concrete question by asking
+      what decision the work would inform, what "done" means, and what would change their mind.
+      Write a short scope note with explicit non-goals. Prioritize by value and effort: deliver
+      a rough first answer early (a cost-driver decomposition by service line) and iterate with
+      the stakeholder rather than disappear for weeks. Flag risks and assumptions. Say what you
+      dropped and why (a predictive model was out of scope for the deadline). Result: what was
+      delivered, how it was used, and what follow-up work was queued. Interviewers listen for
+      structured scoping, early alignment, explicit tradeoffs, incremental delivery, and
+      judgment about what not to do.
+    rubric:
+      - "Shows how the vague request was clarified into a concrete question tied to a decision"
+      - "Defines scope and explicit non-goals"
+      - "Prioritizes by value/effort and delivers incrementally with stakeholder check-ins"
+      - "Communicates tradeoffs, risks and assumptions"
+      - "States the outcome and any follow-up"
+
+  - id: behavioral-0006
+    type: free_text
+    role: ds
+    difficulty: 7
+    topic: behavioral
+    subtopic: integrity
+    tags: [star, ethics, pushing back, metrics integrity]
+    prompt: >-
+      Tell me about a time a stakeholder wanted you to present data in a way you thought was
+      misleading, or to reach a conclusion the data did not support. What did you do?
+    follow_ups:
+      - What if they had insisted?
+      - How did you keep the relationship intact?
+    est_minutes: 6
+    model_answer: >-
+      Situation and task: the stakeholder's goal (for example, showing a program's success to
+      leadership) and the specific problem: a cherry-picked time window, a truncated axis, a
+      correlation presented as causation, or ignoring a failed subgroup. Action: assume good
+      intent and understand the pressure they were under. Explain concretely why the framing
+      misleads and what risk it creates for them (leadership decisions, credibility, regulatory
+      exposure). Offer an honest alternative that still serves their goal, such as presenting
+      the real effect with its uncertainty and highlighting where the program did work. If
+      pressure continues, escalate appropriately and document. Do not compromise on accuracy.
+      Result: what was presented, how it was received, and the effect on trust. Interviewers
+      listen for integrity combined with tact: holding the line on truth while staying
+      collaborative and solution-oriented.
+    rubric:
+      - "Describes the specific misleading request concretely"
+      - "Shows empathy for the stakeholder's goal and pressure"
+      - "Explains the risk of the misleading framing in the stakeholder's terms"
+      - "Offers an honest alternative that still serves the legitimate goal"
+      - "Holds the line on accuracy, with appropriate escalation if needed, and states the outcome"
+
+  - id: behavioral-0007
+    type: free_text
+    role: mle
+    difficulty: 8
+    topic: behavioral
+    subtopic: ownership in production
+    tags: [star, incident, production, ownership, postmortem]
+    prompt: >-
+      Tell me about a time a model, pipeline or system you owned failed in production. Walk me
+      through what happened, what you did, and what changed afterwards.
+    follow_ups:
+      - How did you decide between a quick fix and a proper fix?
+      - What did the postmortem change at the team level?
+    est_minutes: 7
+    model_answer: >-
+      Situation: the system, its users and the failure's impact (for example, a nightly scoring
+      job silently produced stale scores for three days, and investigators worked an outdated
+      queue). Task: your role, whether owner, on-call or the person who noticed. Action:
+      immediate mitigation first (roll back, rerun, inform affected teams with an ETA), then
+      root-cause analysis with evidence (logs, data diffs, which check failed or did not
+      exist), then a durable fix. Distinguish the trigger (an upstream schema change) from the
+      underlying gap (no freshness or volume monitoring, failures that did not alert). Result:
+      restored service, quantified impact, and lasting changes: alerts, data validation, a
+      runbook, ownership clarity, a blameless postmortem shared with the team. Interviewers
+      listen for calm prioritization (mitigate, then diagnose, then prevent), technical depth
+      in the diagnosis, clear communication during the incident, and systemic rather than
+      superficial fixes. They also listen for ownership without defensiveness.
+    rubric:
+      - "Clearly describes the failure, its detection and its impact"
+      - "Prioritizes mitigation and stakeholder communication before full diagnosis"
+      - "Shows technical root-cause analysis distinguishing trigger from underlying gap"
+      - "Implements systemic prevention (monitoring, validation, runbooks, postmortem)"
+      - "Demonstrates ownership and reflection without blame"
+
+  - id: behavioral-0008
+    type: free_text
+    role: both
+    difficulty: 9
+    topic: behavioral
+    subtopic: influence without authority
+    tags: [star, influence, cross-functional, leadership]
+    prompt: >-
+      Tell me about a time you changed a decision made by people more senior than you, or in
+      another team, without any authority over them.
+    follow_ups:
+      - Who resisted, and why?
+      - What did you do when your first attempt did not work?
+    est_minutes: 8
+    model_answer: >-
+      Situation: an existing decision or plan with real momentum, and why it mattered (for
+      example, a planned launch of a pricing change based on a flawed analysis). Task: why you
+      felt responsible to act despite lacking authority. Action: build the case with evidence
+      tailored to each stakeholder's incentives (finance cares about margin, product about
+      growth, compliance about risk). Find allies and pre-socialize individually before any
+      group meeting. Reduce the cost of changing course by offering a pilot, a phased rollout,
+      or a quick analysis that settles the question. Address objections directly. Adapt when
+      the first approach fails. Result: the decision changed (or was improved), with measurable
+      impact, and the relationships stayed strong. Interviewers listen for stakeholder mapping,
+      persuasion through evidence and empathy rather than escalation, persistence with
+      adaptability, and humility about what others knew.
+    rubric:
+      - "Explains the stakes and why acting without authority was warranted"
+      - "Maps stakeholders and tailors evidence to their incentives"
+      - "Uses tactics such as pre-socializing, allies, and lowering the cost of change (pilots)"
+      - "Adapts after setbacks and handles objections directly"
+      - "States a measurable outcome and preserved relationships"
+
+  - id: behavioral-0009
+    type: free_text
+    role: both
+    difficulty: 10
+    topic: behavioral
+    subtopic: high-stakes judgment
+    tags: [star, judgment, incomplete information, ethics, tradeoffs]
+    prompt: >-
+      Tell me about the hardest high-stakes decision you made with incomplete data, where
+      different people's interests conflicted (for example, speed vs safety, revenue vs
+      fairness). How did you decide, and how do you know whether it was right?
+    follow_ups:
+      - What information would have changed your decision?
+      - Looking back, what was the actual outcome, and what did you learn about your judgment?
+    est_minutes: 10
+    model_answer: >-
+      Situation: a decision with real consequences, such as whether to deploy a risk model
+      that improved accuracy overall but performed worse for one patient group, under deadline
+      pressure from leadership. Task: your decision rights and who else was involved. Action:
+      lay out the options and their consequences for each stakeholder. Separate what was known
+      from what was assumed. Quantify the uncertainty, and estimate the cost of being wrong in
+      each direction, recognizing asymmetric and irreversible harms. Seek the missing
+      information that could be obtained quickly, and decide on a timebox for the rest. Involve
+      the right people (clinical, legal, affected users) and make the reasoning transparent.
+      Choose a reversible or staged path where possible: deploy with guardrails, subgroup
+      monitoring, human review for the affected group, and pre-defined rollback criteria.
+      Document the decision and the criteria for revisiting it. Result: the outcome measured
+      against those criteria, and an honest assessment that separates decision quality from
+      outcome luck. Interviewers listen for structured reasoning under uncertainty, ethical
+      awareness, stakeholder inclusion, reversibility thinking, accountability, and genuine
+      reflection about their own judgment.
+    rubric:
+      - "Frames a genuinely high-stakes decision with conflicting interests and incomplete data"
+      - "Separates known facts from assumptions and weighs asymmetric/irreversible risks"
+      - "Involves the right stakeholders and makes reasoning transparent"
+      - "Prefers reversible/staged options with guardrails and pre-defined criteria to revisit"
+      - "Reflects on outcome vs decision quality and owns the result"

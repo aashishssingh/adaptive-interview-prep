@@ -1,0 +1,441 @@
+questions:
+  - id: model_evaluation-0001
+    type: short_answer
+    role: both
+    difficulty: 2
+    topic: model_evaluation
+    subtopic: classification metrics
+    tags: [precision, recall, definitions]
+    prompt: Define precision and recall in terms of true positives (TP), false positives (FP) and false negatives (FN).
+    est_minutes: 1
+    answer: Precision = TP / (TP + FP); recall = TP / (TP + FN).
+    explanation: >-
+      Precision is the share of flagged cases that are truly positive: how much to trust an
+      alert. Recall (sensitivity) is the share of actual positives that get flagged: how many
+      cases you catch. They trade off as the decision threshold moves.
+
+  - id: model_evaluation-0002
+    type: multiple_choice
+    role: both
+    difficulty: 3
+    topic: model_evaluation
+    subtopic: class imbalance
+    tags: [accuracy, imbalance, fraud]
+    prompt: >-
+      Only 1% of insurance claims are fraudulent. A model reports 99% accuracy. What is the most
+      important thing to check?
+    est_minutes: 1
+    options:
+      - Whether it beats the trivial "never fraud" classifier, which also has 99% accuracy, using precision, recall or PR-AUC
+      - Whether the accuracy is above 95%
+      - Whether the training accuracy is also 99%
+      - Whether the model used enough features
+    answer_index: 0
+    explanation: >-
+      With 1% prevalence, predicting "not fraud" for every claim gets 99% accuracy and catches
+      nothing. Accuracy is dominated by the majority class. Evaluate with metrics focused on
+      the positive class: recall, precision at the chosen threshold, PR-AUC, or expected cost.
+      Comparing training and test accuracy checks overfitting, not usefulness.
+
+  - id: model_evaluation-0003
+    type: coding_python
+    role: both
+    difficulty: 4
+    topic: model_evaluation
+    subtopic: classification metrics
+    tags: [confusion matrix, precision, recall, f1, implementation]
+    prompt: >-
+      Write classification_metrics(y_true, y_pred) for binary labels (0/1). It returns a dict
+      with keys precision, recall, f1 and specificity. When a denominator is zero, return 0.0
+      for that metric (the scikit-learn zero_division=0 convention).
+    est_minutes: 8
+    function_name: classification_metrics
+    starter_code: |
+      def classification_metrics(y_true, y_pred):
+          raise NotImplementedError
+    reference_solution: |
+      def classification_metrics(y_true, y_pred):
+          pairs = list(zip(y_true, y_pred))
+          tp = sum(1 for t, p in pairs if t == 1 and p == 1)
+          fp = sum(1 for t, p in pairs if t == 0 and p == 1)
+          fn = sum(1 for t, p in pairs if t == 1 and p == 0)
+          tn = sum(1 for t, p in pairs if t == 0 and p == 0)
+
+          def div(a, b):
+              return a / b if b else 0.0
+
+          precision = div(tp, tp + fp)
+          recall = div(tp, tp + fn)
+          f1 = div(2 * precision * recall, precision + recall)
+          return {"precision": precision, "recall": recall, "f1": f1,
+                  "specificity": div(tn, tn + fp)}
+    test_cases:
+      - args: [[1, 0, 1, 1, 0, 0, 1, 0, 1, 1], [1, 0, 0, 1, 1, 0, 1, 0, 0, 1]]
+        expected: {precision: 0.8, recall: 0.6666666666666666, f1: 0.7272727272727272, specificity: 0.75}
+      - args: [[0, 0, 0, 0], [0, 0, 0, 0]]
+        expected: {precision: 0.0, recall: 0.0, f1: 0.0, specificity: 1.0}
+      - args: [[1, 1, 0], [0, 0, 1]]
+        expected: {precision: 0.0, recall: 0.0, f1: 0.0, specificity: 0.0}
+      - args: [[1, 0], [1, 0]]
+        expected: {precision: 1.0, recall: 1.0, f1: 1.0, specificity: 1.0}
+    explanation: >-
+      Count the four confusion-matrix cells and apply the definitions. F1 is the harmonic mean
+      of precision and recall. Zero denominators happen when there are no predicted positives
+      (precision) or no actual positives (recall), so decide and document a convention.
+
+  - id: model_evaluation-0004
+    type: multiple_choice
+    role: both
+    difficulty: 4
+    topic: model_evaluation
+    subtopic: roc auc
+    tags: [roc auc, ranking, interpretation]
+    prompt: What does a ROC AUC of 0.80 mean?
+    est_minutes: 1
+    options:
+      - A randomly chosen positive case gets a higher score than a randomly chosen negative case 80% of the time
+      - The model is correct on 80% of cases
+      - 80% of flagged cases are true positives
+      - The model is 80% calibrated
+    answer_index: 0
+    explanation: >-
+      AUC is the probability that a random positive outranks a random negative, with ties
+      counted as half. It equals the normalized Mann-Whitney U statistic. It measures ranking,
+      not accuracy at a threshold (the first distractor), and not precision or calibration. A
+      model can have a good AUC with badly miscalibrated probabilities.
+
+  - id: model_evaluation-0005
+    type: free_text
+    role: both
+    difficulty: 5
+    topic: model_evaluation
+    subtopic: precision-recall curves
+    tags: [pr auc, roc auc, imbalance]
+    prompt: >-
+      For a rare-disease screening model with 0.5% prevalence, why might ROC AUC look excellent
+      while the model is nearly useless? When would you prefer the precision-recall curve?
+    est_minutes: 5
+    model_answer: >-
+      ROC curves plot TPR against FPR. With 0.5% prevalence there are about 199 negatives per
+      positive, so even a small FPR (say 2%) produces about 4 false positives per true positive
+      at high recall. Precision is then only about 20%, while the ROC curve still hugs the top
+      left and the AUC looks like 0.95. ROC is insensitive to class balance by design. Its
+      baseline is 0.5 regardless of prevalence. The PR curve plots precision against recall.
+      Its baseline is the prevalence (0.005), and it directly shows how many false alarms come
+      with each catch, so it reflects the workload of acting on alerts. Prefer PR curves (and
+      precision at the operating recall) when positives are rare and false positives are costly
+      or capacity-limited. ROC AUC is still useful for comparing ranking ability across
+      populations with different prevalences.
+    rubric:
+      - "Explains that low FPR can still mean many false positives when negatives vastly outnumber positives"
+      - "Gives a numerical or concrete illustration of low precision despite high AUC"
+      - "States ROC is prevalence-insensitive while the PR baseline equals prevalence"
+      - "Recommends PR curves/precision at operating point for rare, costly-alert settings"
+
+  - id: model_evaluation-0006
+    type: coding_python
+    role: both
+    difficulty: 6
+    topic: model_evaluation
+    subtopic: roc auc
+    tags: [roc auc, mann-whitney, ties, implementation]
+    prompt: >-
+      Write roc_auc(y_true, scores). It computes ROC AUC as the probability that a random
+      positive scores higher than a random negative, counting ties as 0.5. Raise ValueError if
+      y_true has no positives or no negatives. An O(n²) pairwise solution is acceptable. For a
+      bonus, do it in O(n log n) with ranks.
+    hints:
+      - Compare every positive score with every negative score.
+    est_minutes: 10
+    function_name: roc_auc
+    starter_code: |
+      def roc_auc(y_true, scores):
+          raise NotImplementedError
+    reference_solution: |
+      def roc_auc(y_true, scores):
+          pos = [s for s, y in zip(scores, y_true) if y == 1]
+          neg = [s for s, y in zip(scores, y_true) if y == 0]
+          if not pos or not neg:
+              raise ValueError("need at least one positive and one negative")
+          total = 0.0
+          for p in pos:
+              for q in neg:
+                  total += 1.0 if p > q else 0.5 if p == q else 0.0
+          return total / (len(pos) * len(neg))
+    test_cases:
+      - args: [[0, 0, 1, 1], [0.1, 0.4, 0.35, 0.8]]
+        expected: 0.75
+      - args: [[1, 0, 1, 0, 1], [0.9, 0.9, 0.5, 0.2, 0.5]]
+        expected: 0.5833333333333334
+      - args: [[1, 0], [0.2, 0.8]]
+        expected: 0.0
+      - args: [[1, 1, 0, 0], [0.5, 0.5, 0.5, 0.5]]
+        expected: 0.5
+      - args: [[1, 1, 1], [0.2, 0.3, 0.4]]
+        expected: {__raises__: ValueError}
+    explanation: >-
+      This is the Mann-Whitney formulation of AUC. Ties count as half, so a constant score gives
+      0.5. The O(n log n) version sorts the scores, assigns average ranks to ties, and computes
+      (R_pos − n_pos(n_pos + 1)/2) / (n_pos · n_neg), where R_pos is the sum of the positives'
+      ranks. An AUC below 0.5 means the scores are anti-correlated with the label, often a sign
+      flip bug.
+
+  - id: model_evaluation-0007
+    type: short_answer
+    role: ds
+    difficulty: 6
+    topic: model_evaluation
+    subtopic: calibration
+    tags: [calibration slope, overfitting]
+    prompt: A risk model's calibration slope on an external test set is 0.6. What does that indicate?
+    est_minutes: 2
+    answer: Predictions are too extreme (overconfident), typically from overfitting; high risks are overestimated and low risks underestimated.
+    explanation: >-
+      Regressing outcomes on the logit of the predictions gives the calibration slope. A slope
+      of 1 is ideal. A slope below 1 means the predicted spread is too wide, the classic sign of
+      overfitting or optimism. A slope above 1 means the predictions are too modest. Fix it with
+      shrinkage or penalization during fitting, or by recalibrating on held-out data.
+
+  - id: model_evaluation-0008
+    type: coding_python
+    role: both
+    difficulty: 6
+    topic: model_evaluation
+    subtopic: conformal prediction
+    tags: [conformal prediction, quantile, uncertainty, implementation]
+    prompt: >-
+      In split conformal prediction you compute nonconformity scores on a calibration set of
+      size n. Write conformal_quantile(scores, alpha). It returns the threshold q̂ equal to the
+      k-th smallest score, where k = ceil((n + 1)(1 − alpha)). Return float('inf') if k > n.
+      Guard against floating-point error in the ceiling.
+    hints:
+      - (n + 1)(1 − alpha) can be 95.94999... in floating point; subtract a tiny epsilon before ceil.
+    follow_ups:
+      - What coverage guarantee does this threshold give, and under what assumption?
+    est_minutes: 8
+    function_name: conformal_quantile
+    starter_code: |
+      def conformal_quantile(scores, alpha):
+          raise NotImplementedError
+    reference_solution: |
+      import math
+
+      def conformal_quantile(scores, alpha):
+          n = len(scores)
+          k = math.ceil((n + 1) * (1 - alpha) - 1e-9)
+          if k > n:
+              return float("inf")
+          return sorted(scores)[k - 1]
+    test_cases:
+      - args: [[0.1, 0.5, 0.2, 0.9, 0.4, 0.3, 0.7, 0.8, 0.6], 0.2]
+        expected: 0.8
+      - args: [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], 0.1]
+        expected: 18
+      - args: [[3, 1, 2], 0.1]
+        expected: .inf
+      - args: [[0.5, 0.5, 0.5, 0.5, 0.5], 0.5]
+        expected: 0.5
+    explanation: >-
+      With exchangeable calibration and test data, the test score's rank among the n + 1 scores
+      is uniform. So taking the ceil((n + 1)(1 − α))-th smallest calibration score guarantees
+      P(test score ≤ q̂) ≥ 1 − α. The finite-sample correction (n + 1 rather than n) is what
+      makes the guarantee exact. With too few calibration points for the requested α, the only
+      valid set is everything (q̂ = ∞).
+
+  - id: model_evaluation-0009
+    type: free_text
+    role: both
+    difficulty: 6
+    topic: model_evaluation
+    subtopic: threshold selection
+    tags: [decision threshold, cost-sensitive, alert fatigue, healthcare]
+    prompt: >-
+      A sepsis risk model outputs probabilities. The clinical team asks you to "pick the
+      threshold". How do you choose it, and what information do you need from them?
+    est_minutes: 6
+    model_answer: >-
+      The threshold is a decision, not a statistical property, so derive it from the costs and
+      constraints of acting. Gather: the action taken on an alert (nurse assessment, lab
+      draw), its cost and burden, the harm of a missed case, and the capacity, meaning how many
+      alerts per shift staff can handle before alert fatigue sets in. Options: (1) Cost-based.
+      With calibrated probabilities, alert when p > C_FP / (C_FP + C_FN), the point where the
+      expected cost of acting equals not acting. (2) Capacity-based: flag the top k patients
+      per shift. (3) Constraint-based: fix a minimum sensitivity (say 85%) and maximize PPV.
+      Show the tradeoff with a table of sensitivity, PPV, and alerts per day at candidate
+      thresholds. Use decision curve analysis (net benefit) to compare with "alert everyone" and
+      "alert no one". Check calibration first, because cost-based thresholds assume calibrated
+      probabilities. Validate the chosen threshold on recent data and per unit, and monitor the
+      alert volume after deployment.
+    rubric:
+      - "Frames the threshold as a decision based on costs, benefits and capacity"
+      - "Gives the cost-based threshold rule or capacity (top-k) rule"
+      - "Asks for concrete inputs: action, harms of FP/FN, alert capacity/alert fatigue"
+      - "Presents a tradeoff table or decision curve analysis (net benefit)"
+      - "Notes calibration is required and the threshold should be validated and monitored"
+
+  - id: model_evaluation-0010
+    type: multiple_choice
+    role: both
+    difficulty: 7
+    topic: model_evaluation
+    subtopic: resampling and calibration
+    tags: [undersampling, prior correction, calibration]
+    prompt: >-
+      You trained a fraud model on data undersampled to 50% fraud. True prevalence is 2%. The
+      model outputs 0.60 for a claim. Which statement is correct?
+    est_minutes: 4
+    options:
+      - The 0.60 is not the real fraud probability; correcting for the sampling ratio gives about 3%, so probabilities must be prior-corrected or recalibrated before use
+      - The 0.60 is the true probability, because undersampling does not change the model's ranking
+      - The true probability is 0.60 × 0.02 = 0.012
+      - Undersampling only affects recall, so the probability needs no correction
+    answer_index: 0
+    explanation: >-
+      Undersampling changes the base rate the model learned, which shifts its log-odds by
+      log(0.5/0.5) − log(0.02/0.98). Corrected odds = 1.5 × (0.02/0.98) / (0.5/0.5) ≈ 0.0306,
+      so p ≈ 0.030. Ranking (AUC) is unaffected, which is the plausible part of the second
+      option, but the probabilities are inflated. Multiplying by the prevalence is not the
+      correct transformation; the correction works on the odds scale.
+
+  - id: model_evaluation-0011
+    type: free_text
+    role: both
+    difficulty: 7
+    topic: model_evaluation
+    subtopic: conformal prediction
+    tags: [conformal prediction, coverage, exchangeability, subgroups]
+    prompt: >-
+      A split-conformal classifier promises 90% coverage. A reviewer finds that for the rarest
+      and most important class, coverage is only 70%. Is the method broken? Explain what the
+      guarantee is and how to get coverage for each class.
+    est_minutes: 7
+    model_answer: >-
+      The method is not broken. Split conformal guarantees marginal coverage: averaged over the
+      whole test population, P(true label ∈ set) ≥ 90%, assuming calibration and test data are
+      exchangeable. It does not guarantee coverage conditional on the class, subgroup, or
+      covariates. A rare class can be under-covered while the common classes are over-covered,
+      and the average still meets 90%. To get per-class guarantees, use class-conditional
+      (Mondrian) conformal prediction. Compute a separate threshold from the calibration scores
+      of each class, so each class's coverage is at least 90%. The cost is larger sets, and you
+      need enough calibration examples per class, since the guarantee needs n_c ≥ 1/α − 1 for a
+      finite threshold. The same idea applies to groups (group-conditional conformal).
+      Exchangeability is also violated under distribution shift, which breaks even the marginal
+      guarantee. Weighted conformal methods can address covariate shift.
+    rubric:
+      - "States the guarantee is marginal coverage under exchangeability"
+      - "Explains marginal coverage allows under-coverage of a specific class/subgroup"
+      - "Proposes class-conditional (Mondrian) conformal with per-class thresholds"
+      - "Notes the costs: larger sets and needing enough calibration points per class"
+      - "Mentions distribution shift breaks exchangeability (and weighted conformal as a remedy)"
+
+  - id: model_evaluation-0012
+    type: free_text
+    role: both
+    difficulty: 8
+    topic: model_evaluation
+    subtopic: offline vs online evaluation
+    tags: [offline metrics, online metrics, distribution shift, feedback loops]
+    prompt: >-
+      A new claims-triage model improves offline AUC from 0.78 to 0.83, but after launch the
+      business KPI (average days to settle a claim) does not improve. List the plausible
+      reasons and how you would investigate each.
+    est_minutes: 8
+    model_answer: >-
+      (1) Metric mismatch. AUC measures global ranking, but the KPI depends on the top of the
+      queue at the operating threshold. Compare precision and recall at the actual capacity.
+      (2) Leakage or optimistic validation. Features available offline but late in production
+      give an offline-only lift, so audit the feature timestamps and serving logs.
+      (3) Training-serving skew. Features are computed differently online, so compare the
+      logged online feature values with the offline ones for the same claims. (4) Distribution
+      shift: claim mix or seasonality changed between the training period and launch. Check
+      drift and out-of-time performance. (5) The downstream process limits impact. Adjusters
+      may ignore scores, the bottleneck may be elsewhere (document collection), or capacity is
+      fixed. Check adoption and process metrics. (6) Feedback and selection effects. Labels in
+      historical data reflect the old triage policy, so the model learned that policy's
+      outcomes. (7) The experiment design cannot detect the effect: too short, underpowered, or
+      confounded by other changes. Run a proper A/B or switchback with a power calculation.
+      (8) Calibration or threshold set wrong for the new score distribution. Investigate by
+      checking each link from model output to decision to KPI.
+    rubric:
+      - "Identifies metric mismatch (global AUC vs operating-point metrics tied to the KPI)"
+      - "Considers leakage/training-serving skew and how to check with logs"
+      - "Considers distribution shift since training"
+      - "Considers downstream process/adoption as the binding constraint"
+      - "Considers feedback loops and online experiment design/power"
+
+  - id: model_evaluation-0013
+    type: free_text
+    role: ds
+    difficulty: 9
+    topic: model_evaluation
+    subtopic: evaluating with few positives
+    tags: [uncertainty, bootstrap, delong, small samples, model comparison]
+    prompt: >-
+      Your test set has 4,000 cases but only 40 positive outcomes. Model A has AUC 0.81, model B
+      0.84. A stakeholder wants to switch to B. How do you evaluate and compare the models
+      honestly, and what would you recommend?
+    est_minutes: 10
+    model_answer: >-
+      With 40 positives, every metric is noisy. The AUC standard error is roughly 0.03-0.04, so
+      a 95% CI spans about ±0.07. Precision at a threshold rests on a handful of cases. Steps:
+      (1) Quantify uncertainty with bootstrap CIs (resample at the patient or cluster level),
+      or the DeLong variance for AUC. (2) Compare the models with a paired test on the same
+      cases, using DeLong's test for correlated AUCs or a paired bootstrap of the difference,
+      because the models' errors are correlated. The paired CI for the 0.03 difference is
+      probably compatible with zero. (3) Use more data for evaluation. Repeated or nested CV
+      over the whole development set uses all positives. An external or temporal validation set
+      helps too. (4) Look beyond AUC to calibration and net benefit at the clinically relevant
+      threshold. Small AUC differences often matter less than calibration. (5) Avoid
+      over-tuning to the test set. If both models were tuned using the test set, the comparison
+      is biased. Recommend switching only if the paired difference is credibly positive, or if B
+      has other advantages such as simplicity, calibration or robustness. Otherwise collect more
+      outcomes, or run a prospective silent comparison.
+    rubric:
+      - "Recognizes the effective sample size is the 40 positives and metrics are very uncertain"
+      - "Uses bootstrap or DeLong CIs for AUC"
+      - "Compares models with a paired method (DeLong test or paired bootstrap)"
+      - "Suggests using more data via repeated CV or external/temporal validation"
+      - "Considers calibration/net benefit and avoids test-set over-tuning; gives a reasoned recommendation"
+
+  - id: model_evaluation-0014
+    type: free_text
+    role: both
+    difficulty: 10
+    topic: model_evaluation
+    subtopic: fairness and selective labels
+    tags: [fairness, selective labels, underwriting, calibration, impossibility]
+    prompt: >-
+      Design an evaluation framework for an underwriting model that decides which insurance
+      applicants get approved. Historical outcomes (claims) exist only for approved applicants.
+      Cover performance, the missing-outcome problem, fairness metrics and their conflicts, and
+      ongoing monitoring.
+    est_minutes: 15
+    model_answer: >-
+      Performance: discrimination (AUC or Gini) and calibration (calibration curves, actual-to-
+      expected by segment) on out-of-time data, plus business metrics such as loss ratio at the
+      approval threshold and approval rate. Selective labels: outcomes exist only for applicants
+      the old policy approved. Metrics computed on approved applicants say nothing about those
+      declined, and a new model that approves different people cannot be evaluated directly.
+      Approaches: reject-inference methods (with strong assumptions), using external outcome
+      data (credit bureau or other insurers) where legal, bounding analyses, and above all a
+      small randomized exploration or holdout band near the threshold to collect unbiased
+      outcomes. Fairness: define the groups (legally protected classes, often inferred with
+      proxies like BISG when not collected, with that uncertainty stated). Measure approval-rate
+      differences (demographic parity), error-rate parity (equalized odds or equal opportunity
+      among good risks), and calibration within groups (predictive parity). When base rates
+      differ, a non-perfect classifier cannot satisfy calibration within groups and equalized
+      odds at the same time (Kleinberg-Chouldechova impossibility). So choose explicitly, with
+      legal and business stakeholders, which criterion governs the decision, and document the
+      tradeoffs. Also check proxy discrimination by feature, and run counterfactual or
+      disparate-impact analyses with less discriminatory alternative models. Monitoring: input
+      and score drift, approval rates and loss ratios by segment and group over time, delayed
+      outcome backtesting, feedback loops (model decisions shape future training data), periodic
+      fairness audits, and a governance process with documentation and adverse-action reason
+      codes.
+    rubric:
+      - "Covers discrimination, calibration and business metrics on out-of-time data"
+      - "Explains selective labels (outcomes only for approved) and why naive evaluation is biased"
+      - "Proposes remedies: randomized exploration band, reject inference with caveats, external data"
+      - "Defines several fairness metrics (parity, equalized odds, within-group calibration)"
+      - "States the impossibility of satisfying calibration and equalized odds with differing base rates, requiring an explicit choice"
+      - "Plans monitoring for drift, group outcomes and feedback loops with governance"

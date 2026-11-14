@@ -1,0 +1,402 @@
+questions:
+  - id: probability-0001
+    type: short_answer
+    role: ds
+    difficulty: 2
+    topic: probability
+    subtopic: counting
+    tags: [dice, sample space]
+    prompt: Two fair six-sided dice are rolled. What is the probability that the sum is 7?
+    hints:
+      - Count the ordered outcomes in the sample space.
+    est_minutes: 1
+    answer: 1/6 (6 of the 36 equally likely ordered outcomes)
+    explanation: >-
+      There are 36 equally likely ordered pairs. Six of them sum to 7: (1,6), (2,5), (3,4),
+      (4,3), (5,2), (6,1). So P = 6/36 = 1/6. Seven is the most likely sum because it has the
+      most ordered pairs.
+
+  - id: probability-0002
+    type: multiple_choice
+    role: ds
+    difficulty: 3
+    topic: probability
+    subtopic: bayes theorem
+    tags: [bayes, base rate, diagnostic testing, healthcare]
+    prompt: >-
+      A screening test for a disease has 90% sensitivity and 95% specificity. The disease
+      prevalence in the screened population is 1%. A patient tests positive. Roughly what is the
+      probability they have the disease?
+    hints:
+      - Work with 10,000 hypothetical patients.
+    follow_ups:
+      - How would the answer change if the patient was referred because of symptoms?
+      - What happens to this probability if you re-test positives with an independent test?
+    est_minutes: 3
+    options:
+      - About 15%
+      - About 90%
+      - About 47%
+      - About 1%
+    answer_index: 0
+    explanation: >-
+      Of 10,000 people, 100 have the disease and 90 of them test positive. Of the 9,900 without
+      it, 5% (495) test positive. P(disease | positive) = 90 / (90 + 495) ≈ 0.154. The strongest
+      distractor, 90%, is the sensitivity P(positive | disease). Picking it confuses P(A|B)
+      with P(B|A) and ignores the low base rate.
+
+  - id: probability-0003
+    type: short_answer
+    role: ds
+    difficulty: 4
+    topic: probability
+    subtopic: geometric distribution
+    tags: [expectation, geometric]
+    prompt: >-
+      You roll a fair die repeatedly until the first 6 appears. What is the expected number of
+      rolls, including the roll that shows the 6?
+    hints:
+      - The number of trials until the first success is geometric.
+    est_minutes: 2
+    answer: "6"
+    explanation: >-
+      The number of trials N until the first success with success probability p is geometric
+      with E[N] = 1/p. Here p = 1/6, so E[N] = 6. One derivation: E[N] = 1 + (5/6) E[N], which
+      gives E[N] = 6.
+
+  - id: probability-0004
+    type: short_answer
+    role: ds
+    difficulty: 4
+    topic: probability
+    subtopic: poisson process
+    tags: [poisson, healthcare, arrivals]
+    prompt: >-
+      An emergency department averages 3 patient arrivals per hour. Arrivals follow a Poisson
+      process. What is the probability of no arrivals in a given 20-minute window?
+    hints:
+      - Scale the rate to the window length first.
+    follow_ups:
+      - Which Poisson process assumption is least realistic for an emergency department?
+    est_minutes: 2
+    answer: e^(-1) ≈ 0.368
+    explanation: >-
+      For a 20-minute window, the count is Poisson with mean λ = 3 × (20/60) = 1. Then
+      P(N = 0) = e^(-λ) = e^(-1) ≈ 0.368. Equivalently, the time to the next arrival is
+      Exponential(rate 3/hour), and P(T > 1/3 hour) = e^(-1).
+
+  - id: probability-0005
+    type: multiple_choice
+    role: ds
+    difficulty: 5
+    topic: probability
+    subtopic: memoryless property
+    tags: [exponential, reliability]
+    prompt: >-
+      A claims-processing server's time to failure is exponentially distributed with mean 10
+      hours. It has already run 3 hours without failing. What is its expected remaining time to
+      failure?
+    est_minutes: 2
+    options:
+      - 10 hours
+      - 7 hours
+      - 13 hours
+      - 5 hours
+    answer_index: 0
+    explanation: >-
+      The exponential distribution is memoryless: P(T > s + t | T > s) = P(T > t). Remaining
+      life after surviving 3 hours has the same Exponential(mean 10) distribution, so its
+      expectation is still 10 hours. "7 hours" wrongly subtracts elapsed time, as if failure
+      time were fixed at 10. That reasoning only applies to wear-out models (increasing hazard),
+      not to a constant hazard rate.
+
+  - id: probability-0006
+    type: free_text
+    role: ds
+    difficulty: 6
+    topic: probability
+    subtopic: compound distributions
+    tags: [insurance, compound poisson, variance, actuarial]
+    prompt: >-
+      A policy's annual claim count is Poisson with mean 2. Claim sizes are independent of the
+      count and of each other, with mean $5,000 and standard deviation $3,000. What are the
+      expected value and the standard deviation of total annual claims? Explain the formulas
+      you use.
+    hints:
+      - Use the laws of total expectation and total variance, conditioning on the claim count.
+    follow_ups:
+      - Why is the variance driven by E[X^2] rather than Var(X) alone?
+      - How would overdispersion in the claim count (negative binomial) change the answer?
+    est_minutes: 6
+    model_answer: >-
+      Let S = X_1 + ... + X_N with N ~ Poisson(λ = 2) independent of i.i.d. X_i with mean
+      μ = 5,000 and σ = 3,000. By total expectation, E[S] = E[N] μ = 2 × 5,000 = $10,000. By
+      total variance, Var(S) = E[N] Var(X) + Var(N) μ². For a Poisson count E[N] = Var(N) = λ,
+      so Var(S) = λ (σ² + μ²) = λ E[X²] = 2 × (9,000,000 + 25,000,000) = 68,000,000, and
+      SD(S) ≈ $8,246. Both the randomness in claim sizes and the randomness in the number of
+      claims add variance. The coefficient of variation (≈0.82) is high, which is why one
+      policy is risky but a pooled portfolio of many independent policies is predictable.
+    rubric:
+      - "States E[S] = E[N]·E[X] = $10,000"
+      - "Uses total variance: Var(S) = E[N]Var(X) + Var(N)E[X]^2"
+      - "Uses E[N] = Var(N) = λ for Poisson to get Var(S) = λE[X^2] = 68,000,000"
+      - "Gives SD ≈ $8,246 (square root of the variance)"
+      - "Notes the independence assumptions (count independent of severity, i.i.d. severities)"
+
+  - id: probability-0007
+    type: coding_python
+    role: ds
+    difficulty: 5
+    topic: probability
+    subtopic: markov chains
+    tags: [markov chain, healthcare, matrix]
+    prompt: >-
+      A patient-state model has a transition matrix P, where P[i][j] is the probability of
+      moving from state i to state j in one month. Write state_distribution(P, start, n). It
+      returns the probability distribution over states after n steps, starting from state index
+      `start` with certainty. Raise ValueError if n is negative or if any row of P does not sum
+      to 1 (tolerance 1e-9). Use plain Python lists; no numpy required.
+    hints:
+      - Start from a one-hot vector and multiply by P n times.
+    follow_ups:
+      - How would you find the long-run (stationary) distribution?
+      - What changes if one state (death) is absorbing?
+    est_minutes: 12
+    function_name: state_distribution
+    starter_code: |
+      def state_distribution(P, start, n):
+          """Return a list with the probability of each state after n steps."""
+          raise NotImplementedError
+    reference_solution: |
+      def state_distribution(P, start, n):
+          if n < 0:
+              raise ValueError("n must be non-negative")
+          k = len(P)
+          for row in P:
+              if len(row) != k or abs(sum(row) - 1.0) > 1e-9:
+                  raise ValueError("each row of P must have k entries summing to 1")
+          dist = [0.0] * k
+          dist[start] = 1.0
+          for _ in range(n):
+              dist = [sum(dist[i] * P[i][j] for i in range(k)) for j in range(k)]
+          return dist
+    test_cases:
+      - args: [[[0.9, 0.08, 0.02], [0.3, 0.6, 0.1], [0, 0, 1]], 0, 0]
+        expected: [1.0, 0.0, 0.0]
+      - args: [[[0.9, 0.08, 0.02], [0.3, 0.6, 0.1], [0, 0, 1]], 0, 2]
+        expected: [0.834, 0.12, 0.046]
+      - args: [[[0.9, 0.08, 0.02], [0.3, 0.6, 0.1], [0, 0, 1]], 1, 5]
+        expected: [0.5537268, 0.1647216, 0.2815516]
+      - args: [[[0.9, 0.08, 0.02], [0.3, 0.6, 0.1], [0, 0, 1]], 2, 10]
+        expected: [0.0, 0.0, 1.0]
+      - args: [[[0.5, 0.5], [0.2, 0.8]], 0, -1]
+        expected: {__raises__: ValueError}
+      - args: [[[0.5, 0.4], [0.2, 0.8]], 0, 1]
+        expected: {__raises__: ValueError}
+    explanation: >-
+      The distribution after one step is the row vector d times P: d'_j = Σ_i d_i P[i][j].
+      Applying this n times from a one-hot start gives d P^n. Checking that every row sums to 1
+      catches malformed matrices. An absorbing state (row with a 1 on the diagonal) keeps all
+      its mass, so starting there gives a constant distribution.
+
+  - id: probability-0008
+    type: short_answer
+    role: ds
+    difficulty: 6
+    topic: probability
+    subtopic: geometric probability
+    tags: [uniform, continuous, meeting problem]
+    prompt: >-
+      Two adjusters each arrive at a site at a uniformly random time between 9:00 and 10:00,
+      independently. Each waits 15 minutes for the other and then leaves. What is the
+      probability that they meet?
+    hints:
+      - Draw the unit square and shade the region where |X - Y| ≤ 15 minutes.
+    est_minutes: 4
+    answer: 7/16 = 0.4375
+    explanation: >-
+      Measure time in minutes on [0, 60]². They meet when |X − Y| ≤ 15. The complement is two
+      triangles, each with legs 45, for a total area of 45² = 2,025 out of 3,600. So
+      P(meet) = 1 − 2025/3600 = 1 − (3/4)² = 7/16 = 0.4375.
+
+  - id: probability-0009
+    type: free_text
+    role: ds
+    difficulty: 7
+    topic: probability
+    subtopic: conditional independence
+    tags: [conditional independence, collider, berkson, healthcare]
+    prompt: >-
+      Explain the difference between independence and conditional independence. Then explain
+      how conditioning on a variable can create a dependence between two variables that are
+      independent in the population. Use a hospital-based example.
+    follow_ups:
+      - How does this show up when you restrict a dataset to "patients who were admitted"?
+      - How would a causal diagram help you decide what to condition on?
+    est_minutes: 7
+    model_answer: >-
+      A and B are independent if P(A ∩ B) = P(A)P(B). They are conditionally independent given
+      C if P(A ∩ B | C) = P(A | C)P(B | C) for each value of C. Neither property implies the
+      other. Two symptoms can be dependent in the population but independent given the disease
+      that causes both: that is a common cause. Conversely, two independent causes become
+      dependent once you condition on their common effect (a collider). This is Berkson's
+      paradox. Suppose diabetes and a respiratory infection are independent in the population,
+      but either one can lead to hospital admission. Among admitted patients, someone admitted
+      without diabetes is more likely to have the infection, because something got them
+      admitted. So the two conditions look negatively associated in hospital data even though
+      they are unrelated in the population. The lesson: filtering or stratifying on a
+      consequence of both variables (admission, being in a registry, having a claim filed) can
+      manufacture associations. A DAG tells you which variables are colliders and should not be
+      conditioned on.
+    rubric:
+      - "Defines independence P(A∩B) = P(A)P(B) and conditional independence given C"
+      - "States that neither implies the other"
+      - "Explains collider (common effect) conditioning creating dependence (Berkson's paradox)"
+      - "Gives a concrete hospital/admission selection example with the direction of the induced association"
+      - "Draws the practical lesson about selection/filtering on outcomes and using causal diagrams"
+
+  - id: probability-0010
+    type: multiple_choice
+    role: ds
+    difficulty: 7
+    topic: probability
+    subtopic: sampling with replacement
+    tags: [bootstrap, limits, sampling]
+    prompt: >-
+      You draw a bootstrap sample of size n, with replacement, from n distinct patient records.
+      As n grows large, roughly what fraction of the original records appears at least once in
+      the bootstrap sample?
+    hints:
+      - Find the probability that a specific record is never drawn in n draws.
+    est_minutes: 3
+    options:
+      - About 63.2%
+      - About 50%
+      - About 36.8%
+      - About 100%, because the sample has n draws
+    answer_index: 0
+    explanation: >-
+      A given record is missed on one draw with probability 1 − 1/n, and on all n draws with
+      probability (1 − 1/n)^n, which tends to e^(-1) ≈ 0.368. So about 1 − e^(-1) ≈ 63.2% of
+      records appear at least once. The remaining ~36.8% are the "out-of-bag" records used by
+      random forests. The distractor 36.8% is the fraction left out, not the fraction included.
+
+  - id: probability-0011
+    type: free_text
+    role: ds
+    difficulty: 8
+    topic: probability
+    subtopic: rare event estimation
+    tags: [monte carlo, rare events, importance sampling, fraud]
+    prompt: >-
+      You want to estimate by simulation the probability of a rare fraud pattern, roughly 1 in
+      10,000 transactions. About how many plain Monte Carlo samples do you need for a relative
+      standard error of 10%? What technique would you use to do much better, and what is its
+      main risk?
+    hints:
+      - The relative standard error of a proportion estimate is SE / p.
+    follow_ups:
+      - How do you choose a good proposal distribution?
+      - How would you diagnose a bad importance sampling estimate?
+    est_minutes: 8
+    model_answer: >-
+      With plain Monte Carlo, p̂ is a binomial proportion with SE = sqrt(p(1 − p)/n), so the
+      relative SE is sqrt((1 − p)/(n p)) ≈ 1/sqrt(n p). For a relative SE of 0.1 you need about
+      n p ≈ 100 expected events, so n ≈ 100 / 10⁻⁴ = 1,000,000 samples. Accuracy is governed by
+      the number of rare events observed, not by n itself. Importance sampling does better: draw
+      from a proposal distribution q that makes the rare region common, and reweight each draw
+      by the likelihood ratio w = f(x)/q(x). The estimator mean(w · 1[event]) is unbiased, and
+      with a good q its variance can be orders of magnitude smaller. The main risk is a proposal
+      with lighter tails than f, or one that misses part of the event region. Then a few huge
+      weights dominate, and the variance is large or even infinite while looking deceptively
+      stable. Check the effective sample size (Σw)²/Σw², the weight distribution, and agreement
+      across independent runs. Alternatives include stratified sampling, splitting or
+      subset simulation, and cross-entropy methods for tuning q.
+    rubric:
+      - "Derives relative SE ≈ 1/sqrt(np) from the binomial standard error"
+      - "Concludes roughly 1,000,000 samples (about 100 expected events)"
+      - "Describes importance sampling: sample from proposal q, weight by f/q, unbiased estimator"
+      - "Names the main risk: poorly matched/light-tailed proposal causing high or infinite variance from extreme weights"
+      - "Mentions a diagnostic such as effective sample size or weight inspection"
+
+  - id: probability-0012
+    type: free_text
+    role: ds
+    difficulty: 9
+    topic: probability
+    subtopic: heavy tails
+    tags: [heavy tails, pareto, extreme value theory, insurance, risk]
+    prompt: >-
+      An insurer covers rare catastrophic losses. Claim severities look Pareto-like with tail
+      index around α = 1.5. A junior analyst estimates expected annual loss with the sample mean
+      of 5 years of data and reports a standard error. Critique this approach, and propose how
+      you would estimate and communicate tail risk.
+    follow_ups:
+      - How do you choose the threshold in a peaks-over-threshold model?
+      - How does dependence between losses (one storm hitting many policies) change the analysis?
+    est_minutes: 12
+    model_answer: >-
+      With α = 1.5 the mean exists (α > 1) but the variance is infinite (α ≤ 2). The sample
+      mean converges very slowly and is dominated by the largest observation. Over 5 years it
+      will usually underestimate the true mean, because the extreme losses that drive it are
+      rarely observed, and then it jumps when one arrives. A standard error built from the
+      sample variance is meaningless here, since the CLT at rate sqrt(n) does not apply. A
+      better approach models the tail explicitly with extreme value theory. Fit a generalized
+      Pareto distribution to exceedances over a high threshold (peaks over threshold). Choose
+      the threshold with mean-excess and parameter-stability plots. Estimate the shape (ξ ≈
+      1/α) with profile-likelihood intervals. From the fit, compute return levels such as the
+      1-in-200-year loss, and tail measures such as VaR and TVaR/expected shortfall. Combine
+      sparse internal data with external industry or catastrophe-model data, and weight
+      credibility accordingly. Model frequency separately from severity. Account for
+      dependence: one event hitting many policies produces clustered losses, which needs an
+      event-level aggregation or copula approach. Communicate wide uncertainty intervals and
+      scenario analyses rather than a single number, and stress test for parameter
+      uncertainty, because pricing and capital decisions hinge on the tail.
+    rubric:
+      - "Recognizes α = 1.5 implies finite mean but infinite variance, so sample-mean SE is invalid"
+      - "Explains that short histories typically underestimate the mean and are dominated by the largest loss"
+      - "Proposes EVT / peaks-over-threshold with a generalized Pareto fit and threshold diagnostics"
+      - "Reports tail measures (return levels, VaR, TVaR/expected shortfall) with uncertainty"
+      - "Addresses data scarcity (external data, credibility) and dependence/clustering of catastrophic losses"
+
+  - id: probability-0013
+    type: free_text
+    role: ds
+    difficulty: 10
+    topic: probability
+    subtopic: stochastic modeling
+    tags: [queueing, forecasting, healthcare operations, uncertainty]
+    prompt: >-
+      A hospital asks for the probability that inpatient bed occupancy will exceed capacity on
+      any day next week. Design a probabilistic model, covering arrivals, length of stay, the
+      sources of uncertainty, and how you would validate it and communicate the result.
+    follow_ups:
+      - How would you incorporate the scheduled elective surgery list?
+      - Why is "probability on any day" harder than "probability on Tuesday"?
+    est_minutes: 15
+    model_answer: >-
+      Occupancy on day t is the number of current patients still in a bed plus new admissions
+      that have not yet been discharged. Model unscheduled admissions as a non-homogeneous
+      Poisson process, or negative binomial if overdispersed, with day-of-week, seasonal and
+      holiday effects, and possibly a respiratory-season covariate. Add elective admissions from
+      the surgical schedule, with cancellation probabilities. Model length of stay as a
+      right-skewed distribution (lognormal, gamma, or empirical), conditioned on service line
+      and patient features. Use survival models for current inpatients, because their remaining
+      stay depends on time already spent. With infinite servers this is an M/G/∞-style system,
+      so occupancy is approximately Poisson-mixture distributed. But capacity is finite, and
+      overflow, boarding and transfers matter. Monte Carlo simulation of patient trajectories
+      handles all of this naturally. The target "exceeds capacity on any day" is a maximum over
+      correlated days. Estimate it from simulated weekly paths, not by multiplying daily
+      probabilities. Include parameter uncertainty (Bayesian posterior draws or bootstrap) in
+      addition to process noise, or the forecast will be overconfident. Validate by
+      backtesting rolling weekly forecasts. Check calibration of predicted exceedance
+      probabilities with a reliability diagram and Brier score, and check the coverage of
+      prediction intervals. Monitor for regime changes such as an outbreak. Communicate the
+      probability with a fan chart, the key drivers, and action thresholds tied to surge plans.
+    rubric:
+      - "Decomposes occupancy into current census remaining plus new admissions not yet discharged"
+      - "Models arrivals as a time-varying count process (NHPP/negative binomial) and separates elective admissions"
+      - "Models length of stay with a skewed/survival model conditioned on time already in bed"
+      - "Uses simulation of weekly paths to get P(max over days > capacity), noting correlation across days"
+      - "Includes parameter uncertainty and validates via backtesting and calibration of exceedance probabilities"
+      - "Communicates results with intervals/fan charts and operational thresholds"

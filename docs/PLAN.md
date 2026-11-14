@@ -3,7 +3,7 @@
 - [x] **Phase 0 — Skeleton**: package layout, config, question metadata conventions (`prep/meta.py`), tests, docs.
 - [x] **Phase 1 — Profile sync**: resume `content.yaml` + website pages → `data/profile.json` (`python -m prep.profile.sync`; change log in `data/local/profile_changes.json`).
 - [x] **Phase 1.1 — Role rule**: a question's role comes from what it tests; resume provenance (`sources`/`role` on profile bullets) is only a hint.
-- [ ] **Phase 2 — Foundational question bank + schema**.
+- [x] **Phase 2 — Foundational question bank + schema**: pydantic schema (`prep/bank/schema.py`), loader/filters, `python -m prep.bank.validate`, 3 SQL datasets, 163 authored questions across 12 topics.
 - [ ] **Phase 3 — Streamlit practice UI + SQLite history**: each question card shows the role badge/color and "Difficulty N/10 · Band"; filters by role and difficulty range.
 - [ ] **Phase 4 — LLM project-question generator**: explain / justify / challenge / extend depths.
   - The generator assigns each question's role from what the question tests (ds = statistics, experimentation, analysis, interpreting/communicating results; mle = building, deploying, scaling or evaluating ML/LLM systems and engineering practices; both = genuinely both). The bullet's `sources`/`role` in profile.json is passed as a hint only.

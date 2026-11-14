@@ -1,0 +1,512 @@
+questions:
+  - id: python-0001
+    type: short_answer
+    role: ds
+    difficulty: 2
+    topic: python
+    subtopic: pandas indexing
+    tags: [pandas, loc, iloc]
+    prompt: In pandas, what is the difference between df.loc and df.iloc?
+    est_minutes: 1
+    answer: loc selects by index labels and column names (slices include the end); iloc selects by integer position (slices exclude the end).
+    explanation: >-
+      df.loc[5] means the row whose index label is 5. df.iloc[5] means the sixth row. After
+      filtering or sorting, labels and positions diverge, a common source of bugs. loc also
+      accepts boolean masks and is the right tool for assignment (df.loc[mask, "col"] = value).
+
+  - id: python-0002
+    type: coding_python
+    role: both
+    difficulty: 2
+    topic: python
+    subtopic: core python
+    tags: [lists, sets, ordering]
+    prompt: >-
+      Write dedupe_preserve_order(items). It returns a new list with duplicates removed,
+      keeping the first occurrence of each item in its original order. Items are hashable.
+    est_minutes: 3
+    function_name: dedupe_preserve_order
+    starter_code: |
+      def dedupe_preserve_order(items):
+          raise NotImplementedError
+    reference_solution: |
+      def dedupe_preserve_order(items):
+          seen = set()
+          out = []
+          for item in items:
+              if item not in seen:
+                  seen.add(item)
+                  out.append(item)
+          return out
+    test_cases:
+      - args: [[3, 1, 3, 2, 1]]
+        expected: [3, 1, 2]
+      - args: [[]]
+        expected: []
+      - args: [["I10", "E11.9", "I10", "i10"]]
+        expected: ["I10", "E11.9", "i10"]
+      - args: [[1, 1, 1, 1]]
+        expected: [1]
+    explanation: >-
+      A set gives O(1) membership checks, while the list keeps order: O(n) overall. A one-liner
+      alternative is list(dict.fromkeys(items)), since dicts preserve insertion order. Calling
+      list(set(items)) loses the order, and repeated `in` checks on a list are O(n²).
+
+  - id: python-0003
+    type: multiple_choice
+    role: both
+    difficulty: 3
+    topic: python
+    subtopic: core python
+    tags: [mutable default arguments, pitfalls]
+    prompt: |-
+      What does this print?
+
+      def add_claim(claim, batch=[]):
+          batch.append(claim)
+          return batch
+
+      add_claim("A")
+      print(add_claim("B"))
+    est_minutes: 2
+    options:
+      - "['A', 'B']"
+      - "['B']"
+      - "['A']"
+      - It raises a TypeError
+    answer_index: 0
+    explanation: >-
+      Default argument values are evaluated once, when the function is defined. Every call
+      without `batch` shares the same list, so the second call appends to the list that already
+      holds "A". The fix is `batch=None` with `if batch is None: batch = []` inside the
+      function. "['B']" is what most people expect, which is exactly why this bug is common.
+
+  - id: python-0004
+    type: coding_python
+    role: ds
+    difficulty: 4
+    topic: python
+    subtopic: pandas groupby
+    tags: [pandas, groupby, aggregation, missing values, healthcare]
+    prompt: >-
+      df has columns patient_id, visit_id and cost (cost may be NaN for unbilled visits). Write
+      visits_per_patient(df). It returns a DataFrame with columns patient_id, n_visits,
+      n_unbilled and total_cost (the sum of non-missing costs, 0 if none), one row per patient,
+      sorted by patient_id with a fresh 0..n−1 index.
+    hints:
+      - Named aggregation in .agg() keeps the output column names explicit.
+    est_minutes: 8
+    function_name: visits_per_patient
+    starter_code: |
+      import pandas as pd
+
+      def visits_per_patient(df: pd.DataFrame) -> pd.DataFrame:
+          raise NotImplementedError
+    reference_solution: |
+      import pandas as pd
+
+      def visits_per_patient(df):
+          out = (
+              df.assign(_unbilled=df["cost"].isna())
+              .groupby("patient_id", as_index=False)
+              .agg(n_visits=("visit_id", "count"), n_unbilled=("_unbilled", "sum"),
+                   total_cost=("cost", "sum"))
+          )
+          return out.sort_values("patient_id").reset_index(drop=True)
+    test_cases:
+      - args: [{__df__: {patient_id: [2, 1, 2, 3, 1], visit_id: [10, 11, 12, 13, 14], cost: [100.0, null, 50.5, null, 20.0]}}]
+        expected: {__df__: {patient_id: [1, 2, 3], n_visits: [2, 2, 1], n_unbilled: [1, 0, 1], total_cost: [20.0, 150.5, 0.0]}}
+      - args: [{__df__: {patient_id: [5], visit_id: [1], cost: [null]}}]
+        expected: {__df__: {patient_id: [5], n_visits: [1], n_unbilled: [1], total_cost: [0.0]}}
+      - args: [{__df__: {patient_id: [1, 1, 1], visit_id: [1, 2, 3], cost: [1.0, 2.0, 3.0]}}]
+        expected: {__df__: {patient_id: [1], n_visits: [3], n_unbilled: [0], total_cost: [6.0]}}
+      - args: [{__df__: {patient_id: [9, 4], visit_id: [1, 2], cost: [5.0, 7.0]}}]
+        expected: {__df__: {patient_id: [4, 9], n_visits: [1, 1], n_unbilled: [0, 0], total_cost: [7.0, 5.0]}}
+    explanation: >-
+      groupby(...).agg with named aggregations produces the exact output columns. Summing the
+      boolean isna() column counts missing costs. Series.sum skips NaN and returns 0 for an
+      all-NaN group (min_count=0 by default). Pass min_count=1 if you want NaN instead, which
+      is often more honest for "unknown" totals. Counting visit_id counts visits even when
+      cost is missing, whereas counting cost would undercount them.
+
+  - id: python-0005
+    type: coding_python
+    role: ds
+    difficulty: 5
+    topic: python
+    subtopic: missing data
+    tags: [pandas, imputation, groupby transform]
+    prompt: >-
+      Write impute_by_group(df, col, group). It returns a copy of df where missing values in
+      `col` are filled with the median of `col` within the row's `group`. If a group has no
+      observed values, fill with the overall median of `col`. Do not modify the input.
+    est_minutes: 8
+    function_name: impute_by_group
+    starter_code: |
+      import pandas as pd
+
+      def impute_by_group(df: pd.DataFrame, col: str, group: str) -> pd.DataFrame:
+          raise NotImplementedError
+    reference_solution: |
+      def impute_by_group(df, col, group):
+          out = df.copy()
+          group_median = out.groupby(group)[col].transform("median")
+          out[col] = out[col].fillna(group_median).fillna(out[col].median())
+          return out
+    test_cases:
+      - args: [{__df__: {state: [CA, CA, NY, NY, TX], age: [30, null, 50, null, null]}}, age, state]
+        expected: {__df__: {state: [CA, CA, NY, NY, TX], age: [30.0, 30.0, 50.0, 50.0, 40.0]}}
+      - args: [{__df__: {g: [a, a, a, b, c], x: [1.0, 3.0, null, null, 10.0]}}, x, g]
+        expected: {__df__: {g: [a, a, a, b, c], x: [1.0, 3.0, 2.0, 3.0, 10.0]}}
+      - args: [{__df__: {g: [a, b], x: [1.0, 2.0]}}, x, g]
+        expected: {__df__: {g: [a, b], x: [1.0, 2.0]}}
+      - kwargs: {df: {__df__: {g: [a, a, b], x: [4.0, null, 8.0]}}, col: x, group: g}
+        expected: {__df__: {g: [a, a, b], x: [4.0, 4.0, 8.0]}}
+    explanation: >-
+      groupby().transform("median") returns a Series aligned to the original rows, so fillna
+      can use it directly. A group with no observed values yields NaN there, which the second
+      fillna catches. In modeling, compute these medians on training data only and apply them
+      to validation and test data, and consider adding a missing-indicator feature.
+
+  - id: python-0006
+    type: coding_python
+    role: ds
+    difficulty: 5
+    topic: python
+    subtopic: reshaping
+    tags: [pandas, pivot table, dates, insurance]
+    prompt: >-
+      df has columns claim_date ("YYYY-MM-DD" strings), claim_type and amount. Write
+      monthly_claims_pivot(df). It returns a DataFrame with a `month` column ("YYYY-MM") and one
+      column per claim type (alphabetical) holding the total amount, 0 where there were no
+      claims. Rows are sorted by month and the index is 0..n−1.
+    est_minutes: 10
+    function_name: monthly_claims_pivot
+    starter_code: |
+      import pandas as pd
+
+      def monthly_claims_pivot(df: pd.DataFrame) -> pd.DataFrame:
+          raise NotImplementedError
+    reference_solution: |
+      import pandas as pd
+
+      def monthly_claims_pivot(df):
+          d = df.assign(month=pd.to_datetime(df["claim_date"]).dt.strftime("%Y-%m"))
+          wide = d.pivot_table(index="month", columns="claim_type", values="amount",
+                               aggfunc="sum", fill_value=0)
+          wide = wide.reindex(sorted(wide.columns), axis=1).sort_index()
+          wide.columns.name = None
+          return wide.reset_index()
+    test_cases:
+      - args: [{__df__: {claim_date: ["2025-01-15", "2025-01-20", "2025-03-02", "2025-01-31"], claim_type: [theft, glass, glass, theft], amount: [1000, 200, 150, 500]}}]
+        expected: {__df__: {month: ["2025-01", "2025-03"], glass: [200, 150], theft: [1500, 0]}}
+      - args: [{__df__: {claim_date: ["2024-12-31", "2025-01-01"], claim_type: [fire, fire], amount: [10, 20]}}]
+        expected: {__df__: {month: ["2024-12", "2025-01"], fire: [10, 20]}}
+      - args: [{__df__: {claim_date: ["2025-02-01", "2025-02-28", "2025-02-14"], claim_type: [water, collision, water], amount: [5, 7, 6]}}]
+        expected: {__df__: {month: ["2025-02"], collision: [7], water: [11]}}
+      - args: [{__df__: {claim_date: ["2025-05-05", "2025-04-04"], claim_type: [b, a], amount: [1.5, 2.5]}}]
+        expected: {__df__: {month: ["2025-04", "2025-05"], a: [2.5, 0.0], b: [0.0, 1.5]}}
+    explanation: >-
+      Derive the month key, then pivot_table with aggfunc="sum" and fill_value=0. Note that
+      months with no claims at all do not appear. If a continuous calendar is needed, reindex
+      on a full month range. Clearing columns.name removes the leftover "claim_type" axis label.
+
+  - id: python-0007
+    type: coding_python
+    role: ds
+    difficulty: 5
+    topic: python
+    subtopic: deduplication
+    tags: [pandas, drop_duplicates, sorting, ties]
+    prompt: >-
+      A member-enrollment table has columns member_id, record_id, updated_at ("YYYY-MM-DD")
+      and other fields. Write latest_record(df). It keeps one row per member: the one with the
+      latest updated_at, breaking ties by the larger record_id. Return all original columns,
+      sorted by member_id, with a fresh index.
+    est_minutes: 8
+    function_name: latest_record
+    starter_code: |
+      import pandas as pd
+
+      def latest_record(df: pd.DataFrame) -> pd.DataFrame:
+          raise NotImplementedError
+    reference_solution: |
+      import pandas as pd
+
+      def latest_record(df):
+          d = df.assign(_ts=pd.to_datetime(df["updated_at"]))
+          d = d.sort_values(["member_id", "_ts", "record_id"])
+          d = d.drop_duplicates("member_id", keep="last").drop(columns="_ts")
+          return d.reset_index(drop=True)
+    test_cases:
+      - args: [{__df__: {member_id: [1, 1, 2, 2, 3], record_id: [10, 11, 20, 21, 30], updated_at: ["2025-01-01", "2025-02-01", "2025-03-01", "2025-03-01", "2024-12-31"], plan: [A, B, C, D, E]}}]
+        expected: {__df__: {member_id: [1, 2, 3], record_id: [11, 21, 30], updated_at: ["2025-02-01", "2025-03-01", "2024-12-31"], plan: [B, D, E]}}
+      - args: [{__df__: {member_id: [4], record_id: [1], updated_at: ["2025-01-01"], plan: [Z]}}]
+        expected: {__df__: {member_id: [4], record_id: [1], updated_at: ["2025-01-01"], plan: [Z]}}
+      - args: [{__df__: {member_id: [7, 7, 7], record_id: [3, 1, 2], updated_at: ["2025-01-01", "2025-06-01", "2025-03-01"], plan: [x, y, z]}}]
+        expected: {__df__: {member_id: [7], record_id: [1], updated_at: ["2025-06-01"], plan: [y]}}
+      - args: [{__df__: {member_id: [2, 1], record_id: [5, 6], updated_at: ["2025-01-02", "2025-01-01"], plan: [p, q]}}]
+        expected: {__df__: {member_id: [1, 2], record_id: [6, 5], updated_at: ["2025-01-01", "2025-01-02"], plan: [q, p]}}
+    explanation: >-
+      Sort so the wanted row comes last within each member, then drop_duplicates(keep="last").
+      Sorting on the parsed timestamp rather than the string is safer for mixed formats. An
+      explicit tie-breaker makes the result deterministic. Without one, which duplicate
+      survives depends on input order. An equivalent is groupby + idxmax on a composite key.
+
+  - id: python-0008
+    type: coding_python
+    role: ds
+    difficulty: 6
+    topic: python
+    subtopic: time-based logic
+    tags: [pandas, shift, readmission, healthcare]
+    prompt: >-
+      Inpatient stays have columns patient_id, stay_id, admit_date and discharge_date
+      ("YYYY-MM-DD"). Write readmissions_30d(df). It returns a sorted list of stay_ids followed
+      by the same patient's next admission 0 to 30 days (inclusive) after that stay's discharge
+      date. The input may be unsorted.
+    hints:
+      - Sort by patient and admit date, then use groupby().shift(-1) to get the next admission.
+    est_minutes: 12
+    function_name: readmissions_30d
+    starter_code: |
+      import pandas as pd
+
+      def readmissions_30d(df: pd.DataFrame) -> list:
+          raise NotImplementedError
+    reference_solution: |
+      import pandas as pd
+
+      def readmissions_30d(df):
+          d = df.assign(admit=pd.to_datetime(df["admit_date"]),
+                        discharge=pd.to_datetime(df["discharge_date"]))
+          d = d.sort_values(["patient_id", "admit", "stay_id"])
+          d["next_admit"] = d.groupby("patient_id")["admit"].shift(-1)
+          gap = (d["next_admit"] - d["discharge"]).dt.days
+          return sorted(d.loc[(gap >= 0) & (gap <= 30), "stay_id"].tolist())
+    test_cases:
+      - args: [{__df__: {patient_id: [1, 1, 1, 2, 2, 3], stay_id: [101, 102, 103, 201, 202, 301], admit_date: ["2025-01-01", "2025-01-20", "2025-03-30", "2025-05-01", "2025-02-01", "2025-06-01"], discharge_date: ["2025-01-05", "2025-01-25", "2025-04-02", "2025-05-03", "2025-02-05", "2025-06-03"]}}]
+        expected: [101]
+      - args: [{__df__: {patient_id: [7, 7], stay_id: [1, 2], admit_date: ["2025-01-01", "2025-01-04"], discharge_date: ["2025-01-04", "2025-01-09"]}}]
+        expected: [1]
+      - args: [{__df__: {patient_id: [1, 1], stay_id: [1, 2], admit_date: ["2025-01-01", "2025-02-05"], discharge_date: ["2025-01-05", "2025-02-07"]}}]
+        expected: []
+      - args: [{__df__: {patient_id: [1, 1], stay_id: [1, 2], admit_date: ["2025-01-01", "2025-02-04"], discharge_date: ["2025-01-05", "2025-02-07"]}}]
+        expected: [1]
+    explanation: >-
+      Within each patient's sorted stays, shift(-1) aligns each stay with the next admission.
+      The gap from discharge to the next admit decides readmission. The tests cover same-day
+      readmission (0 days, often a transfer, which real metrics may exclude), exactly 30 days
+      (included), 31 days (excluded), and unsorted input. Production definitions also exclude
+      planned readmissions and deaths, and count readmissions to other hospitals when data
+      allow.
+
+  - id: python-0009
+    type: multiple_choice
+    role: ds
+    difficulty: 6
+    topic: python
+    subtopic: pandas assignment
+    tags: [pandas, chained assignment, copy, settingwithcopywarning]
+    prompt: >-
+      You write df[df["status"] == "pending"]["priority"] = "high" and the DataFrame does not
+      change. Why, and what is the correct code?
+    est_minutes: 2
+    options:
+      - The boolean filter returns a new object (or a copy), and the assignment modifies that temporary; use df.loc[df["status"] == "pending", "priority"] = "high"
+      - String columns are immutable in pandas; convert to categorical first
+      - Assignment only works with iloc; use df.iloc[mask, "priority"]
+      - You must call df.update() afterwards to persist the change
+    answer_index: 0
+    explanation: >-
+      This is chained indexing: two separate __getitem__/__setitem__ calls. The first produces
+      an intermediate object, so the second assigns into it, not into df. pandas warns with
+      SettingWithCopyWarning, and under copy-on-write (the default in pandas 3) it never
+      modifies df. A single .loc call with a row mask and a column label sets the values in
+      place. iloc does not accept column labels.
+
+  - id: python-0010
+    type: coding_python
+    role: ds
+    difficulty: 7
+    topic: python
+    subtopic: sessionization
+    tags: [pandas, sessionization, cumsum, time gaps, product analytics]
+    prompt: >-
+      Events have columns user_id and ts ("YYYY-MM-DD HH:MM" strings), in any order. Write
+      sessionize(df, gap_minutes=30). It returns a DataFrame with columns user_id, ts (the
+      original strings) and session_id, sorted by user_id then time. session_id is a per-user
+      counter starting at 1 that increments when the gap since the user's previous event is
+      strictly greater than gap_minutes.
+    hints:
+      - A new session starts at a user's first event or after a large gap; a cumulative sum of those flags numbers the sessions.
+    est_minutes: 12
+    function_name: sessionize
+    starter_code: |
+      import pandas as pd
+
+      def sessionize(df: pd.DataFrame, gap_minutes: int = 30) -> pd.DataFrame:
+          raise NotImplementedError
+    reference_solution: |
+      import pandas as pd
+
+      def sessionize(df, gap_minutes=30):
+          d = df.assign(_t=pd.to_datetime(df["ts"])).sort_values(["user_id", "_t"])
+          new_after_gap = d.groupby("user_id")["_t"].diff() > pd.Timedelta(minutes=gap_minutes)
+          first_event = d["user_id"] != d["user_id"].shift()
+          starts = (new_after_gap | first_event).astype(int)
+          d["session_id"] = starts.groupby(d["user_id"]).cumsum()
+          return d[["user_id", "ts", "session_id"]].reset_index(drop=True)
+    test_cases:
+      - args: [{__df__: {user_id: [1, 1, 2, 1, 1, 2], ts: ["2025-03-01 10:00", "2025-03-01 10:20", "2025-03-01 09:00", "2025-03-01 10:51", "2025-03-01 11:20", "2025-03-01 09:30"]}}]
+        expected: {__df__: {user_id: [1, 1, 1, 1, 2, 2], ts: ["2025-03-01 10:00", "2025-03-01 10:20", "2025-03-01 10:51", "2025-03-01 11:20", "2025-03-01 09:00", "2025-03-01 09:30"], session_id: [1, 1, 2, 2, 1, 1]}}
+      - args: [{__df__: {user_id: [9], ts: ["2025-03-01 00:00"]}}]
+        expected: {__df__: {user_id: [9], ts: ["2025-03-01 00:00"], session_id: [1]}}
+      - args: [{__df__: {user_id: [1, 1, 1], ts: ["2025-03-01 10:00", "2025-03-01 10:05", "2025-03-01 10:20"]}}, 10]
+        expected: {__df__: {user_id: [1, 1, 1], ts: ["2025-03-01 10:00", "2025-03-01 10:05", "2025-03-01 10:20"], session_id: [1, 1, 2]}}
+      - kwargs: {df: {__df__: {user_id: [3, 3], ts: ["2025-03-02 08:00", "2025-03-01 23:45"]}}, gap_minutes: 30}
+        expected: {__df__: {user_id: [3, 3], ts: ["2025-03-01 23:45", "2025-03-02 08:00"], session_id: [1, 2]}}
+    explanation: >-
+      Sort by user and time, flag session starts (the first event per user, or a gap above the
+      threshold), and take a per-user cumulative sum. User 2's 30-minute gap is not strictly
+      greater than 30, so it stays in the same session. This "gaps and islands" pattern is
+      vectorized, so it scales to millions of rows, unlike a Python loop. The same logic in SQL
+      uses LAG and a windowed SUM.
+
+  - id: python-0011
+    type: multiple_choice
+    role: ds
+    difficulty: 7
+    topic: python
+    subtopic: joins
+    tags: [pandas, merge, fan-out, validation]
+    prompt: >-
+      You merge a policies table (one row per policy) with claims (many per policy) and with
+      payments (many per policy), both on policy_id, then sum annual_premium. The total is far
+      larger than the policies table's premium total. What happened, and how do you prevent it?
+    est_minutes: 3
+    options:
+      - The two one-to-many merges multiplied rows (claims × payments per policy), duplicating premiums; aggregate claims and payments to one row per policy before merging, and use merge(validate="one_to_one"/"one_to_many") to catch it
+      - Premiums were stored as strings and were concatenated
+      - merge defaults to an outer join, which adds rows from both sides
+      - pandas double counts when policy_id is the index
+    answer_index: 0
+    explanation: >-
+      A policy with 3 claims and 4 payments becomes 12 rows after both merges, so its premium is
+      summed 12 times. That fan-out is the classic join explosion. Fix it by aggregating each
+      many-side table to the policy grain first, or by summing each measure at its own grain.
+      merge(..., validate=...) raises when the cardinality differs from what you expect. Check
+      row counts after every merge. Note that merge defaults to an inner join, not an outer one.
+
+  - id: python-0012
+    type: free_text
+    role: both
+    difficulty: 8
+    topic: python
+    subtopic: performance
+    tags: [pandas, vectorization, performance, memory]
+    prompt: >-
+      A pandas script that scores 20 million claim lines takes 3 hours, mostly in
+      df.apply(row_function, axis=1), and uses 40 GB of memory. How would you diagnose and speed
+      it up?
+    est_minutes: 8
+    model_answer: >-
+      Profile first (line_profiler, cProfile, memory profiling) to confirm where the time and
+      memory go. Speed: row-wise apply runs Python code per row, about 20 million interpreter
+      calls. Rewrite the logic with vectorized column operations: arithmetic on whole columns,
+      np.where or np.select for conditionals, Series.map or merges for lookups, and
+      groupby().transform for per-group statistics. String operations go through the .str
+      accessor. For logic that cannot be vectorized, use numba or Cython, or push the work into
+      DuckDB or Polars, which run multi-threaded native code. Memory: load only the needed
+      columns (usecols), use compact dtypes (category for repeated strings, smaller ints and
+      floats, Arrow-backed strings), avoid making many intermediate copies, and process in
+      chunks. Store the input as Parquet rather than CSV for faster, columnar, typed reads.
+      Check correctness by comparing old and new outputs on a sample, and add a test so the
+      speedup does not change results.
+    rubric:
+      - "Profiles before optimizing"
+      - "Replaces row-wise apply with vectorized operations (np.where/select, map, transform)"
+      - "Offers native-speed alternatives (numba, DuckDB, Polars) for hard cases"
+      - "Reduces memory via column selection, dtypes (category/downcasting), chunking, Parquet"
+      - "Verifies the optimized output matches the original"
+
+  - id: python-0013
+    type: free_text
+    role: mle
+    difficulty: 9
+    topic: python
+    subtopic: software engineering
+    tags: [packaging, testing, data validation, ci, maintainability]
+    prompt: >-
+      A claims-analytics pipeline lives in a 2,000-line notebook that only its author can run.
+      You are asked to turn it into a maintainable, tested Python package that a team can own.
+      Describe the structure, testing strategy, data validation, configuration and delivery
+      process you would set up.
+    est_minutes: 12
+    model_answer: >-
+      Structure: a src-layout package with pyproject.toml and pinned or locked dependencies.
+      Split it into modules by responsibility: I/O (readers and writers), pure transformation
+      functions, features, modeling, and a thin CLI or orchestration layer (for example `python
+      -m pipeline run --date`). Keep side effects at the edges so the core functions are pure
+      and testable. Testing: unit tests for transformations with small hand-built DataFrames
+      covering edge cases (nulls, duplicates, empty inputs, boundary dates). Add property-based
+      tests (Hypothesis) for invariants such as row conservation or non-negative amounts,
+      golden-file or regression tests on a fixed sample for end-to-end outputs, and tests for
+      the CLI. Data validation: schema and expectation checks at the boundaries (pandera or
+      Great Expectations) for column types, ranges, uniqueness and referential integrity, so
+      the pipeline fails loudly on bad inputs instead of producing silent garbage.
+      Configuration: settings in typed config objects (pydantic) loaded from environment or
+      config files, and secrets from the environment, never in code. Quality and delivery:
+      ruff and mypy, pre-commit hooks, and CI running lint, type checks and tests on every pull
+      request. Add code review, semantic versioning with a changelog, a Docker image or locked
+      environment for reproducible runs, structured logging, and documentation (README, data
+      dictionary, runbook). Migrate incrementally: characterize the current outputs first,
+      refactor behind those regression tests, then hand over ownership with on-call docs.
+    rubric:
+      - "Proposes a package layout separating I/O, pure transforms and orchestration (pyproject, locked deps)"
+      - "Describes layered testing (unit edge cases, property-based, regression/golden outputs)"
+      - "Adds data validation at boundaries (pandera/Great Expectations or equivalent)"
+      - "Handles configuration and secrets properly"
+      - "Sets up CI with lint/type checks/tests, review and versioning"
+      - "Plans an incremental, regression-protected migration and documentation"
+
+  - id: python-0014
+    type: free_text
+    role: both
+    difficulty: 10
+    topic: python
+    subtopic: large data on one machine
+    tags: [out-of-core, duckdb, parquet, arrow, scaling]
+    prompt: >-
+      You must compute patient-level features from 500 GB of EHR event logs (CSV, one file per
+      day) on a single 32 GB, 8-core workstation, and rerun it monthly. Design the approach,
+      covering storage format, compute engine, correctness checks and when you would move to a
+      cluster.
+    est_minutes: 15
+    model_answer: >-
+      Storage: convert the CSVs once to Parquet (columnar and compressed, often 5-10× smaller)
+      with explicit schemas. Partition by date, and possibly by a hash of patient ID, so queries
+      can prune partitions and push predicates down. Keep the raw files immutable and make the
+      conversion idempotent and incremental (only new days each month). Compute: use an
+      out-of-core, multi-threaded engine rather than pandas in memory. DuckDB, or Polars' lazy
+      or streaming mode, can scan Parquet, spill to disk, and run joins and aggregations with
+      bounded memory. Express the features as SQL or lazy queries: windowed aggregates per
+      patient, counts in lookback windows anchored to the prediction dates. Avoid exploding
+      joins, materialize intermediate tables, and limit memory and thread settings. For logic
+      that is truly per-patient, process hash-partitioned buckets of patients independently in
+      parallel processes. Correctness: reconcile row counts between raw and converted data, and
+      check uniqueness and null expectations. Compare the features for a sample of patients
+      against an independent slow implementation (pandas on a subset). Enforce point-in-time
+      correctness of the lookback windows, make runs deterministic, and version the outputs.
+      Performance hygiene: read only the needed columns, use appropriate types (dictionary
+      encoding, timestamps), sort or cluster by patient to help the joins, and benchmark on one
+      month first. Move to a cluster (Spark, or distributed DuckDB/Polars alternatives) when the
+      single machine cannot meet the time window, when the data grows beyond local disk, when
+      many users need concurrent access, or when governance requires a managed platform. Do not
+      move just because the data is larger than RAM: out-of-core engines handle that.
+    rubric:
+      - "Converts to partitioned Parquet with schemas and incremental, idempotent ingestion"
+      - "Uses an out-of-core engine (DuckDB/Polars streaming) instead of in-memory pandas"
+      - "Designs feature computation with windowed aggregates and avoids exploding joins; considers hash-partitioned parallelism"
+      - "Includes correctness checks (reconciliation, sample cross-checks, point-in-time windows)"
+      - "Gives sensible criteria for when to move to a cluster (not merely data > RAM)"

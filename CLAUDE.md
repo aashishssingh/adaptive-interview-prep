@@ -43,7 +43,9 @@ Every question has `role` and `difficulty`, as defined in `prep/meta.py`:
 
 ## Engineering rules
 - Every module gets pytest tests. Run `pytest` and `ruff check .` before finishing any task.
-- Questions are data (YAML/JSON under `data/`), not hard-coded in Python.
+- Questions are data (YAML/JSON under `data/`), not hard-coded in Python. After editing any
+  question or dataset, `python -m prep.bank.validate` must pass. SQL expected results always
+  come from running `reference_query`, never hand-written.
 - LLM calls go only through `prep/llm/` so the provider can be swapped. The app must still run
   with `LLM_PROVIDER=none`.
 - Config comes from `prep/config.py` (`.env` via python-dotenv). Never print key values.

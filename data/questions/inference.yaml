@@ -1,0 +1,510 @@
+questions:
+  - id: inference-0001
+    type: short_answer
+    role: ds
+    difficulty: 1
+    topic: inference
+    subtopic: hypothesis testing
+    tags: [p-value, definitions]
+    prompt: What is a p-value?
+    est_minutes: 1
+    answer: The probability, assuming the null hypothesis is true, of a test statistic at least as extreme as the one observed.
+    explanation: >-
+      A p-value measures how surprising the data are under H0. It is not the probability that
+      H0 is true, not the probability the result is due to chance, and not a measure of effect
+      size. A small p-value says the data would be unusual if H0 held.
+
+  - id: inference-0002
+    type: multiple_choice
+    role: ds
+    difficulty: 2
+    topic: inference
+    subtopic: confidence intervals
+    tags: [confidence interval, interpretation]
+    prompt: >-
+      A study reports a 95% confidence interval of (2.1, 4.7) mmHg for the mean reduction in
+      blood pressure. Which interpretation is correct under the frequentist definition?
+    est_minutes: 2
+    options:
+      - If the study were repeated many times, about 95% of intervals built this way would contain the true mean reduction.
+      - There is a 95% probability that the true mean reduction lies between 2.1 and 4.7.
+      - 95% of patients had a reduction between 2.1 and 4.7 mmHg.
+      - The sample mean will fall in (2.1, 4.7) in 95% of future studies.
+    answer_index: 0
+    explanation: >-
+      The 95% describes the long-run coverage of the procedure. Once computed, this particular
+      interval either contains the fixed true mean or it does not. The strongest distractor
+      ("95% probability the true mean is in this interval") is a Bayesian credible-interval
+      statement. It only holds with a prior, although with flat priors the numbers often
+      coincide. The interval is about the mean, not about individual patients.
+
+  - id: inference-0003
+    type: multiple_choice
+    role: ds
+    difficulty: 3
+    topic: inference
+    subtopic: choosing a test
+    tags: [t-test, welch, test selection, healthcare]
+    prompt: >-
+      You compare mean LDL cholesterol between two independent groups of patients (n = 60 and
+      n = 45). The data look roughly normal, but the sample standard deviations are 38 and 21.
+      Which test is the best default?
+    est_minutes: 2
+    options:
+      - Welch's two-sample t-test
+      - Student's pooled-variance two-sample t-test
+      - Paired t-test
+      - Chi-square test of independence
+    answer_index: 0
+    explanation: >-
+      For independent samples with unequal variances, Welch's t-test does not assume equal
+      variances and keeps its type I error close to nominal. That matters especially when group
+      sizes also differ, as here. The pooled t-test assumes equal variances and can be
+      miscalibrated when the larger variance sits in one group. The paired test needs matched
+      observations, and chi-square is for categorical counts.
+
+  - id: inference-0004
+    type: short_answer
+    role: ds
+    difficulty: 4
+    topic: inference
+    subtopic: confidence intervals
+    tags: [proportion, standard error, insurance]
+    prompt: >-
+      In a random sample of 400 auto claims, 80 were flagged for review. Give the standard error
+      of the flagged proportion and an approximate 95% confidence interval.
+    est_minutes: 2
+    answer: SE = sqrt(0.2·0.8/400) = 0.02; 95% CI ≈ 0.20 ± 0.039 = (0.161, 0.239)
+    explanation: >-
+      p̂ = 80/400 = 0.20, and SE = sqrt(p̂(1 − p̂)/n) = sqrt(0.16/400) = 0.02. The Wald interval
+      is p̂ ± 1.96 × 0.02 ≈ (0.161, 0.239). With np̂ = 80 the normal approximation is fine. For
+      small counts or proportions near 0 or 1, prefer the Wilson interval.
+
+  - id: inference-0005
+    type: coding_python
+    role: ds
+    difficulty: 4
+    topic: inference
+    subtopic: two-proportion test
+    tags: [z-test, proportions, implementation]
+    prompt: >-
+      Write two_prop_z(x1, n1, x2, n2). It returns the pooled two-proportion z statistic for
+      H0: p1 = p2, defined as (p̂1 − p̂2) / SE with SE computed from the pooled proportion. Raise
+      ValueError if a sample size is not positive, or if the pooled proportion is 0 or 1 (the SE
+      is zero).
+    hints:
+      - The pooled proportion is (x1 + x2) / (n1 + n2).
+    follow_ups:
+      - When would you use the unpooled SE instead?
+      - How do you turn z into a two-sided p-value?
+    est_minutes: 8
+    function_name: two_prop_z
+    starter_code: |
+      def two_prop_z(x1, n1, x2, n2):
+          raise NotImplementedError
+    reference_solution: |
+      import math
+
+      def two_prop_z(x1, n1, x2, n2):
+          if n1 <= 0 or n2 <= 0:
+              raise ValueError("sample sizes must be positive")
+          p = (x1 + x2) / (n1 + n2)
+          if p in (0.0, 1.0):
+              raise ValueError("pooled proportion is 0 or 1; SE is zero")
+          se = math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2))
+          return (x1 / n1 - x2 / n2) / se
+    test_cases:
+      - args: [120, 1000, 100, 1000]
+        expected: 1.4293008498232314
+      - args: [30, 200, 30, 200]
+        expected: 0.0
+      - args: [5, 50, 15, 60]
+        expected: -2.03100960115899
+      - args: [480, 4000, 560, 4000]
+        expected: -2.65958387416739
+      - args: [0, 100, 0, 100]
+        expected: {__raises__: ValueError}
+      - args: [3, 0, 4, 10]
+        expected: {__raises__: ValueError}
+    explanation: >-
+      Under H0 both groups share one proportion, so the SE uses the pooled estimate:
+      SE = sqrt(p(1 − p)(1/n1 + 1/n2)). The z statistic is approximately standard normal for
+      large samples, and the two-sided p-value is 2(1 − Φ(|z|)). With zero events in both groups
+      the SE is zero and the test is undefined, so use an exact test instead.
+
+  - id: inference-0006
+    type: short_answer
+    role: ds
+    difficulty: 4
+    topic: inference
+    subtopic: paired designs
+    tags: [paired t-test, wilcoxon, healthcare]
+    prompt: >-
+      Blood pressure is measured on the same 30 patients before and after a medication change.
+      Which test do you use to check whether the mean changed?
+    est_minutes: 1
+    answer: A paired t-test on the within-patient differences (or Wilcoxon signed-rank if the differences are clearly non-normal).
+    explanation: >-
+      The measurements are paired, so analyze the 30 differences. Pairing removes
+      between-patient variability and usually gives much more power than an independent
+      two-sample test. The independent test would also wrongly treat correlated measurements as
+      independent.
+
+  - id: inference-0007
+    type: short_answer
+    role: ds
+    difficulty: 4
+    topic: inference
+    subtopic: multiple testing
+    tags: [family-wise error, multiple comparisons]
+    prompt: >-
+      A team tests 20 independent outcomes at α = 0.05, and all null hypotheses are true. What
+      is the probability of at least one false positive?
+    est_minutes: 2
+    answer: 1 − 0.95^20 ≈ 0.64
+    explanation: >-
+      Each test avoids a false positive with probability 0.95, so all 20 do with probability
+      0.95^20 ≈ 0.358. The chance of at least one false positive is about 64%. This is why
+      unadjusted testing of many endpoints or subgroups produces spurious "findings".
+
+  - id: inference-0008
+    type: coding_python
+    role: ds
+    difficulty: 5
+    topic: inference
+    subtopic: multiple testing
+    tags: [benjamini-hochberg, fdr, implementation]
+    prompt: >-
+      Implement bh_reject(pvalues, q). It applies the Benjamini-Hochberg procedure at false
+      discovery rate q and returns a list of booleans in the original order (True = reject).
+      Handle ties and an empty list.
+    hints:
+      - Sort the p-values and find the largest rank k with p_(k) ≤ k·q/m.
+      - Reject every hypothesis with rank ≤ k, even ones above their own threshold.
+    follow_ups:
+      - What dependence assumption does BH need, and what is the Benjamini-Yekutieli alternative?
+    est_minutes: 12
+    function_name: bh_reject
+    starter_code: |
+      def bh_reject(pvalues, q):
+          raise NotImplementedError
+    reference_solution: |
+      def bh_reject(pvalues, q):
+          m = len(pvalues)
+          order = sorted(range(m), key=lambda i: pvalues[i])
+          k = 0
+          for rank, i in enumerate(order, start=1):
+              if pvalues[i] <= rank * q / m:
+                  k = rank
+          reject = [False] * m
+          for rank, i in enumerate(order, start=1):
+              if rank <= k:
+                  reject[i] = True
+          return reject
+    test_cases:
+      - args: [[0.01, 0.04, 0.03, 0.005], 0.05]
+        expected: [true, true, true, true]
+      - args: [[0.2, 0.5, 0.9], 0.05]
+        expected: [false, false, false]
+      - args: [[0.001, 0.008, 0.039, 0.041, 0.042, 0.06, 0.074, 0.205], 0.05]
+        expected: [true, true, false, false, false, false, false, false]
+      - args: [[0.04, 0.01, 0.04, 0.04], 0.05]
+        expected: [true, true, true, true]
+      - args: [[], 0.05]
+        expected: []
+    explanation: >-
+      BH is a step-up procedure. Find the largest k with p_(k) ≤ (k/m)q and reject the k
+      smallest p-values. The step-up rule means a p-value can be rejected even if it exceeds
+      its own threshold, as long as a larger-ranked one passes. That is why all four tied 0.04
+      values are rejected in the fourth test (0.04 ≤ 4/4 × 0.05). BH controls the FDR at q
+      under independence or positive regression dependence.
+
+  - id: inference-0009
+    type: free_text
+    role: ds
+    difficulty: 5
+    topic: inference
+    subtopic: power and sample size
+    tags: [power, sample size, a/b test]
+    prompt: >-
+      A care-management program hopes to raise a 10% follow-up appointment rate to 12%.
+      Approximately how many patients per group do you need for 80% power at two-sided
+      α = 0.05? What drives the number, and what would you tell a stakeholder who wants to cut
+      it in half?
+    hints:
+      - "n per group ≈ (z_{1−α/2} + z_{1−β})² · (p1q1 + p2q2) / δ²"
+    est_minutes: 7
+    model_answer: >-
+      With z = 1.96 and 0.84, δ = 0.02, p1q1 + p2q2 = 0.09 + 0.1056 = 0.1956:
+      n ≈ (2.80)² × 0.1956 / 0.0004 ≈ 7.85 × 489 ≈ 3,840 patients per group. The pooled-variance
+      formula gives essentially the same, about 3,840. Sample size scales with the outcome
+      variance and with 1/δ², so halving the detectable effect quadruples n. Higher power or a
+      smaller α also raise it. Cutting n in half drops power to roughly 50%, a coin flip to
+      detect a real 2-point lift. Alternatives: accept a larger minimum detectable effect (about
+      2.8 points at half the sample), use variance reduction (stratification, CUPED-style
+      adjustment for baseline covariates), choose a more sensitive outcome, or run longer. Avoid
+      peeking at interim results without a sequential design.
+    rubric:
+      - "Uses a correct sample-size formula with z-values ≈ 1.96 and 0.84"
+      - "Arrives at roughly 3,800-3,900 per group"
+      - "Explains n ∝ variance / δ², so halving δ quadruples n"
+      - "States halving n leaves power near 50% (or a larger MDE of ~2.8 points)"
+      - "Offers legitimate alternatives (variance reduction, larger MDE, longer run, better metric)"
+
+  - id: inference-0010
+    type: free_text
+    role: ds
+    difficulty: 6
+    topic: inference
+    subtopic: multiple testing
+    tags: [bonferroni, holm, fdr, fwer]
+    prompt: >-
+      Compare Bonferroni, Holm and Benjamini-Hochberg corrections. What error rate does each
+      control? Which would you use for (a) a confirmatory trial with three primary endpoints,
+      and (b) screening 20,000 genes for follow-up experiments? Why?
+    est_minutes: 7
+    model_answer: >-
+      Bonferroni tests each of m hypotheses at α/m and controls the family-wise error rate
+      (FWER, the probability of any false positive) under any dependence. It is conservative.
+      Holm is a step-down version. Sort the p-values and compare p_(k) to α/(m − k + 1),
+      stopping at the first non-rejection. It also controls FWER under any dependence and is
+      uniformly more powerful than Bonferroni, so there is no reason to prefer plain
+      Bonferroni. Benjamini-Hochberg controls the false discovery rate (FDR, the expected share
+      of false positives among rejections). It is valid under independence or positive
+      dependence and is far more powerful when many hypotheses are tested. (a) For a
+      confirmatory trial with three primary endpoints, any false claim is costly and regulators
+      expect FWER control, so use Holm or a pre-specified hierarchical/gatekeeping procedure.
+      (b) For gene screening, the goal is a candidate list where a known fraction of false leads
+      is acceptable. FWER control would leave almost nothing, so use BH (or q-values) at, say,
+      10% FDR.
+    rubric:
+      - "Bonferroni and Holm control FWER; BH controls FDR; defines both rates"
+      - "Holm is step-down and uniformly more powerful than Bonferroni"
+      - "Notes BH's dependence assumptions (independence/positive dependence)"
+      - "Chooses FWER control (Holm/gatekeeping) for the confirmatory trial with justification"
+      - "Chooses FDR control (BH) for large-scale screening with justification"
+
+  - id: inference-0011
+    type: free_text
+    role: ds
+    difficulty: 6
+    topic: inference
+    subtopic: bootstrap
+    tags: [bootstrap, confidence interval, median, insurance]
+    prompt: >-
+      Claim amounts are right-skewed. Explain how you would build a 95% bootstrap confidence
+      interval for the median claim amount. Name two variants of bootstrap interval and say when
+      the basic approach can mislead.
+    est_minutes: 6
+    model_answer: >-
+      Resample the n claims with replacement B times (for example B = 2,000 to 10,000) and
+      compute the median of each resample. The percentile interval takes the 2.5th and 97.5th
+      percentiles of the bootstrap medians. The BCa (bias-corrected and accelerated) interval
+      adjusts those percentiles for bias and skewness and usually has better coverage for skewed
+      statistics. The basic (reverse-percentile) interval and the studentized bootstrap are
+      other variants. The bootstrap assumes the resampling units are i.i.d. draws from the
+      population. It misleads with dependent data (several claims per policy: resample policies
+      instead), with very small samples, and for statistics like the median of discrete or
+      heavily tied data, where the bootstrap distribution is lumpy. It fails outright for
+      statistics on the edge of the support, such as the sample maximum.
+    rubric:
+      - "Describes resampling with replacement B times and recomputing the median"
+      - "Explains the percentile interval from bootstrap quantiles"
+      - "Names a second variant (BCa, basic, or studentized) and what it improves"
+      - "States the i.i.d. resampling-unit assumption and the clustered-data fix"
+      - "Mentions at least one failure mode (small n, ties/discreteness, extremes like the max)"
+
+  - id: inference-0012
+    type: multiple_choice
+    role: ds
+    difficulty: 7
+    topic: inference
+    subtopic: bootstrap
+    tags: [bootstrap, failure modes]
+    prompt: For which statistic does the naive nonparametric bootstrap give an inconsistent (wrong even as n grows) confidence interval?
+    est_minutes: 3
+    options:
+      - The sample maximum, used to estimate the upper end of a bounded distribution
+      - The sample mean of a distribution with finite variance
+      - The sample median of a continuous distribution
+      - A regression slope with i.i.d. observations
+    answer_index: 0
+    explanation: >-
+      The bootstrap maximum can never exceed the observed maximum, and it equals it with
+      probability about 1 − (1 − 1/n)^n ≈ 63%. So the bootstrap distribution does not mimic the
+      sampling distribution of the max, and the naive bootstrap is inconsistent for endpoints of
+      the support. Use parametric or m-out-of-n bootstraps there. The median is a tempting
+      distractor because its bootstrap distribution is lumpy in small samples, but the bootstrap
+      is still consistent for it.
+
+  - id: inference-0013
+    type: free_text
+    role: ds
+    difficulty: 7
+    topic: inference
+    subtopic: interpreting null results
+    tags: [equivalence testing, tost, power, absence of evidence]
+    prompt: >-
+      A pilot finds no significant difference in 30-day readmissions between a new discharge
+      protocol and usual care (p = 0.30). A manager concludes the protocol "makes no
+      difference" and can replace usual care. How do you respond, and what analysis would
+      support a claim of no meaningful difference?
+    est_minutes: 6
+    model_answer: >-
+      A non-significant result is absence of evidence, not evidence of absence. A p of 0.30
+      only says the data are compatible with no effect. They may also be compatible with a
+      clinically important harm or benefit if the study is small. Look at the confidence
+      interval for the difference. If it runs from −4 to +6 percentage points, the data cannot
+      rule out an important increase in readmissions. To show the protocol is not meaningfully
+      worse, pre-specify a margin (say, no more than a 1-point increase) and run an equivalence
+      or non-inferiority test, such as two one-sided tests (TOST). Equivalently, check whether
+      the 90% CI lies entirely within the margin. This needs a sample size powered for the
+      margin, usually much larger than the pilot. Post-hoc "observed power" calculations do not
+      help, because they are a function of the p-value.
+    rubric:
+      - "States that non-significance does not show absence of an effect"
+      - "Uses the confidence interval to show which effects remain plausible"
+      - "Proposes equivalence/non-inferiority testing (TOST) with a pre-specified margin"
+      - "Notes the sample size must be powered for the margin"
+      - "Rejects post-hoc observed power as uninformative"
+
+  - id: inference-0014
+    type: free_text
+    role: ds
+    difficulty: 7
+    topic: inference
+    subtopic: clustered data
+    tags: [cluster bootstrap, standard errors, healthcare, dependence]
+    prompt: >-
+      You have 5,000 visits from 800 patients and want a confidence interval for the mean cost
+      per visit. A colleague bootstraps individual visits. What is wrong, and how do you fix it?
+      What is the analogous issue for time series?
+    est_minutes: 6
+    model_answer: >-
+      Visits from the same patient are correlated, because the same patient tends to have
+      similarly expensive visits. Resampling visits as if independent ignores this
+      within-cluster correlation, so it understates the standard error and gives intervals that
+      are too narrow. The effective sample size is closer to the number of patients than the
+      number of visits. Fix: a cluster bootstrap. Resample patients with replacement, keep all
+      of each patient's visits, and recompute the estimator. Alternatively, use cluster-robust
+      (sandwich) standard errors or a mixed model. Also decide whether the estimand is the mean
+      per visit or the mean of per-patient means, since they weight patients differently. For
+      time series, autocorrelation plays the same role: use a block bootstrap (moving or
+      stationary blocks) or HAC (Newey-West) standard errors.
+    rubric:
+      - "Identifies within-patient correlation violating the i.i.d. resampling assumption"
+      - "States the naive bootstrap underestimates SE (intervals too narrow)"
+      - "Proposes resampling patients (cluster bootstrap) or cluster-robust SEs/mixed model"
+      - "Notes the estimand choice (per-visit vs per-patient weighting)"
+      - "Gives the time-series analogue: block bootstrap or HAC standard errors"
+
+  - id: inference-0015
+    type: free_text
+    role: ds
+    difficulty: 8
+    topic: inference
+    subtopic: likelihood-based tests
+    tags: [wald test, likelihood ratio test, score test, logistic regression]
+    prompt: >-
+      Compare Wald, likelihood ratio and score tests for a coefficient in a logistic regression.
+      When can the Wald test behave badly, and which test would you prefer then?
+    est_minutes: 7
+    model_answer: >-
+      All three are asymptotically equivalent χ² tests. The Wald test uses (β̂ / SE)², with SE
+      from the curvature at the MLE, so it needs only the full model. The likelihood ratio test
+      compares 2 × (log L_full − log L_reduced) and needs both fits. The score (Lagrange
+      multiplier) test uses the gradient of the log-likelihood at the restricted estimate, so it
+      needs only the null model. That is handy for screening many added variables. The Wald
+      test is not invariant to reparameterization. It can be badly behaved with large effects,
+      small samples, or quasi-complete separation, where β̂ diverges and the SE grows faster
+      than β̂, so the Wald statistic can shrink toward zero (the Hauck-Donner effect). Near
+      parameter-space boundaries it can also misbehave. In those cases prefer the likelihood
+      ratio test or profile-likelihood confidence intervals, or Firth's penalized likelihood for
+      separation. Use the score test when the full model is hard to fit.
+    rubric:
+      - "Correctly describes what each test computes and which models it needs"
+      - "States they are asymptotically equivalent χ² tests"
+      - "Explains Wald failure under separation/large effects (Hauck-Donner) or small samples"
+      - "Notes Wald lacks reparameterization invariance"
+      - "Recommends LRT/profile likelihood (or Firth) in problematic cases"
+
+  - id: inference-0016
+    type: free_text
+    role: ds
+    difficulty: 9
+    topic: inference
+    subtopic: comparing providers
+    tags: [shrinkage, hierarchical models, ranking, funnel plot, healthcare]
+    prompt: >-
+      A hospital network wants to publish a ranking of 40 hospitals by 30-day mortality, using
+      raw mortality rates. Hospital sizes range from 50 to 5,000 admissions a year. What
+      statistical problems do you see, and how would you design a fairer comparison?
+    follow_ups:
+      - Why do small hospitals dominate both the top and bottom of a raw ranking?
+      - How would you communicate uncertainty in a rank to the public?
+    est_minutes: 12
+    model_answer: >-
+      Problems: (1) Case mix. Hospitals treating sicker patients look worse, so adjust with a
+      risk model built on pre-admission factors, and avoid adjusting for things the hospital
+      causes. (2) Small-sample noise. Small hospitals have very variable rates, so they fill
+      both extremes of a raw ranking by chance, and they regress toward the mean next year.
+      (3) Ranks exaggerate differences. Adjacent ranks are usually statistically
+      indistinguishable, and ranks are highly uncertain. (4) Multiple comparisons when flagging
+      outliers. (5) Data and gaming issues: coding intensity, transfers, and hospice discharges
+      that change who dies within 30 days. Design: fit a hierarchical (random-intercept)
+      logistic model with patient-level risk adjustment, and report shrunken standardized
+      mortality ratios. These partially pool small hospitals toward the network mean. Show a
+      funnel plot of observed versus expected against volume, with control limits, to flag only
+      credible outliers. Report intervals, and if ranks are required, give rank intervals from
+      posterior simulation, or group hospitals into tiers (better, as expected, worse).
+      Pre-register the methodology and validate the risk model's calibration and
+      discrimination. Use several years to stabilize the estimates.
+    rubric:
+      - "Identifies case-mix confounding and need for pre-admission risk adjustment"
+      - "Identifies small-volume noise and regression to the mean dominating extremes"
+      - "Proposes hierarchical modeling/shrinkage (partial pooling) of hospital effects"
+      - "Uses funnel plots or interval-based outlier flagging with multiplicity awareness"
+      - "Communicates rank uncertainty (rank intervals or tiers) instead of a single ranking"
+      - "Mentions data quality/gaming concerns or validation of the risk model"
+
+  - id: inference-0017
+    type: free_text
+    role: ds
+    difficulty: 10
+    topic: inference
+    subtopic: causal inference
+    tags: [observational data, propensity scores, target trial emulation, confounding, healthcare]
+    prompt: >-
+      Using EHR data, estimate whether starting a new anticoagulant within 30 days of an
+      atrial fibrillation diagnosis reduces stroke. Doctors tend to prescribe it to healthier
+      patients. Design the analysis end to end, including the biases you expect and how you
+      would test the robustness of the conclusion.
+    follow_ups:
+      - What is immortal time bias and how does your design avoid it?
+      - How would you choose between matching, weighting and outcome regression?
+    est_minutes: 15
+    model_answer: >-
+      Frame it as target trial emulation. Specify eligibility (new AF diagnosis, no prior
+      anticoagulant, no contraindications), treatment strategies (initiate within 30 days vs
+      not), time zero (diagnosis), outcome (stroke within, say, 1 year) and the estimand (ITT-
+      or per-protocol-like risk difference). Use a clone-censor-weight or grace-period design so
+      that follow-up starts at time zero for everyone. That avoids immortal time bias, where
+      treated patients must survive until treatment starts. Confounding by indication is the
+      core problem: draw a DAG and adjust for pre-baseline confounders (age, CHA2DS2-VASc,
+      bleeding risk, renal function, frailty, prior utilization). Use propensity-score methods
+      (overlap or IPT weighting, or matching) and check covariate balance with standardized
+      differences. Check positivity and trim or restrict where it fails. Prefer doubly robust
+      estimators (AIPW/TMLE) with flexible models. Handle competing risks (death) and
+      informative censoring with inverse-probability-of-censoring weights. Robustness: negative
+      control outcomes and exposures, E-values for unmeasured confounding (frailty is
+      incompletely captured), sensitivity to the grace-period length and to covariate sets,
+      subgroup heterogeneity, and comparison with RCT benchmarks where they exist. Report
+      absolute risks and confidence intervals, and state that the remaining unmeasured
+      confounding limits causal claims.
+    rubric:
+      - "Frames the study as target trial emulation with explicit eligibility, strategies, time zero and estimand"
+      - "Identifies and avoids immortal time bias (aligned time zero, grace period/cloning)"
+      - "Addresses confounding by indication with a DAG and pre-baseline confounder adjustment via PS or doubly robust methods"
+      - "Checks balance and positivity/overlap"
+      - "Handles competing risks and censoring"
+      - "Includes sensitivity analyses for unmeasured confounding (negative controls, E-values)"

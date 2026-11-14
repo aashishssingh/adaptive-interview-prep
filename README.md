@@ -39,6 +39,15 @@ The previous profile is snapshotted to `data/local/snapshots/`, and added/remove
 ids go to `data/local/profile_changes.json`. Entries that are the same thing under different
 names can be merged in `data/profile_aliases.yaml`.
 
+## Question bank
+Questions live in `data/questions/<topic>.yaml` (schema: `prep/bank/schema.py`); shared SQL
+practice datasets live in `data/questions/datasets/*.sql`. Validate the bank (schema, unique ids,
+runs every Python reference solution and SQL reference query, prints coverage):
+
+```bash
+python -m prep.bank.validate
+```
+
 ## Test
 ```bash
 pytest

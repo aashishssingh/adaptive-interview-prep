@@ -1,0 +1,425 @@
+questions:
+  - id: ml_fundamentals-0001
+    type: short_answer
+    role: both
+    difficulty: 1
+    topic: ml_fundamentals
+    subtopic: generalization
+    tags: [overfitting, definitions]
+    prompt: What is overfitting?
+    est_minutes: 1
+    answer: Fitting noise or idiosyncrasies of the training data, so the model performs well on training data but worse on new data.
+    explanation: >-
+      An overfit model has low training error but high generalization error. Signs include a
+      large gap between training and validation performance. Remedies include regularization,
+      simpler models, more data, early stopping and proper validation.
+
+  - id: ml_fundamentals-0002
+    type: multiple_choice
+    role: both
+    difficulty: 2
+    topic: ml_fundamentals
+    subtopic: bias-variance tradeoff
+    tags: [bias-variance, knn]
+    prompt: In k-nearest neighbors, what generally happens as you increase k?
+    est_minutes: 1
+    options:
+      - Bias increases and variance decreases
+      - Bias decreases and variance increases
+      - Both bias and variance decrease
+      - Neither changes; k only affects speed
+    answer_index: 0
+    explanation: >-
+      Larger k averages over more neighbors, giving smoother decision boundaries: less
+      sensitivity to individual points (lower variance) but less ability to follow local
+      structure (higher bias). k = 1 is the low-bias, high-variance extreme. The reversed
+      option describes decreasing k.
+
+  - id: ml_fundamentals-0003
+    type: multiple_choice
+    role: both
+    difficulty: 3
+    topic: ml_fundamentals
+    subtopic: regularization
+    tags: [lasso, ridge, sparsity]
+    prompt: Which statement about L1 (lasso) versus L2 (ridge) regularization is correct?
+    est_minutes: 2
+    options:
+      - L1 can set coefficients exactly to zero, performing feature selection; L2 shrinks coefficients but rarely makes them exactly zero.
+      - L2 sets coefficients exactly to zero; L1 only shrinks them.
+      - Both produce exactly sparse solutions; they differ only in speed.
+      - L1 is preferred when many predictors are highly correlated, because it keeps all of them.
+    answer_index: 0
+    explanation: >-
+      The L1 penalty's corners (the diamond-shaped constraint region) make solutions at
+      exactly zero likely, so lasso selects variables. Ridge's smooth penalty shrinks all
+      coefficients proportionally. With highly correlated predictors, lasso tends to pick one
+      somewhat arbitrarily. Ridge, or elastic net, spreads weight across the group, which is
+      why the last option is wrong.
+
+  - id: ml_fundamentals-0004
+    type: short_answer
+    role: both
+    difficulty: 4
+    topic: ml_fundamentals
+    subtopic: feature scaling
+    tags: [standardization, regularization]
+    prompt: Why should you standardize features before fitting ridge or lasso regression?
+    est_minutes: 1
+    answer: The penalty depends on coefficient size, which depends on each feature's scale, so unscaled features are penalized unequally.
+    explanation: >-
+      A feature measured in dollars rather than thousands of dollars needs a 1,000× smaller
+      coefficient and is barely penalized. Standardizing puts features on a common scale so the
+      penalty treats them comparably. Fit the scaler on training data only, inside the
+      cross-validation pipeline.
+
+  - id: ml_fundamentals-0005
+    type: free_text
+    role: both
+    difficulty: 4
+    topic: ml_fundamentals
+    subtopic: ensembles
+    tags: [random forest, bagging, out-of-bag]
+    prompt: >-
+      Explain how a random forest reduces variance compared with a single deep decision tree.
+      What does the out-of-bag error estimate?
+    est_minutes: 5
+    model_answer: >-
+      A deep tree has low bias but high variance: small data changes produce very different
+      trees. A random forest averages many trees, each grown on a bootstrap sample (bagging).
+      Averaging B identically distributed predictors with pairwise correlation ρ gives variance
+      ρσ² + (1 − ρ)σ²/B. Averaging alone cannot remove the ρσ² term, so random forests also
+      consider only a random subset of features at each split (max_features). That decorrelates
+      the trees and lowers ρ. Bias stays roughly that of a single deep tree. Each bootstrap
+      sample leaves out about 37% of observations. The out-of-bag (OOB) error predicts each
+      observation using only the trees that did not see it. That gives a nearly free estimate of
+      generalization error, similar to cross-validation, assuming i.i.d. rows (not grouped or
+      time-ordered data).
+    rubric:
+      - "Explains bagging: bootstrap samples and averaging many high-variance trees"
+      - "Explains random feature subsampling decorrelates trees (variance formula or equivalent reasoning)"
+      - "States bias stays roughly unchanged while variance falls"
+      - "Defines OOB error using trees that did not train on each observation (~37% left out)"
+
+  - id: ml_fundamentals-0006
+    type: coding_python
+    role: both
+    difficulty: 4
+    topic: ml_fundamentals
+    subtopic: cross-validation
+    tags: [k-fold, cross-validation, implementation]
+    prompt: >-
+      Write kfold_indices(n, k). It splits indices 0..n−1 into k contiguous folds without
+      shuffling and returns a list of [train_indices, test_indices] pairs, one per fold, in
+      order. The first n % k folds get one extra element. Raise ValueError if k < 2 or k > n.
+    est_minutes: 8
+    function_name: kfold_indices
+    starter_code: |
+      def kfold_indices(n, k):
+          raise NotImplementedError
+    reference_solution: |
+      def kfold_indices(n, k):
+          if k < 2 or k > n:
+              raise ValueError("need 2 <= k <= n")
+          sizes = [n // k + (1 if i < n % k else 0) for i in range(k)]
+          folds = []
+          start = 0
+          for size in sizes:
+              stop = start + size
+              test = list(range(start, stop))
+              train = list(range(0, start)) + list(range(stop, n))
+              folds.append([train, test])
+              start = stop
+          return folds
+    test_cases:
+      - args: [6, 3]
+        expected: [[[2, 3, 4, 5], [0, 1]], [[0, 1, 4, 5], [2, 3]], [[0, 1, 2, 3], [4, 5]]]
+      - args: [7, 3]
+        expected: [[[3, 4, 5, 6], [0, 1, 2]], [[0, 1, 2, 5, 6], [3, 4]], [[0, 1, 2, 3, 4], [5, 6]]]
+      - args: [3, 3]
+        expected: [[[1, 2], [0]], [[0, 2], [1]], [[0, 1], [2]]]
+      - args: [5, 1]
+        expected: {__raises__: ValueError}
+      - args: [2, 3]
+        expected: {__raises__: ValueError}
+    explanation: >-
+      Each index appears in exactly one test fold, and the fold sizes differ by at most one.
+      This matches scikit-learn's KFold without shuffling. Contiguous folds are only
+      appropriate when rows are already in random order. Otherwise shuffle first, or use group
+      or time-aware splits.
+
+  - id: ml_fundamentals-0007
+    type: multiple_choice
+    role: both
+    difficulty: 5
+    topic: ml_fundamentals
+    subtopic: boosting
+    tags: [gradient boosting, random forest, overfitting]
+    prompt: Which statement best contrasts gradient boosting with random forests?
+    est_minutes: 2
+    options:
+      - Boosting fits trees sequentially to correct previous errors, mainly reducing bias; with too many trees or a high learning rate it can overfit, so it needs early stopping or validation.
+      - Boosting trains trees independently on bootstrap samples and averages them, mainly reducing variance.
+      - Random forests overfit badly as more trees are added, while boosting does not.
+      - Boosting cannot use shallow trees.
+    answer_index: 0
+    explanation: >-
+      Gradient boosting adds shallow trees one at a time, each fit to the gradient (residuals)
+      of the loss, scaled by a learning rate. It reduces bias and can drive training error very
+      low, so the number of trees must be tuned against validation loss. Random forests average
+      independent deep trees (the strongest distractor describes them). Adding more trees to a
+      forest does not cause overfitting; it only stabilizes the average.
+
+  - id: ml_fundamentals-0008
+    type: free_text
+    role: both
+    difficulty: 5
+    topic: ml_fundamentals
+    subtopic: model selection
+    tags: [logistic regression, gradient boosting, tradeoffs, fraud, insurance]
+    prompt: >-
+      You are building a claims-fraud classifier from 200,000 historical claims with about 60
+      tabular features. Compare regularized logistic regression with gradient-boosted trees.
+      Which would you start with, and what would make you switch?
+    est_minutes: 6
+    model_answer: >-
+      Logistic regression is fast, stable, well calibrated out of the box, and easy to explain
+      to investigators and regulators. But it needs manual feature engineering for
+      nonlinearities and interactions. Gradient-boosted trees (XGBoost, LightGBM) handle
+      nonlinear effects, interactions, missing values and mixed feature types automatically,
+      and usually win on tabular data of this size. But they need tuning, can be less
+      calibrated, and are harder to explain (SHAP helps). I would build a strong logistic
+      baseline with sensible features first. It sets the bar, reveals leakage, and is a
+      fallback. Then fit a GBM with early stopping on a time-based validation split and compare
+      the metrics that matter: precision at the investigation capacity, PR-AUC, and
+      calibration. Switch if the GBM gives a meaningful lift at the operating point and
+      stays stable over time. Stay with or constrain the model (monotonic constraints,
+      interpretable features) if explainability requirements or adverse-action rules dominate.
+      Latency and maintenance costs also matter.
+    rubric:
+      - "Gives logistic regression's strengths (interpretable, stable, calibrated) and weakness (manual nonlinearity)"
+      - "Gives GBM's strengths (nonlinearity, interactions, missing values) and costs (tuning, explainability)"
+      - "Recommends a baseline-first approach with time-aware validation"
+      - "Ties the decision to business metrics at the operating point, calibration and explainability requirements"
+
+  - id: ml_fundamentals-0009
+    type: free_text
+    role: both
+    difficulty: 6
+    topic: ml_fundamentals
+    subtopic: data leakage
+    tags: [target leakage, healthcare, readmission, feature availability]
+    prompt: >-
+      A 30-day readmission model reaches 0.97 AUC on a random test split. Name concrete sources
+      of target leakage you would look for in hospital data, and how you would detect and
+      prevent them.
+    est_minutes: 7
+    model_answer: >-
+      Leakage candidates are features not available at prediction time (discharge) or that
+      encode the outcome. Examples: final billing or diagnosis codes coded after the stay,
+      possibly including the readmission encounter; discharge disposition entered later;
+      follow-up appointment counts or post-discharge pharmacy fills; "days until next visit";
+      care-management enrollment triggered by a readmission; and IDs or timestamps that
+      correlate with the outcome through data processing. Random splits also leak between
+      repeated stays of the same patient. Detection: be suspicious of AUC that beats the
+      literature (typically 0.65-0.75), inspect the top features by importance or SHAP for
+      anything that is implausible, audit each feature's timestamp against the prediction time,
+      and check performance with patient-grouped and time-based splits. Prevention: build
+      point-in-time feature snapshots at the moment of prediction, split by patient and time,
+      keep a feature catalog with availability timestamps, and review features with clinicians.
+    rubric:
+      - "Defines leakage as information unavailable at prediction time or derived from the outcome"
+      - "Gives at least three concrete healthcare examples (post-discharge codes, follow-up events, disposition, etc.)"
+      - "Mentions patient overlap across random splits"
+      - "Gives detection methods (suspicious AUC, feature importance review, timestamp audits)"
+      - "Gives prevention (point-in-time features, grouped/temporal splits, feature availability catalog)"
+
+  - id: ml_fundamentals-0010
+    type: multiple_choice
+    role: both
+    difficulty: 6
+    topic: ml_fundamentals
+    subtopic: cross-validation
+    tags: [leakage, preprocessing, pipelines]
+    prompt: >-
+      You impute missing values with column medians and select the top 50 features by
+      univariate correlation with the label, then run 5-fold cross-validation on the processed
+      data. What is the problem?
+    est_minutes: 2
+    options:
+      - The imputation and feature selection used the labels and statistics of the validation folds, so CV estimates are optimistically biased; both steps must be fit inside each training fold
+      - Median imputation is always worse than mean imputation
+      - 5-fold CV is too few folds; use 10-fold to fix the bias
+      - There is no problem as long as the test set is never used
+    answer_index: 0
+    explanation: >-
+      Supervised feature selection on the full dataset is a classic leak. Features were chosen
+      partly because they correlate with labels in what later becomes the validation fold.
+      With many features this can produce impressive CV scores on pure noise. Median
+      imputation leaks less, but should also be fit per fold. Wrap the preprocessing in a
+      pipeline that is refit within each fold. Changing the number of folds does not remove the
+      bias.
+
+  - id: ml_fundamentals-0011
+    type: free_text
+    role: both
+    difficulty: 7
+    topic: ml_fundamentals
+    subtopic: temporal validation
+    tags: [time series split, leakage, grouped cv, embargo]
+    prompt: >-
+      You are predicting next-month claim costs per member using monthly snapshots from 2021 to
+      2024. Why is random k-fold cross-validation misleading here, and how would you set up
+      validation instead?
+    est_minutes: 7
+    model_answer: >-
+      Random k-fold mixes future and past. The model trains on 2024 snapshots and validates on
+      2022, so it learns from future trends, inflation and policy changes it would not have in
+      production. The same member appears in both train and validation across months, so
+      member-level persistence leaks. Features built with rolling windows can overlap the label
+      period of adjacent rows. All of this makes CV optimistic and hides drift. Instead, use
+      forward-chaining (rolling-origin) validation. Train on data up to month t and validate on
+      t + 1 (or the next quarter), for several origins, mimicking deployment. Add a gap or
+      embargo between training and validation equal to the label horizon, so no training label
+      overlaps the validation feature window. Decide whether members should be disjoint
+      between train and test (for new-member generalization) or not (if production scores
+      existing members). Keep a final out-of-time test period untouched. Report the variability
+      across folds to show stability over time.
+    rubric:
+      - "Explains temporal leakage (training on the future) and hidden drift"
+      - "Identifies member overlap and overlapping feature/label windows"
+      - "Proposes forward-chaining/rolling-origin validation"
+      - "Adds a gap/embargo matching the label horizon"
+      - "Keeps a final out-of-time test set and reports stability across folds"
+
+  - id: ml_fundamentals-0012
+    type: multiple_choice
+    role: both
+    difficulty: 7
+    topic: ml_fundamentals
+    subtopic: feature importance
+    tags: [feature importance, permutation importance, correlated features]
+    prompt: >-
+      In a gradient-boosted model, "member_id_hash" (a high-cardinality numeric column) ranks
+      near the top by impurity-based (gain) importance. Two strongly correlated lab values each
+      show low permutation importance. What is the best interpretation?
+    est_minutes: 3
+    options:
+      - Impurity importance is biased toward high-cardinality features, and permutation importance splits or hides credit among correlated features; neither result means what it seems
+      - The member ID truly drives cost, and the lab values are irrelevant
+      - Permutation importance is always biased toward high-cardinality features
+      - The model is underfit; add more trees
+    answer_index: 0
+    explanation: >-
+      Split-based importance rewards features with many possible split points, even noise IDs,
+      especially when computed on training data. Permuting one of two correlated features
+      barely hurts, because the model can use the other. So each looks unimportant although the
+      pair matters. Better practice: compute permutation importance on held-out data, permute
+      correlated groups together, use SHAP with care, and remove identifier columns.
+
+  - id: ml_fundamentals-0013
+    type: free_text
+    role: both
+    difficulty: 8
+    topic: ml_fundamentals
+    subtopic: model selection bias
+    tags: [nested cross-validation, hyperparameter tuning, optimism]
+    prompt: >-
+      You tune 200 hyperparameter configurations with 5-fold CV and report the best CV AUC
+      (0.842) as expected production performance. Why is this optimistic, and how do you get an
+      honest estimate?
+    est_minutes: 6
+    model_answer: >-
+      Choosing the maximum of 200 noisy CV estimates selects configurations that got lucky on
+      these folds. The winner's score is biased upward, and more so with many configurations,
+      small data, and noisy metrics. The CV score was used for selection, so it is no longer an
+      unbiased performance estimate. Honest options: (1) Hold out a test set that is never used
+      for tuning, and evaluate the chosen model on it once. (2) Nested cross-validation: an inner
+      CV loop tunes the hyperparameters, and an outer loop estimates the performance of the
+      whole tuning procedure. (3) For time-dependent data, a final out-of-time test period.
+      Also report uncertainty (fold spread or bootstrap CIs). Note that the outer estimate
+      measures the procedure, not one specific configuration.
+    rubric:
+      - "Explains selection bias / winner's curse from picking the max of many noisy estimates"
+      - "Notes the bias grows with more configurations, small data, and noisy metrics"
+      - "Proposes an untouched test set used once"
+      - "Explains nested CV (inner tuning, outer evaluation)"
+      - "Mentions reporting uncertainty or out-of-time evaluation"
+
+  - id: ml_fundamentals-0014
+    type: free_text
+    role: both
+    difficulty: 9
+    topic: ml_fundamentals
+    subtopic: high-dimensional data
+    tags: [p >> n, feature selection, regularization, genomics, honest evaluation]
+    prompt: >-
+      You have 500 patients and 20,000 gene-expression features, and must predict response to a
+      therapy and identify candidate biomarkers. Describe your modeling and evaluation strategy
+      and the main ways such studies fool themselves.
+    est_minutes: 12
+    model_answer: >-
+      With p ≫ n, spurious correlations are guaranteed: some of 20,000 noise features will
+      correlate with the outcome by chance. Strategy: start with strong regularization, such as
+      elastic-net logistic regression (handles correlated genes) or other simple models.
+      Optionally reduce dimension first with unsupervised steps (variance filtering, pathways or
+      PCA), which do not use labels and so do not leak. Any supervised selection must happen
+      inside the cross-validation loop. Use nested CV (or repeated CV) to tune the penalty and
+      to estimate performance honestly, with confidence intervals. With n = 500 the estimates
+      are noisy, so report variability across repeats. For biomarker identification, use
+      stability selection (selection frequency across subsamples) and control the error rate,
+      because one lasso fit's selected genes are unstable. Account for batch effects and other
+      confounders (lab site, processing date), which can masquerade as signal. Fit batch
+      corrections within folds or include them as covariates. The ultimate check is external
+      validation in an independent cohort. Ways studies fool themselves: selecting features on
+      all the data before CV, tuning on the test set, ignoring batch effects, reporting the best
+      of many pipelines, small test sets with wide CIs, and over-interpreting lists of selected
+      genes.
+    rubric:
+      - "Recognizes spurious correlation with p >> n and need for strong regularization (e.g., elastic net)"
+      - "Requires any supervised feature selection inside CV; distinguishes unsupervised filtering"
+      - "Uses nested/repeated CV and reports uncertainty"
+      - "Uses stability selection or similar for biomarker identification"
+      - "Addresses batch effects/confounders and external validation"
+      - "Lists common self-deception pitfalls"
+
+  - id: ml_fundamentals-0015
+    type: free_text
+    role: both
+    difficulty: 10
+    topic: ml_fundamentals
+    subtopic: multi-site generalization
+    tags: [distribution shift, multi-site, readmission, fairness, deployment]
+    prompt: >-
+      You must build one readmission-risk model to deploy across 10 hospitals with different
+      EHR vendors, patient populations and coding practices. Training data come from 7 of them.
+      Design the data, modeling and validation strategy so the model works at all 10 sites and
+      stays fair.
+    est_minutes: 15
+    model_answer: >-
+      Data: define the label consistently (30-day all-cause unplanned readmission, capturing
+      readmissions to other hospitals where possible) and the prediction time (at discharge).
+      Map features to a common data model (OMOP or FHIR) with standardized vocabularies. Prefer
+      features that are robust across sites (labs, vitals, diagnosis groups, utilization
+      history) over site-specific workflow artifacts (order-set IDs, documentation habits).
+      These encode the site and shift between vendors. Avoid features unavailable at some
+      sites, or train with that missingness. Modeling: start with regularized, well-calibrated
+      models. Consider site as a random effect, or allow site-specific recalibration of the
+      intercept and slope while sharing the core model. Domain-generalization techniques help
+      little if feature definitions are inconsistent. Validation: leave-one-site-out CV across
+      the 7 training sites, which estimates how the model does at an unseen hospital. Use
+      temporal splits within sites. Before deploying at the 3 new sites, do a silent (shadow)
+      period to collect data, check calibration, and recalibrate locally. Report discrimination
+      and calibration per site and per subgroup (age, sex, race and ethnicity, payer, language).
+      Fairness: check calibration within groups and error-rate gaps at the operating threshold.
+      Be wary of features like prior utilization that encode access to care. Decide jointly with
+      clinicians what the intervention is, because fairness depends on how the score is used.
+      Monitoring: per-site drift and performance dashboards with delayed labels, recalibration
+      triggers, and a governance process for model updates.
+    rubric:
+      - "Standardizes label definition, prediction time, and features across sites (common data model)"
+      - "Prefers robust clinical features over site/workflow artifacts that encode the site"
+      - "Uses leave-one-site-out and temporal validation"
+      - "Plans site-level recalibration/silent deployment for new sites"
+      - "Evaluates calibration and error rates by site and subgroup with attention to proxies like utilization"
+      - "Plans ongoing monitoring and governance"

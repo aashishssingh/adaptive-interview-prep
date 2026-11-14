@@ -1,0 +1,556 @@
+questions:
+  - id: sql-0001
+    type: multiple_choice
+    role: ds
+    difficulty: 2
+    topic: sql
+    subtopic: filtering and aggregation
+    tags: [where, having, group by]
+    prompt: What is the difference between WHERE and HAVING?
+    est_minutes: 1
+    options:
+      - WHERE filters rows before grouping; HAVING filters groups after aggregation and can use aggregate functions
+      - HAVING filters rows before grouping; WHERE filters groups after aggregation
+      - They are interchangeable synonyms
+      - HAVING can only be used with ORDER BY
+    answer_index: 0
+    explanation: >-
+      Logical order: FROM/JOIN, then WHERE, GROUP BY, HAVING, SELECT, ORDER BY. WHERE cannot
+      reference aggregates like COUNT(*), because groups do not exist yet. HAVING can. Filtering
+      in WHERE when possible is also faster, because fewer rows get grouped. The second option
+      reverses the two.
+
+  - id: sql-0002
+    type: coding_sql
+    role: ds
+    difficulty: 2
+    topic: sql
+    subtopic: group by
+    tags: [group by, count, ordering, healthcare]
+    prompt: >-
+      Using the healthcare dataset, count patients per state. Return columns state and
+      n_patients, ordered by n_patients descending, then state ascending.
+    est_minutes: 2
+    dataset: healthcare
+    reference_query: |
+      SELECT state, COUNT(*) AS n_patients
+      FROM patients
+      GROUP BY state
+      ORDER BY n_patients DESC, state
+    order_matters: true
+    explanation: >-
+      GROUP BY state with COUNT(*) gives one row per state. A secondary sort key (state) makes
+      the order deterministic when counts tie. Without it, tied rows can come back in any
+      order.
+
+  - id: sql-0003
+    type: coding_sql
+    role: ds
+    difficulty: 3
+    topic: sql
+    subtopic: anti-joins
+    tags: [not exists, anti-join, left join, product analytics]
+    prompt: >-
+      Using the product_events dataset, list the user_id of every non-internal user who has
+      never made a purchase. Include users with no events at all. Return one column, user_id.
+    hints:
+      - NOT EXISTS, or LEFT JOIN with an IS NULL check, both express an anti-join.
+    est_minutes: 4
+    dataset: product_events
+    reference_query: |
+      SELECT u.user_id
+      FROM users AS u
+      WHERE NOT u.is_internal
+        AND NOT EXISTS (
+          SELECT 1
+          FROM events AS e
+          WHERE e.user_id = u.user_id
+            AND e.event_name = 'purchase'
+        )
+      ORDER BY u.user_id
+    order_matters: false
+    explanation: >-
+      Start from users, not events, so users with no events are included. NOT EXISTS is
+      NULL-safe and states the intent. The LEFT JOIN version must put the purchase filter in
+      the ON clause (LEFT JOIN events e ON e.user_id = u.user_id AND e.event_name =
+      'purchase' ... WHERE e.user_id IS NULL). Putting it in WHERE turns the query into an
+      inner join and drops the users with no events.
+
+  - id: sql-0004
+    type: coding_sql
+    role: ds
+    difficulty: 4
+    topic: sql
+    subtopic: nulls in aggregation
+    tags: ["null", count, avg, healthcare]
+    prompt: >-
+      Using the healthcare dataset, report for each department: n_visits (all visits),
+      n_unbilled (visits with NULL cost) and avg_billed_cost (average of non-NULL costs, rounded
+      to 2 decimals). Order by department.
+    est_minutes: 4
+    dataset: healthcare
+    reference_query: |
+      SELECT department,
+             COUNT(*) AS n_visits,
+             COUNT(*) - COUNT(cost) AS n_unbilled,
+             ROUND(AVG(cost), 2) AS avg_billed_cost
+      FROM visits
+      GROUP BY department
+      ORDER BY department
+    order_matters: true
+    explanation: >-
+      COUNT(*) counts rows, while COUNT(cost) counts non-NULL values, so their difference is the
+      number of NULLs. AVG ignores NULLs, so it is the mean over billed visits only.
+      COALESCE(cost, 0) would wrongly drag the average down by treating unbilled visits as
+      free.
+
+  - id: sql-0005
+    type: coding_sql
+    role: both
+    difficulty: 4
+    topic: sql
+    subtopic: duplicates
+    tags: [duplicates, data quality, group by having, insurance]
+    prompt: >-
+      Some payments were double-posted: the payments table contains identical rows. Using the
+      insurance dataset, return each duplicated payment once with all its columns (payment_id,
+      policy_id, payment_date, amount, method) plus n_copies, the number of identical rows.
+    est_minutes: 4
+    dataset: insurance
+    reference_query: |
+      SELECT payment_id, policy_id, payment_date, amount, method, COUNT(*) AS n_copies
+      FROM payments
+      GROUP BY payment_id, policy_id, payment_date, amount, method
+      HAVING COUNT(*) > 1
+      ORDER BY payment_id
+    order_matters: false
+    explanation: >-
+      Grouping by every column collapses identical rows, and HAVING COUNT(*) > 1 keeps the
+      duplicated ones. GROUP BY treats NULLs as equal, so duplicate rows with a NULL method are
+      caught too. To remove the duplicates downstream, use SELECT DISTINCT, or ROW_NUMBER() over
+      all columns and keep rn = 1. Then find the root cause in the ingestion job.
+
+  - id: sql-0006
+    type: coding_sql
+    role: ds
+    difficulty: 5
+    topic: sql
+    subtopic: window functions
+    tags: [dense_rank, ties, top-n per group, healthcare]
+    prompt: >-
+      Using the healthcare dataset, find the visits with the top 3 distinct costs in each
+      department, keeping ties (if two visits share the highest cost, both are rank 1). Ignore
+      visits with NULL cost. Return department, visit_id, cost and cost_rank.
+    hints:
+      - Compare ROW_NUMBER, RANK and DENSE_RANK on tied values.
+    est_minutes: 6
+    dataset: healthcare
+    reference_query: |
+      SELECT department, visit_id, cost, cost_rank
+      FROM (
+        SELECT department, visit_id, cost,
+               DENSE_RANK() OVER (PARTITION BY department ORDER BY cost DESC) AS cost_rank
+        FROM visits
+        WHERE cost IS NOT NULL
+      ) AS ranked
+      WHERE cost_rank <= 3
+      ORDER BY department, cost_rank, visit_id
+    order_matters: false
+    explanation: >-
+      DENSE_RANK assigns tied costs the same rank and leaves no gaps, so "top 3 distinct cost
+      levels" can return more than 3 rows per department (Cardiology has several tied visits).
+      RANK leaves gaps after ties (1, 1, 3). ROW_NUMBER breaks ties arbitrarily and would drop
+      tied visits. The window result must be filtered in an outer query, because WHERE runs
+      before window functions.
+
+  - id: sql-0007
+    type: coding_sql
+    role: ds
+    difficulty: 5
+    topic: sql
+    subtopic: funnels
+    tags: [funnel, count distinct, product analytics]
+    prompt: >-
+      Using the product_events dataset, build a funnel for non-internal users: the number of
+      distinct users with at least one view_item, add_to_cart and purchase event. Return step
+      and users, ordered view_item, add_to_cart, purchase.
+    est_minutes: 5
+    dataset: product_events
+    reference_query: |
+      SELECT e.event_name AS step,
+             COUNT(DISTINCT e.user_id) AS users
+      FROM events AS e
+      JOIN users AS u USING (user_id)
+      WHERE NOT u.is_internal
+        AND e.event_name IN ('view_item', 'add_to_cart', 'purchase')
+      GROUP BY e.event_name
+      ORDER BY CASE e.event_name
+                 WHEN 'view_item' THEN 1
+                 WHEN 'add_to_cart' THEN 2
+                 ELSE 3
+               END
+    order_matters: true
+    explanation: >-
+      COUNT(DISTINCT user_id) counts users, not events, which also neutralizes the duplicated
+      client-retry event. A CASE expression in ORDER BY imposes the funnel order. This is a
+      "loose" funnel: it does not require the steps in sequence. A strict funnel would check
+      that each user's purchase follows their add_to_cart, using timestamps.
+
+  - id: sql-0008
+    type: coding_sql
+    role: ds
+    difficulty: 5
+    topic: sql
+    subtopic: running totals
+    tags: [window functions, running total, date_trunc, deduplication, insurance]
+    prompt: >-
+      Using the insurance dataset, compute total payments per calendar month and a running
+      total over months. Count double-posted identical rows only once. Return month (as
+      'YYYY-MM'), total and running_total, ordered by month.
+    est_minutes: 6
+    dataset: insurance
+    reference_query: |
+      WITH deduped AS (
+        SELECT DISTINCT payment_id, policy_id, payment_date, amount, method
+        FROM payments
+      ),
+      monthly AS (
+        SELECT DATE_TRUNC('month', payment_date) AS month_start, SUM(amount) AS total
+        FROM deduped
+        GROUP BY 1
+      )
+      SELECT strftime(month_start, '%Y-%m') AS month,
+             total,
+             SUM(total) OVER (ORDER BY month_start
+                              ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total
+      FROM monthly
+      ORDER BY month_start
+    order_matters: true
+    explanation: >-
+      Deduplicate first, aggregate to months second, and apply the window last. A windowed SUM
+      ordered by month gives the running total. An explicit ROWS frame avoids the default RANGE
+      frame's surprising treatment of ties. Months with no payments would be missing. Join to a
+      generated calendar if a gap-free series is needed.
+
+  - id: sql-0009
+    type: coding_sql
+    role: ds
+    difficulty: 6
+    topic: sql
+    subtopic: self-referencing time logic
+    tags: [lead, readmission, date arithmetic, healthcare]
+    prompt: >-
+      Using the healthcare dataset, compute the 30-day readmission rate for inpatient stays. An
+      index stay is an inpatient visit with a non-NULL discharge_date. It counts as readmitted if
+      the same patient's next inpatient visit starts 0-30 days after that discharge. Return
+      index_stays, readmitted and readmit_rate (rounded to 4 decimals).
+    est_minutes: 8
+    dataset: healthcare
+    reference_query: |
+      WITH stays AS (
+        SELECT patient_id, visit_id, visit_date, discharge_date,
+               LEAD(visit_date) OVER (PARTITION BY patient_id
+                                      ORDER BY visit_date, visit_id) AS next_admit
+        FROM visits
+        WHERE visit_type = 'inpatient'
+      )
+      SELECT COUNT(*) AS index_stays,
+             SUM(CASE WHEN next_admit - discharge_date BETWEEN 0 AND 30 THEN 1 ELSE 0 END)
+               AS readmitted,
+             ROUND(AVG(CASE WHEN next_admit - discharge_date BETWEEN 0 AND 30
+                            THEN 1.0 ELSE 0.0 END), 4) AS readmit_rate
+      FROM stays
+      WHERE discharge_date IS NOT NULL
+    order_matters: false
+    explanation: >-
+      LEAD gets each stay's next inpatient admission within the patient. In DuckDB, subtracting
+      two DATEs gives days. Filter to inpatient visits before computing LEAD, so outpatient
+      visits are not mistaken for readmissions. Exclude the still-admitted stay (NULL
+      discharge) from the denominator only. Its admission can still be someone's readmission,
+      which is why the filter sits outside the CTE. A NULL next_admit falls into ELSE 0.
+
+  - id: sql-0010
+    type: coding_sql
+    role: ds
+    difficulty: 6
+    topic: sql
+    subtopic: first event per group
+    tags: [row_number, deterministic ties, healthcare]
+    prompt: >-
+      Using the healthcare dataset, return each patient's first visit: patient_id,
+      first_visit_date and first_department. If a patient has two visits on their first date,
+      take the one with the smaller visit_id. Patients without visits are not listed.
+    est_minutes: 5
+    dataset: healthcare
+    reference_query: |
+      SELECT patient_id, visit_date AS first_visit_date, department AS first_department
+      FROM (
+        SELECT patient_id, visit_date, department,
+               ROW_NUMBER() OVER (PARTITION BY patient_id ORDER BY visit_date, visit_id) AS rn
+        FROM visits
+      ) AS ordered
+      WHERE rn = 1
+      ORDER BY patient_id
+    order_matters: false
+    explanation: >-
+      ROW_NUMBER with a complete ordering, date then id, picks exactly one deterministic row
+      per patient. MIN(visit_date) alone cannot also give you the department without a join
+      back, and that join returns two rows when there are same-day ties. DuckDB also supports
+      QUALIFY rn = 1 and arg_min(department, (visit_date, visit_id)).
+
+  - id: sql-0011
+    type: multiple_choice
+    role: both
+    difficulty: 7
+    topic: sql
+    subtopic: null semantics
+    tags: [not in, "null", three-valued logic]
+    prompt: >-
+      The subquery below returns ('Medicare', NULL). How many rows does the outer query return,
+      if patients has 40 rows and several of them have insurance_type = 'Commercial'?
+
+      SELECT * FROM patients
+      WHERE insurance_type NOT IN (SELECT insurance_type FROM excluded_types);
+    est_minutes: 3
+    options:
+      - "0 rows"
+      - All non-Medicare patients
+      - All non-Medicare patients except those with NULL insurance_type
+      - It raises an error
+    answer_index: 0
+    explanation: >-
+      x NOT IN ('Medicare', NULL) means x <> 'Medicare' AND x <> NULL. The comparison with NULL
+      is UNKNOWN, so the whole predicate is never TRUE, and no rows are returned. This silently
+      empties reports. The fixes behave differently. NOT EXISTS returns the second option: a
+      patient with NULL insurance_type has no matching row, so it is kept. Removing NULLs from
+      the subquery and keeping NOT IN returns the third option, because NULL <> 'Medicare' is
+      UNKNOWN and those patients are dropped. Pick the one that matches the intent.
+
+  - id: sql-0012
+    type: coding_sql
+    role: ds
+    difficulty: 7
+    topic: sql
+    subtopic: join fan-out
+    tags: [fan-out, aggregation grain, loss ratio, insurance]
+    prompt: >-
+      Using the insurance dataset, compute a simplified loss ratio per product: approved claim
+      amounts (status = 'approved') divided by annual premiums, over all policies including
+      those with no claims. Return product, premium, approved_losses and loss_ratio (rounded to
+      3 decimals). Make sure premiums are not double counted for policies with several claims.
+    hints:
+      - Aggregate claims to one row per policy before joining to policies.
+    est_minutes: 8
+    dataset: insurance
+    reference_query: |
+      WITH claims_by_policy AS (
+        SELECT policy_id, SUM(amount_approved) AS approved
+        FROM claims
+        WHERE status = 'approved'
+        GROUP BY policy_id
+      )
+      SELECT p.product,
+             SUM(p.annual_premium) AS premium,
+             SUM(COALESCE(c.approved, 0)) AS approved_losses,
+             ROUND(SUM(COALESCE(c.approved, 0)) / SUM(p.annual_premium), 3) AS loss_ratio
+      FROM policies AS p
+      LEFT JOIN claims_by_policy AS c USING (policy_id)
+      GROUP BY p.product
+      ORDER BY p.product
+    order_matters: false
+    explanation: >-
+      Joining policies directly to claims repeats each policy's premium once per claim. In this
+      dataset that inflates auto and home premiums substantially, but not life, since no life
+      policy has more than one claim. Pre-aggregating claims to the policy grain keeps one row
+      per policy. The LEFT JOIN keeps policies with no claims, so their premium counts in the
+      denominator. A real loss ratio would use earned premium and incurred losses over a common
+      period.
+
+  - id: sql-0013
+    type: coding_sql
+    role: ds
+    difficulty: 7
+    topic: sql
+    subtopic: a/b test analysis
+    tags: [experiment analysis, deduplication, exposure, product analytics]
+    prompt: >-
+      Using the product_events dataset, compute conversion by variant for experiment
+      'checkout_v2'. Rules: deduplicate assignment rows; exclude users assigned to more than one
+      variant; exclude internal users; a user converts if they have a purchase event at or after
+      their assignment time. Return variant, users, converters and conversion_rate (rounded to 4
+      decimals).
+    hints:
+      - Clean the assignments to one row per user first, then join purchases.
+    follow_ups:
+      - Is excluding users seen in both variants safe if the treatment caused the re-assignment?
+      - How would you test whether the difference is significant?
+    est_minutes: 10
+    dataset: product_events
+    reference_query: |
+      WITH clean_assign AS (
+        SELECT user_id, MIN(variant) AS variant, MIN(assigned_at) AS assigned_at
+        FROM experiment_assignments
+        WHERE experiment = 'checkout_v2'
+        GROUP BY user_id
+        HAVING COUNT(DISTINCT variant) = 1
+      ),
+      eligible AS (
+        SELECT a.*
+        FROM clean_assign AS a
+        JOIN users AS u USING (user_id)
+        WHERE NOT u.is_internal
+      ),
+      converted AS (
+        SELECT DISTINCT e.user_id
+        FROM events AS e
+        JOIN eligible AS a USING (user_id)
+        WHERE e.event_name = 'purchase'
+          AND e.event_time >= a.assigned_at
+      )
+      SELECT a.variant,
+             COUNT(*) AS users,
+             COUNT(c.user_id) AS converters,
+             ROUND(COUNT(c.user_id) * 1.0 / COUNT(*), 4) AS conversion_rate
+      FROM eligible AS a
+      LEFT JOIN converted AS c USING (user_id)
+      GROUP BY a.variant
+      ORDER BY a.variant
+    order_matters: false
+    explanation: >-
+      Each rule removes a real bias. Duplicate assignment rows would double count users. Users
+      in both variants are contaminated. Internal accounts are not real customers. Purchases
+      before assignment cannot be caused by the treatment. The denominator is all eligible
+      assigned users, including those with no events, so the LEFT JOIN matters. Report the
+      exclusion counts per arm too: if exclusions differ by variant, that is itself a red flag
+      (SRM).
+
+  - id: sql-0014
+    type: coding_sql
+    role: both
+    difficulty: 8
+    topic: sql
+    subtopic: gaps and islands
+    tags: [sessionization, lag, window functions, product analytics]
+    prompt: >-
+      Using the product_events dataset, sessionize events: a new session starts at a user's
+      first event or when more than 30 minutes have passed since their previous event. Return
+      user_id, sessions (number of sessions) and events (number of events) for every user with
+      events, ordered by sessions descending, then user_id.
+    est_minutes: 10
+    dataset: product_events
+    reference_query: |
+      WITH ordered AS (
+        SELECT user_id, event_time,
+               LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time, event_id) AS prev_time
+        FROM events
+      ),
+      flagged AS (
+        SELECT user_id,
+               CASE WHEN prev_time IS NULL
+                         OR event_time - prev_time > INTERVAL 30 MINUTE THEN 1 ELSE 0 END
+                 AS new_session
+        FROM ordered
+      )
+      SELECT user_id, SUM(new_session) AS sessions, COUNT(*) AS events
+      FROM flagged
+      GROUP BY user_id
+      ORDER BY sessions DESC, user_id
+    order_matters: true
+    explanation: >-
+      LAG gives the previous event per user. A start flag (first event, or gap > 30 minutes)
+      summed per user counts the sessions. A running SUM of the flag would also number them
+      (session_id). The event_id tie-breaker keeps the order stable for simultaneous events,
+      such as the duplicated retry. The duplicate inflates the event count but not the session
+      count, which is one reason to deduplicate first in real pipelines.
+
+  - id: sql-0015
+    type: coding_sql
+    role: ds
+    difficulty: 9
+    topic: sql
+    subtopic: cohort analysis
+    tags: [cohort retention, date_trunc, date_diff, product analytics]
+    prompt: >-
+      Using the product_events dataset, build a weekly signup-cohort retention table for
+      non-internal users. cohort_week is the Monday-starting week of signup_date (as
+      'YYYY-MM-DD'). week_offset is the number of weeks between the cohort week and the week of
+      an event. Return cohort_week, n_users (all non-internal users who signed up that week,
+      including those with no events), week_offset, active_users and retention
+      (active_users / n_users, rounded to 3 decimals), for every offset where at least one user
+      was active. Order by cohort_week, then week_offset.
+    hints:
+      - Compute cohort sizes separately from activity, or users with no events disappear from the denominator.
+    follow_ups:
+      - Why do later cohorts show fewer offsets, and how would you avoid misreading that as churn?
+    est_minutes: 15
+    dataset: product_events
+    reference_query: |
+      WITH activity AS (
+        SELECT DISTINCT u.user_id,
+               DATE_TRUNC('week', u.signup_date) AS cohort_start,
+               DATE_DIFF('week', DATE_TRUNC('week', u.signup_date),
+                         DATE_TRUNC('week', e.event_time)) AS week_offset
+        FROM users AS u
+        JOIN events AS e USING (user_id)
+        WHERE NOT u.is_internal
+      ),
+      cohort_size AS (
+        SELECT DATE_TRUNC('week', signup_date) AS cohort_start, COUNT(*) AS n_users
+        FROM users
+        WHERE NOT is_internal
+        GROUP BY 1
+      )
+      SELECT strftime(a.cohort_start, '%Y-%m-%d') AS cohort_week,
+             s.n_users,
+             a.week_offset,
+             COUNT(DISTINCT a.user_id) AS active_users,
+             ROUND(COUNT(DISTINCT a.user_id) * 1.0 / s.n_users, 3) AS retention
+      FROM activity AS a
+      JOIN cohort_size AS s USING (cohort_start)
+      GROUP BY a.cohort_start, s.n_users, a.week_offset
+      ORDER BY a.cohort_start, a.week_offset
+    order_matters: true
+    explanation: >-
+      Two grains are needed: cohort size from users (so inactive signups count in the
+      denominator) and distinct active users per cohort and offset from events. Truncating both
+      dates to the week before differencing gives calendar-week offsets. Later cohorts have
+      fewer observable weeks because the data end (right-censoring). Compare cohorts only at
+      offsets every cohort could reach, or the latest cohorts will look like they churned.
+
+  - id: sql-0016
+    type: free_text
+    role: ds
+    difficulty: 10
+    topic: sql
+    subtopic: metric reconciliation
+    tags: [debugging, data quality, metrics, reconciliation, fan-out]
+    prompt: >-
+      Your dashboard's "net revenue per paying member" for last quarter is 4% higher than
+      Finance's number, and both teams insist their SQL is right. Describe, step by step, how
+      you would find the discrepancy and prevent it from recurring.
+    est_minutes: 12
+    model_answer: >-
+      Start by aligning definitions, which are the most common culprit. Is it gross or net of
+      refunds and chargebacks? Booking date or recognition date? Which time zone sets the
+      quarter boundary? Are internal and test accounts excluded? Does "paying member" mean at
+      least one payment in the quarter, or active subscribers? Then reconcile numerically, top
+      down. Compare the numerator and the denominator separately, then split by month, product
+      and channel to localize where the gap appears. Find the smallest slice that disagrees and
+      diff it at the record level: join both queries' row-level outputs on transaction ID and
+      list the rows in one but not the other, or with different amounts. Common technical
+      causes: join fan-out (joining payments to a one-to-many table such as line items or
+      promotions duplicates revenue), duplicate events from retries, NULL handling (COUNT(col)
+      vs COUNT(*), NOT IN with NULLs), inner joins that silently drop members who lack a
+      dimension record, late-arriving or restated data (Finance's ledger is updated
+      retroactively), currency conversion timing, and differing filters on statuses (pending,
+      failed). Validate the fix by matching Finance to the cent on a closed period. Prevention:
+      a single governed metric definition (semantic layer or dbt metric) used by both
+      dashboards, documented grain and filters, automated reconciliation tests against the
+      ledger with tolerance alerts, uniqueness and row-count tests on the key models, and a
+      change log for metric definitions.
+    rubric:
+      - "Aligns metric definitions first (refunds, timing/time zone, exclusions, denominator definition)"
+      - "Decomposes numerator and denominator and slices to localize the gap"
+      - "Diffs at record level between the two sources"
+      - "Names technical causes such as fan-out joins, duplicates, NULL semantics, dropped rows in inner joins, late data"
+      - "Prevents recurrence with a single governed definition plus automated reconciliation/data tests"

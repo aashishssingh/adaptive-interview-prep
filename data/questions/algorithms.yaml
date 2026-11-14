@@ -1,0 +1,488 @@
+questions:
+  - id: algorithms-0001
+    type: coding_python
+    role: mle
+    difficulty: 2
+    topic: algorithms
+    subtopic: hashing
+    tags: [hash map, arrays, two sum]
+    prompt: >-
+      Write two_sum(nums, target). It returns the indices [i, j] with i < j of the first pair
+      (by j, the later index) whose values sum to target, or [] if none exists. Aim for O(n)
+      time.
+    hints:
+      - Store each value's first index in a dict and look up target − x.
+    est_minutes: 5
+    function_name: two_sum
+    starter_code: |
+      def two_sum(nums, target):
+          raise NotImplementedError
+    reference_solution: |
+      def two_sum(nums, target):
+          seen = {}
+          for j, x in enumerate(nums):
+              if target - x in seen:
+                  return [seen[target - x], j]
+              if x not in seen:
+                  seen[x] = j
+          return []
+    test_cases:
+      - args: [[2, 7, 11, 15], 9]
+        expected: [0, 1]
+      - args: [[3, 2, 4], 6]
+        expected: [1, 2]
+      - args: [[3, 3], 6]
+        expected: [0, 1]
+      - args: [[1, 2], 7]
+        expected: []
+      - args: [[-1, 5, 0, -4], -5]
+        expected: [0, 3]
+    explanation: >-
+      One pass with a value-to-index map gives O(n) time and O(n) space, against O(n²) for
+      checking all pairs. Checking for the complement before inserting x prevents pairing an
+      element with itself ([3, 2, 4] with target 6 must not return [0, 0]). Keeping the first
+      index handles duplicates.
+
+  - id: algorithms-0002
+    type: coding_python
+    role: mle
+    difficulty: 3
+    topic: algorithms
+    subtopic: counting
+    tags: [hash map, strings, counting]
+    prompt: >-
+      Write first_unique_char(s). It returns the index of the first character that appears
+      exactly once in s, or −1 if there is none (including for the empty string).
+    est_minutes: 4
+    function_name: first_unique_char
+    starter_code: |
+      def first_unique_char(s):
+          raise NotImplementedError
+    reference_solution: |
+      from collections import Counter
+
+      def first_unique_char(s):
+          counts = Counter(s)
+          for i, ch in enumerate(s):
+              if counts[ch] == 1:
+                  return i
+          return -1
+    test_cases:
+      - args: ["claimsclaim"]
+        expected: 5
+      - args: ["aabb"]
+        expected: -1
+      - args: [""]
+        expected: -1
+      - args: ["x"]
+        expected: 0
+      - args: ["leetcode"]
+        expected: 0
+    explanation: >-
+      Two passes: count every character, then scan in order for the first count of 1. That is
+      O(n) time and O(alphabet) space. Scanning with s.count(ch) inside the loop is O(n²).
+
+  - id: algorithms-0003
+    type: coding_python
+    role: mle
+    difficulty: 4
+    topic: algorithms
+    subtopic: sorting
+    tags: [intervals, sorting, insurance]
+    prompt: >-
+      A member has several coverage periods given as [start, end] day numbers. Write
+      merge_intervals(intervals). It returns the merged, non-overlapping periods sorted by
+      start. Periods that touch (end == next start) count as overlapping and are merged.
+    est_minutes: 7
+    function_name: merge_intervals
+    starter_code: |
+      def merge_intervals(intervals):
+          raise NotImplementedError
+    reference_solution: |
+      def merge_intervals(intervals):
+          merged = []
+          for start, end in sorted(intervals):
+              if merged and start <= merged[-1][1]:
+                  merged[-1][1] = max(merged[-1][1], end)
+              else:
+                  merged.append([start, end])
+          return merged
+    test_cases:
+      - args: [[[1, 3], [8, 10], [2, 6], [15, 18]]]
+        expected: [[1, 6], [8, 10], [15, 18]]
+      - args: [[[1, 4], [4, 5]]]
+        expected: [[1, 5]]
+      - args: [[]]
+        expected: []
+      - args: [[[5, 7]]]
+        expected: [[5, 7]]
+      - args: [[[1, 10], [2, 3], [4, 5]]]
+        expected: [[1, 10]]
+    explanation: >-
+      Sort by start (O(n log n)), then sweep, extending the last merged interval while the
+      next one starts at or before its end. Taking max of the ends handles intervals fully
+      nested inside a longer one ([1, 10] contains [2, 3]). Merging touching intervals is a
+      business-rule choice: continuous coverage across back-to-back periods.
+
+  - id: algorithms-0004
+    type: coding_python
+    role: mle
+    difficulty: 5
+    topic: algorithms
+    subtopic: sliding window
+    tags: [sliding window, two pointers, strings]
+    prompt: >-
+      Write longest_unique_substring(s). It returns the length of the longest substring of s
+      with no repeated characters. Aim for O(n).
+    hints:
+      - Keep a window [start, i] and the last index of each character; move start past a repeat.
+    est_minutes: 10
+    function_name: longest_unique_substring
+    starter_code: |
+      def longest_unique_substring(s):
+          raise NotImplementedError
+    reference_solution: |
+      def longest_unique_substring(s):
+          last = {}
+          start = best = 0
+          for i, ch in enumerate(s):
+              if ch in last and last[ch] >= start:
+                  start = last[ch] + 1
+              last[ch] = i
+              best = max(best, i - start + 1)
+          return best
+    test_cases:
+      - args: ["abcabcbb"]
+        expected: 3
+      - args: ["bbbbb"]
+        expected: 1
+      - args: [""]
+        expected: 0
+      - args: ["pwwkew"]
+        expected: 3
+      - args: ["abba"]
+        expected: 2
+    explanation: >-
+      The window only moves forward, so each character is processed once: O(n). The check
+      last[ch] >= start matters. In "abba", the final "a" was last seen before the current
+      window start, so the window must not jump backwards. Missing that check is the most
+      common bug.
+
+  - id: algorithms-0005
+    type: coding_python
+    role: mle
+    difficulty: 5
+    topic: algorithms
+    subtopic: hashing and sorting
+    tags: [counter, sorting, heap, top-k]
+    prompt: >-
+      Write top_k_frequent(nums, k). It returns the k most frequent values, ordered by
+      frequency descending and then by value ascending. If k exceeds the number of distinct
+      values, return them all.
+    est_minutes: 7
+    function_name: top_k_frequent
+    starter_code: |
+      def top_k_frequent(nums, k):
+          raise NotImplementedError
+    reference_solution: |
+      from collections import Counter
+
+      def top_k_frequent(nums, k):
+          counts = Counter(nums)
+          ranked = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+          return [value for value, _ in ranked[:k]]
+    test_cases:
+      - args: [[1, 1, 1, 2, 2, 3], 2]
+        expected: [1, 2]
+      - args: [[4, 4, 5, 5, 6], 2]
+        expected: [4, 5]
+      - args: [[7], 1]
+        expected: [7]
+      - args: [[3, 1, 2], 5]
+        expected: [1, 2, 3]
+    explanation: >-
+      Count with a hash map (O(n)), then sort the distinct values by (−count, value): O(d log d)
+      for d distinct values. For k ≪ d, heapq.nsmallest(k, ...) with the same key is O(d log k),
+      and bucket sort by frequency is O(n). The explicit tie-break makes the output
+      deterministic.
+
+  - id: algorithms-0006
+    type: coding_python
+    role: mle
+    difficulty: 6
+    topic: algorithms
+    subtopic: dynamic programming
+    tags: [dynamic programming, coin change, unbounded knapsack]
+    prompt: >-
+      Write min_coins(coins, amount). It returns the minimum number of coins (unlimited supply
+      of each denomination) that sum to amount, or −1 if impossible. min_coins(coins, 0) is 0.
+    hints:
+      - "dp[a] = 1 + min(dp[a − c]) over coins c ≤ a."
+    est_minutes: 12
+    function_name: min_coins
+    starter_code: |
+      def min_coins(coins, amount):
+          raise NotImplementedError
+    reference_solution: |
+      def min_coins(coins, amount):
+          impossible = amount + 1
+          dp = [0] + [impossible] * amount
+          for a in range(1, amount + 1):
+              for c in coins:
+                  if c <= a and dp[a - c] + 1 < dp[a]:
+                      dp[a] = dp[a - c] + 1
+          return dp[amount] if dp[amount] <= amount else -1
+    test_cases:
+      - args: [[1, 2, 5], 11]
+        expected: 3
+      - args: [[2], 3]
+        expected: -1
+      - args: [[1], 0]
+        expected: 0
+      - args: [[1, 3, 4], 6]
+        expected: 2
+      - args: [[5, 10], 1]
+        expected: -1
+    explanation: >-
+      Greedy fails for [1, 3, 4] and 6: greedy picks 4 + 1 + 1 (3 coins), but 3 + 3 is optimal
+      (2 coins). Bottom-up DP over amounts is O(amount × len(coins)) time and O(amount) space.
+      Using amount + 1 as "infinity" is safe, because no solution needs more than `amount`
+      coins.
+
+  - id: algorithms-0007
+    type: coding_python
+    role: mle
+    difficulty: 7
+    topic: algorithms
+    subtopic: dynamic programming
+    tags: [edit distance, levenshtein, strings, record matching]
+    prompt: >-
+      Write edit_distance(a, b). It returns the Levenshtein distance: the minimum number of
+      single-character insertions, deletions and substitutions to turn a into b. Use O(len(b))
+      extra memory.
+    hints:
+      - The full DP table is (len(a)+1) × (len(b)+1); each row depends only on the previous row.
+    est_minutes: 15
+    function_name: edit_distance
+    starter_code: |
+      def edit_distance(a, b):
+          raise NotImplementedError
+    reference_solution: |
+      def edit_distance(a, b):
+          prev = list(range(len(b) + 1))
+          for i, ca in enumerate(a, start=1):
+              cur = [i]
+              for j, cb in enumerate(b, start=1):
+                  cur.append(min(prev[j] + 1,            # delete ca
+                                 cur[j - 1] + 1,         # insert cb
+                                 prev[j - 1] + (ca != cb)))  # substitute or match
+              prev = cur
+          return prev[-1]
+    test_cases:
+      - args: ["kitten", "sitting"]
+        expected: 3
+      - args: ["", ""]
+        expected: 0
+      - args: ["abc", ""]
+        expected: 3
+      - args: ["I10", "I10.9"]
+        expected: 2
+      - args: ["flaw", "lawn"]
+        expected: 2
+    explanation: >-
+      dp[i][j] is the distance between prefixes a[:i] and b[:j]. It is the minimum of a
+      deletion, an insertion, or a substitution (free if the characters match). Keeping only
+      two rows reduces memory from O(mn) to O(n). Time is O(mn). Edit distance underlies fuzzy
+      matching of names, codes and addresses in record linkage.
+
+  - id: algorithms-0008
+    type: coding_python
+    role: mle
+    difficulty: 8
+    topic: algorithms
+    subtopic: sliding window
+    tags: [sliding window, two pointers, counter, strings]
+    prompt: >-
+      Write min_window(s, t). It returns the shortest substring of s containing every character
+      of t, with multiplicity (t = "aa" needs two a's). If several are equally short, return the
+      leftmost. Return "" if none exists or if t is empty. Aim for O(len(s) + len(t)).
+    hints:
+      - Expand the right edge until the window is valid, then shrink the left edge while it stays valid.
+    est_minutes: 20
+    function_name: min_window
+    starter_code: |
+      def min_window(s, t):
+          raise NotImplementedError
+    reference_solution: |
+      from collections import Counter
+
+      def min_window(s, t):
+          if not s or not t:
+              return ""
+          need = Counter(t)
+          missing = len(t)
+          left = 0
+          best = None
+          for right, ch in enumerate(s, start=1):
+              if need[ch] > 0:
+                  missing -= 1
+              need[ch] -= 1
+              if missing == 0:
+                  while need[s[left]] < 0:
+                      need[s[left]] += 1
+                      left += 1
+                  if best is None or right - left < best[1] - best[0]:
+                      best = (left, right)
+                  need[s[left]] += 1
+                  missing += 1
+                  left += 1
+          return "" if best is None else s[best[0]:best[1]]
+    test_cases:
+      - args: ["ADOBECODEBANC", "ABC"]
+        expected: "BANC"
+      - args: ["a", "aa"]
+        expected: ""
+      - args: ["aa", "aa"]
+        expected: "aa"
+      - args: ["abc", "d"]
+        expected: ""
+      - args: ["cabwefgewcwaefgcf", "cae"]
+        expected: "cwae"
+      - args: ["abc", ""]
+        expected: ""
+    explanation: >-
+      need[ch] counts how many more of ch the window requires, and goes negative for surplus.
+      missing counts the required characters still absent. Once the window is valid, drop
+      surplus characters from the left to make it minimal, record it, then give up one required
+      character to keep searching. Each pointer moves at most n times, so the time is O(n + m).
+      The reference was cross-checked against a brute-force search on random strings.
+
+  - id: algorithms-0009
+    type: coding_python
+    role: mle
+    difficulty: 8
+    topic: algorithms
+    subtopic: dynamic programming
+    tags: [weighted interval scheduling, binary search, dynamic programming, healthcare operations]
+    prompt: >-
+      An operating room can host one procedure at a time. Each candidate procedure is
+      [start, end, value]. Write max_schedule_value(jobs). It returns the maximum total value of
+      non-overlapping procedures, where a procedure may start exactly when another ends. Aim
+      for O(n log n).
+    hints:
+      - Sort by end time; for each job, binary-search the last job that ends at or before its start.
+    est_minutes: 20
+    function_name: max_schedule_value
+    starter_code: |
+      def max_schedule_value(jobs):
+          raise NotImplementedError
+    reference_solution: |
+      import bisect
+
+      def max_schedule_value(jobs):
+          jobs = sorted(jobs, key=lambda j: j[1])
+          ends = [j[1] for j in jobs]
+          dp = [0] * (len(jobs) + 1)  # dp[i] = best value using the first i jobs by end time
+          for i, (start, end, value) in enumerate(jobs, start=1):
+              p = bisect.bisect_right(ends, start, 0, i - 1)  # jobs ending <= start
+              dp[i] = max(dp[i - 1], dp[p] + value)
+          return dp[-1]
+    test_cases:
+      - args: [[[1, 3, 5], [2, 5, 6], [4, 6, 5], [6, 7, 4], [5, 8, 11], [7, 9, 2]]]
+        expected: 17
+      - args: [[]]
+        expected: 0
+      - args: [[[0, 10, 3], [0, 5, 2], [5, 10, 2]]]
+        expected: 4
+      - args: [[[1, 2, 4], [2, 3, 4]]]
+        expected: 8
+    explanation: >-
+      Greedy by earliest end time maximizes the count of jobs, not their value. Sorting by end
+      and using dp[i] = max(skip job i, take job i + best compatible prefix) solves the
+      weighted version. bisect_right on the end times finds the compatible prefix in O(log n),
+      for O(n log n) overall. The reference was cross-checked against brute force over all
+      subsets on random inputs.
+
+  - id: algorithms-0010
+    type: free_text
+    role: mle
+    difficulty: 9
+    topic: algorithms
+    subtopic: streaming algorithms
+    tags: [heavy hitters, count-min sketch, misra-gries, streaming, bounded memory]
+    prompt: >-
+      You need the top 100 most frequent diagnosis-code and provider pairs in a stream of 5
+      billion claim lines per month, with only a few hundred MB of memory, updated continuously
+      and computed across 20 parallel workers. Design the approach and state its error
+      guarantees.
+    est_minutes: 15
+    model_answer: >-
+      Exact counting needs a hash map over all distinct pairs, potentially hundreds of millions
+      of keys, which is too large. Use a heavy-hitters sketch. Option 1: Misra-Gries (or the
+      closely related Space-Saving) with k counters. Every item with frequency above n/(k+1) is
+      guaranteed to be retained by Misra-Gries, whose estimates undercount by at most n/(k+1).
+      Space-Saving's estimates overcount by at most n/k. With k = 100,000 counters, the error is under
+      5×10⁹/10⁵ = 50,000 occurrences, in a few MB. Option 2: a Count-Min sketch (d hash rows ×
+      w counters) plus a min-heap of the current top candidates. Estimates only overcount, by
+      at most εn with probability 1 − δ, using w = ⌈e/ε⌉ and d = ⌈ln(1/δ)⌉. Count-Min handles
+      point queries for any key but needs a heap to track the candidates. Both are mergeable:
+      each worker keeps its own sketch, and the sketches are combined (Count-Min by cell-wise
+      addition, Misra-Gries and Space-Saving by merging counters and reducing back to k), which
+      fits the 20 workers. For a continuously updated "last 30 days" view, use time-bucketed
+      sketches (one per day) and merge the needed buckets, or use sliding-window variants.
+      Verify by computing exact counts for a sample period in batch and comparing the top-100
+      lists. Report counts as estimates with their error bounds. If exact top-100 counts are
+      needed for reporting, run a second pass over the stream that counts exactly only the
+      candidate keys.
+    rubric:
+      - "Explains why exact counting does not fit memory"
+      - "Proposes Misra-Gries/Space-Saving and/or Count-Min with a heap"
+      - "States error guarantees (n/(k+1) bound or εn with probability 1 − δ and how w, d are chosen)"
+      - "Uses mergeability for parallel workers and handles time windows (bucketed sketches)"
+      - "Validates against exact counts and/or uses a second exact pass on candidates"
+
+  - id: algorithms-0011
+    type: free_text
+    role: both
+    difficulty: 10
+    topic: algorithms
+    subtopic: entity resolution
+    tags: [record linkage, blocking, union-find, similarity, evaluation, healthcare]
+    prompt: >-
+      A health system merges patient records from 12 hospitals: 50 million records, with no
+      shared patient ID and with typos, nicknames, moved addresses and missing fields. Design
+      an entity-resolution system that finds records belonging to the same person. Cover
+      candidate generation, matching, clustering, evaluation and operational concerns.
+    est_minutes: 20
+    model_answer: >-
+      Comparing all pairs (about 1.25 × 10¹⁵) is impossible, so start with blocking. Generate
+      candidate pairs that share a blocking key: date of birth plus a phonetic code of the last
+      name (Soundex or Double Metaphone), the last 4 SSN digits plus the birth year, or MinHash
+      LSH or embedding-based nearest neighbors over name and address shingles. Use several
+      blocking passes so one typo does not hide a true match. Measure blocking recall (pair
+      completeness) on labeled data, and control the size of large blocks. Matching: compute
+      field-level similarities (Jaro-Winkler for names, a nickname table, edit distance on
+      phone and ID, address normalization and geocoding, date transpositions) and combine them
+      with a Fellegi-Sunter probabilistic model (EM-estimated m and u probabilities) or a
+      supervised classifier trained on clerically reviewed pairs. Use two thresholds, auto-match
+      and auto-non-match, with a clerical-review band between them. Clustering: matches must be
+      transitive. Build a graph of matched pairs and take connected components with union-find
+      in near-linear time. Guard against chaining errors (A~B, B~C, but A≠C) with cluster
+      quality checks, correlation clustering, or by splitting low-cohesion components. Also add
+      constraints, such as different sex plus a different DOB meaning no match. Evaluation:
+      labeled pairs sampled across score strata, pairwise precision and recall, cluster-level
+      metrics (B-cubed), and error analysis by hospital and demographic group. Name-matching
+      quality can differ by ethnicity, which raises fairness concerns. False merges are more
+      dangerous clinically than missed matches, so set the thresholds asymmetrically. Operations:
+      incremental matching of new records against existing clusters, stable enterprise IDs,
+      audit trails with merge and unmerge support, privacy controls (PHI, possibly hashed or
+      tokenized privacy-preserving linkage across organizations), and monitoring of match rates
+      over time. Scale with distributed processing of the blocks (Spark), with the comparison
+      work partitioned by block.
+    rubric:
+      - "Uses blocking (phonetic keys, multiple passes, LSH) and measures blocking recall"
+      - "Matches with field-level similarity features combined probabilistically (Fellegi-Sunter) or with a trained classifier"
+      - "Uses two thresholds with clerical review and asymmetric costs (false merges are dangerous)"
+      - "Clusters with union-find/connected components and guards against chaining"
+      - "Evaluates with labeled pairs, pairwise and cluster metrics, and subgroup error analysis"
+      - "Covers operations: incremental matching, stable IDs, merge/unmerge audit, privacy and scale"

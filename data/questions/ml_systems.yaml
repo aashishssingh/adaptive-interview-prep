@@ -1,0 +1,423 @@
+questions:
+  - id: ml_systems-0001
+    type: short_answer
+    role: mle
+    difficulty: 2
+    topic: ml_systems
+    subtopic: serving patterns
+    tags: [batch inference, online inference]
+    prompt: What is the difference between batch (offline) inference and online (real-time) inference?
+    est_minutes: 1
+    answer: Batch scores many records on a schedule and stores the results; online scores individual requests on demand with low latency.
+    explanation: >-
+      Batch suits predictions that can be precomputed, such as nightly churn scores. It is
+      simpler and cheaper but can be stale. Online suits decisions that need fresh inputs at
+      request time, such as fraud checks at transaction time. It needs low-latency serving,
+      real-time features and higher availability.
+
+  - id: ml_systems-0002
+    type: multiple_choice
+    role: mle
+    difficulty: 3
+    topic: ml_systems
+    subtopic: training-serving skew
+    tags: [training-serving skew, feature pipelines]
+    prompt: Which is the clearest example of training-serving skew?
+    est_minutes: 2
+    options:
+      - A feature computed in a SQL batch job for training is reimplemented in the online service and handles missing values differently
+      - The production data distribution shifts gradually because of seasonality
+      - The model is retrained weekly instead of daily
+      - The model's latency increases during peak traffic
+    answer_index: 0
+    explanation: >-
+      Training-serving skew is a difference between how data or features are produced at
+      training time and at serving time, so the model sees different inputs than it learned
+      from. Duplicate implementations of feature logic are the classic cause. Fixes are shared
+      feature code or a feature store, and logging the served features for training. Seasonal
+      shift is distribution drift, a real-world change, not a pipeline inconsistency.
+
+  - id: ml_systems-0003
+    type: free_text
+    role: mle
+    difficulty: 4
+    topic: ml_systems
+    subtopic: monitoring
+    tags: [monitoring, drift, data quality, fraud]
+    prompt: >-
+      You deployed a claims-fraud model that scores claims daily. Investigation outcomes (the
+      labels) arrive 30-90 days later. What would you monitor, and what would trigger action?
+    est_minutes: 6
+    model_answer: >-
+      Monitor in layers. (1) Data quality: schema changes, null rates, out-of-range values and
+      row counts per feature, with hard alerts on pipeline breaks. (2) Input drift: the
+      distribution of each important feature against a training or recent baseline (PSI or
+      KS), especially categorical value changes such as new claim codes. (3) Prediction drift:
+      the score distribution and the share of claims above the action threshold. A sudden jump
+      in the flag rate overwhelms investigators. (4) Operational metrics: latency, failures,
+      job completion. (5) Delayed performance: as labels arrive, precision at the threshold,
+      recall estimates, PR-AUC and calibration, computed by cohort. (6) Business metrics:
+      investigator hit rate, dollars recovered, and any changes in investigator behavior. Set
+      alert thresholds for pipeline failures and large drift (for example PSI > 0.25 on a key
+      feature). Treat moderate drift as a prompt to investigate rather than auto-retrain.
+      Trigger retraining or recalibration when the delayed performance drops below an agreed
+      level or drift persists. Segment the monitoring (region, claim type), because global
+      averages hide local breaks.
+    rubric:
+      - "Covers data quality checks (schema, nulls, ranges, volumes)"
+      - "Covers input and prediction drift with a named metric (PSI/KS)"
+      - "Handles delayed labels with cohort-based performance once labels arrive"
+      - "Includes operational and business metrics"
+      - "Defines concrete alert/retrain triggers and segmented monitoring"
+
+  - id: ml_systems-0004
+    type: coding_python
+    role: mle
+    difficulty: 5
+    topic: ml_systems
+    subtopic: drift metrics
+    tags: [psi, drift, monitoring, implementation]
+    prompt: >-
+      Write psi(expected_counts, actual_counts). It computes the population stability index
+      between two binned distributions given as counts over the same bins. Convert the counts to
+      proportions, floor each proportion at 1e-4 to avoid log(0), and return
+      Σ (a − e) · ln(a / e). Raise ValueError if the lists are empty, differ in length, or
+      either sums to zero.
+    est_minutes: 8
+    function_name: psi
+    starter_code: |
+      def psi(expected_counts, actual_counts):
+          raise NotImplementedError
+    reference_solution: |
+      import math
+
+      def psi(expected_counts, actual_counts, eps=1e-4):
+          if not expected_counts or len(expected_counts) != len(actual_counts):
+              raise ValueError("need two non-empty count lists of equal length")
+          se, sa = sum(expected_counts), sum(actual_counts)
+          if se == 0 or sa == 0:
+              raise ValueError("counts must not sum to zero")
+          total = 0.0
+          for e, a in zip(expected_counts, actual_counts):
+              pe = max(e / se, eps)
+              pa = max(a / sa, eps)
+              total += (pa - pe) * math.log(pa / pe)
+          return total
+    test_cases:
+      - args: [[100, 200, 300, 400], [100, 200, 300, 400]]
+        expected: 0.0
+      - args: [[250, 250, 250, 250], [100, 200, 300, 400]]
+        expected: 0.22821740957339182
+      - args: [[500, 300, 200], [200, 300, 500]]
+        expected: 0.549774439124493
+      - args: [[90, 10, 0], [80, 10, 10]]
+        expected: 0.7018630559359539
+      - args: [[1, 2], [1, 2, 3]]
+        expected: {__raises__: ValueError}
+      - args: [[0, 0], [1, 1]]
+        expected: {__raises__: ValueError}
+    explanation: >-
+      PSI is a symmetric KL-style divergence between binned distributions. Common rules of
+      thumb: below 0.1 is stable, 0.1-0.25 is moderate shift, above 0.25 is significant shift.
+      An empty bin needs the epsilon floor. The fourth case shows how a new category
+      (previously 0%) dominates the index. Bins should be fixed from the baseline, for example
+      its deciles. Large samples make tiny shifts statistically significant, so use PSI as an
+      effect size.
+
+  - id: ml_systems-0005
+    type: multiple_choice
+    role: mle
+    difficulty: 5
+    topic: ml_systems
+    subtopic: delayed labels
+    tags: [monitoring, delayed labels, healthcare]
+    prompt: >-
+      A 30-day readmission model runs at discharge, so a label is known only 30 days later. What
+      is the best approach to monitoring model quality in the first weeks after a change?
+    est_minutes: 2
+    options:
+      - Monitor input and prediction drift and data quality as leading indicators now, and backfill performance metrics by discharge cohort as labels mature
+      - Wait 30 days before monitoring anything
+      - Use training-set AUC as the production metric until labels arrive
+      - Treat every patient not yet readmitted as a negative label immediately
+    answer_index: 0
+    explanation: >-
+      With delayed labels, drift and data-quality signals are the only early warnings. Once a
+      discharge cohort's 30-day window closes, compute its true performance and track it over
+      time. Counting not-yet-readmitted patients as negatives (the most tempting wrong option)
+      biases the metrics, because their outcome is still unknown, which makes the model look
+      artificially worse at catching readmissions.
+
+  - id: ml_systems-0006
+    type: free_text
+    role: mle
+    difficulty: 5
+    topic: ml_systems
+    subtopic: deployment strategies
+    tags: [shadow deployment, canary, a/b test, rollout]
+    prompt: >-
+      Explain shadow deployment, canary release and A/B testing for a new model version. What
+      does each one tell you, and in what order would you use them?
+    est_minutes: 5
+    model_answer: >-
+      Shadow: the new model receives copies of production requests and its predictions are
+      logged but not used. It validates the integration, latency, feature parity and prediction
+      distributions against the current model, with zero user impact. It cannot measure the
+      business effect, because decisions are unchanged. Canary: route a small share of real
+      traffic (1-5%) to the new model, with automatic rollback on errors or anomalous metrics.
+      It tests operational safety under real load and catches bugs before full exposure, but the
+      sample is usually too small and short for effect estimates. A/B test: randomize a
+      meaningful share of traffic with a pre-defined metric and sample size, to estimate the
+      causal impact of the model on business outcomes. Typical order: offline evaluation, then
+      shadow, then canary, then A/B test, then a gradual rollout, keeping the previous version
+      ready for rollback. Low-risk changes may skip steps. High-stakes ones (clinical or
+      financial decisions) need all of them plus human review.
+    rubric:
+      - "Defines shadow deployment and what it validates (integration, latency, parity) without impact"
+      - "Defines canary release as small real traffic with rollback for operational safety"
+      - "Defines A/B testing as randomized measurement of business impact"
+      - "Gives a sensible order and mentions rollback readiness"
+
+  - id: ml_systems-0007
+    type: free_text
+    role: mle
+    difficulty: 6
+    topic: ml_systems
+    subtopic: feature stores
+    tags: [feature store, point-in-time correctness, online offline consistency]
+    prompt: >-
+      What problems does a feature store solve? Explain point-in-time correctness and why it
+      matters when building training data.
+    est_minutes: 6
+    model_answer: >-
+      A feature store centralizes feature definitions and serves them consistently in two
+      places: an offline store (historical values for training and batch scoring) and an online
+      store (low-latency latest values for real-time serving). It reduces training-serving skew
+      by sharing one definition, enables reuse across teams, and tracks lineage and freshness.
+      Point-in-time correctness: when building a training example for an event at time t, every
+      feature must take the value that was known at t, not the latest value or one updated
+      later. For a claim filed on March 3, "number of prior claims" must count only claims
+      before March 3, as of what the system knew then. Late-arriving data must not be
+      backfilled into the past view. A naive join on entity ID with the current feature table
+      leaks future information and inflates offline metrics, and the model then
+      underperforms in production. Feature stores implement this with as-of (temporal) joins
+      over timestamped feature history, including the event time and, ideally, the ingestion
+      time.
+    rubric:
+      - "Explains offline vs online stores and consistent shared definitions"
+      - "Mentions reduced training-serving skew and reuse/lineage"
+      - "Defines point-in-time correctness with a concrete example"
+      - "Explains leakage from joining current feature values and its effect on offline metrics"
+      - "Mentions as-of/temporal joins and late-arriving data"
+
+  - id: ml_systems-0008
+    type: multiple_choice
+    role: mle
+    difficulty: 6
+    topic: ml_systems
+    subtopic: latency
+    tags: [latency, serving, batching, optimization]
+    prompt: >-
+      A real-time model must meet a p99 latency of 50 ms but takes 80 ms. Which change is LEAST
+      likely to reduce per-request p99 latency?
+    est_minutes: 2
+    options:
+      - Increasing the server's dynamic batching window so more requests are grouped before inference
+      - Distilling the model into a smaller student model
+      - Quantizing weights to INT8 on supported hardware
+      - Precomputing slow features and caching them
+    answer_index: 0
+    explanation: >-
+      Larger dynamic batches improve throughput and hardware utilization, but each request may
+      wait longer in the batching window. Tail latency usually gets worse, not better.
+      Distillation, quantization and caching expensive feature lookups all cut the work per
+      request. Profile first: the bottleneck is often feature retrieval or network calls, not
+      the model.
+
+  - id: ml_systems-0009
+    type: free_text
+    role: mle
+    difficulty: 7
+    topic: ml_systems
+    subtopic: feedback loops
+    tags: [feedback loops, selection bias, exploration, fraud]
+    prompt: >-
+      Your fraud model decides which claims get investigated, and labels come only from
+      investigated claims. After a year of retraining on these labels, performance metrics look
+      great but losses from undetected fraud are rising. Explain what is happening and how to
+      fix the system.
+    est_minutes: 7
+    model_answer: >-
+      This is a feedback loop with selection bias. Labels exist only for claims the model
+      already flagged, so the training data over-represent the patterns the model already
+      knows. Fraud patterns it scores low are never investigated, never labeled, and so never
+      learned. Metrics computed on investigated claims look good because they measure
+      performance only where the model already looks. Fraudsters adapt, so new schemes stay in
+      the blind spot, and losses there grow. Fixes: (1) An exploration budget. Randomly
+      investigate a small share of low- and mid-score claims. That gives unbiased labels for
+      evaluation, and training data covering the whole score range, recorded with known
+      sampling probabilities so you can reweight (inverse propensity weighting). (2) Evaluate
+      on the random sample, not just on flagged claims. (3) Add other label sources: chargebacks,
+      SIU tips, later-discovered fraud, external consortium data. (4) Unsupervised or anomaly
+      detection to surface new patterns for investigators to review. (5) Monitor the
+      investigated-claim hit rate together with downstream loss metrics. Make the exploration
+      rate an explicit cost tradeoff with the business.
+    rubric:
+      - "Identifies the feedback loop: labels only for model-selected claims (selection bias)"
+      - "Explains why metrics on investigated claims look good while blind spots grow"
+      - "Proposes randomized exploration with known probabilities and reweighting"
+      - "Proposes evaluating on the unbiased sample and adding other label sources"
+      - "Mentions anomaly detection or adaptive adversaries and monitoring downstream losses"
+
+  - id: ml_systems-0010
+    type: multiple_choice
+    role: mle
+    difficulty: 7
+    topic: ml_systems
+    subtopic: distribution shift
+    tags: [concept drift, covariate shift, label shift]
+    prompt: >-
+      After a new state regulation, the same claim features now correspond to a lower
+      probability of fraud than before, although the feature distribution looks unchanged. What
+      kind of shift is this?
+    est_minutes: 2
+    options:
+      - Concept drift — P(y | x) changed while P(x) stayed the same
+      - Covariate shift — P(x) changed while P(y | x) stayed the same
+      - Label shift — only P(y) changed with P(x | y) fixed
+      - Training-serving skew
+    answer_index: 0
+    explanation: >-
+      Concept drift changes the relationship between inputs and outcome, so the model's learned
+      mapping is wrong even on familiar-looking inputs. Input-drift monitors will not catch it,
+      because P(x) is unchanged. You need outcome-based monitoring and retraining on
+      post-change data. Covariate shift is the reverse case, where the inputs move but the
+      mapping holds. Label shift keeps the class-conditional feature distributions fixed while
+      the prevalence changes.
+
+  - id: ml_systems-0011
+    type: free_text
+    role: mle
+    difficulty: 8
+    topic: ml_systems
+    subtopic: reproducibility and incidents
+    tags: [reproducibility, versioning, rollback, incident response]
+    prompt: >-
+      A scheduled retrain produced a model that passed offline checks, but after deployment
+      precision dropped sharply. Walk through how you would respond and debug, and what you
+      would put in place so the next incident is shorter.
+    est_minutes: 8
+    model_answer: >-
+      Respond first. Roll back to the previous model version, which requires a model registry
+      with versioned artifacts and one-step rollback. Communicate the impact. Then debug by
+      diffing everything between the old and new runs: (1) Data. The training data snapshot,
+      including row counts, label rates, the time window, and joins that silently dropped or
+      duplicated rows. Check whether a label definition or upstream source changed. (2) Features.
+      Compare the distributions of the new training features with the old ones and with what
+      serving receives, to catch skew introduced by a pipeline change. (3) Code and config.
+      Library versions, hyperparameters, random seeds, preprocessing artifacts such as encoders
+      fit on different categories. (4) Evaluation. Did the offline validation use the same split
+      logic and time window, and could leakage have made the new model look good offline?
+      (5) Serving. Was the right artifact loaded with the right preprocessing, and is the
+      threshold still appropriate for the new score distribution? Prevention: version data, code,
+      config and models together, with lineage. Make pipelines reproducible from a commit plus
+      a data snapshot. Add data validation checks, such as expectations on schemas,
+      distributions and label rates. Gate deployment on a champion-challenger comparison on a
+      recent holdout, then shadow or canary. Monitor post-deploy alerts with automatic rollback.
+      Write a blameless postmortem with action items.
+    rubric:
+      - "Prioritizes mitigation via rollback using a model registry"
+      - "Debugs by diffing data, features, code/config, evaluation and serving between versions"
+      - "Checks for training-serving skew, leakage or threshold/calibration changes"
+      - "Proposes versioning and lineage of data, code, config and models for reproducibility"
+      - "Adds automated validation gates, champion-challenger, staged rollout and postmortems"
+
+  - id: ml_systems-0012
+    type: free_text
+    role: mle
+    difficulty: 9
+    topic: ml_systems
+    subtopic: real-time system design
+    tags: [system design, fraud, streaming features, low latency]
+    prompt: >-
+      Design a real-time card-transaction fraud scoring system for a health-savings-account
+      provider: 5,000 transactions per second at peak, a 100 ms end-to-end budget for the
+      approve/decline decision, and labels (chargebacks) that arrive weeks later. Cover
+      features, serving, fallbacks, monitoring and retraining.
+    est_minutes: 15
+    model_answer: >-
+      Request path: the payment gateway calls a scoring service, stateless and horizontally
+      scaled behind a load balancer, with a latency budget of roughly 10 ms for features, 10 ms
+      for the model, and the rest for the network and rules. Features: request-time attributes
+      (amount, merchant category, channel), plus streaming aggregates such as transactions per
+      card in the last 5 minutes or 1 hour, distinct merchants per day, and amount versus the
+      card's history. Compute them with a stream processor (Kafka plus Flink) into a low-latency
+      online store (Redis or a key-value store) keyed by card and account. Add slower batch
+      features, such as account tenure and risk profiles, precomputed daily. Use the same
+      feature definitions offline, with point-in-time logs, to avoid skew. Model: a gradient
+      boosted model on CPU meets latency easily, combined with business rules (hard blocks) and
+      thresholds tuned to the cost of false declines versus fraud losses, possibly split into
+      approve, decline and step-up authentication. Fallbacks: timeouts with a default decision
+      policy (rules-only, or approve under a limit) if the features or model are unavailable.
+      Use circuit breakers, multi-region redundancy, and load tests at 2-3× peak. Logging: store
+      every request's features, score, model version and decision for training and audit.
+      Labels: chargebacks and confirmed fraud arrive weeks later, so join them back by
+      transaction ID. Monitor with drift checks and early proxies (decline rate, step-up rate,
+      customer complaints), then backfill the performance. Retraining: on a schedule (for
+      example weekly) with a time-based validation window, and champion-challenger gating via
+      shadow scoring before promotion. Correct for the selection effect of declined
+      transactions, which never get a true label, with a small randomized holdout. Govern
+      threshold changes, and keep explainability (reason codes) for disputes.
+    rubric:
+      - "Lays out the request path with an explicit latency budget and horizontally scaled stateless scoring"
+      - "Designs streaming aggregate features in an online store with consistent offline definitions"
+      - "Combines model, rules and cost-based thresholds"
+      - "Defines fallbacks/timeouts and resilience/load testing"
+      - "Handles delayed labels, logging for training and audit, and drift/proxy monitoring"
+      - "Plans retraining with time-based validation, shadow/champion-challenger, and the declined-transaction selection effect"
+
+  - id: ml_systems-0013
+    type: free_text
+    role: mle
+    difficulty: 10
+    topic: ml_systems
+    subtopic: llm application architecture
+    tags: [llm, prior authorization, human in the loop, governance, healthcare insurance]
+    prompt: >-
+      An insurer wants an LLM-based assistant that drafts prior-authorization decisions from a
+      provider's request and the member's clinical documents, citing the medical policy, for
+      nurse reviewers to approve. Design the system end to end: architecture, safety and
+      compliance, evaluation, cost and latency, and monitoring.
+    est_minutes: 15
+    model_answer: >-
+      Architecture: intake (fax/OCR, portal, FHIR attachments), then document parsing and
+      normalization. Retrieval over versioned medical-policy criteria, filtered by service code,
+      plan and state. The LLM then extracts the relevant clinical facts with citations to the
+      source pages, maps them to each policy criterion (met, not met, missing information), and
+      drafts a rationale. A rules layer validates the codes, eligibility and deadlines. A
+      nurse-review UI shows each criterion with linked evidence, so the reviewer can verify or
+      edit. Safety: the system recommends but never auto-denies, and denials require clinician
+      sign-off as regulation requires. Auto-approval is limited to narrow, well-validated
+      criteria, if at all. Use structured outputs (JSON schema) and refuse or ask for missing
+      information instead of guessing. Compliance: HIPAA (BAA or self-hosting, minimum
+      necessary data, access control, audit logs), state and CMS timeliness rules, explainable
+      denial reasons, and fairness audits across demographics and provider types. Evaluation:
+      a gold set of historical cases with expert labels per criterion, measuring extraction
+      accuracy, criterion-level agreement, citation correctness, and above all the rate of
+      critical errors (a wrong denial recommendation). Also measure inter-nurse agreement as a
+      ceiling, and red-team with adversarial or incomplete documents. Run a silent pilot
+      comparing drafts with nurse decisions before go-live, then a randomized or staged rollout
+      measuring turnaround time, nurse time saved, overturn rate on appeal, and decision
+      consistency. Cost and latency: cache policy embeddings, route simple cases to smaller
+      models, batch long documents, and cap tokens. Latency matters less than throughput and
+      accuracy. Monitoring: agreement between drafts and nurse final decisions (override rate)
+      by service line, drift in request mix, model or policy version changes triggering
+      regression suites, appeal outcomes, and a governance board for incident review and
+      updates.
+    rubric:
+      - "Describes an architecture with document ingestion, policy retrieval with versioning, criterion-level extraction with citations, and a reviewer UI"
+      - "Keeps humans in the loop for adverse decisions and uses structured outputs/refusal on missing info"
+      - "Addresses HIPAA/regulatory requirements, auditability and fairness"
+      - "Defines evaluation with expert gold sets, critical-error rates, silent pilot and staged rollout"
+      - "Covers cost/latency tactics"
+      - "Monitors override rates, appeals, drift and version changes with governance"
