@@ -21,6 +21,8 @@ DEFAULTS = {
     "LLM_PROVIDER": "anthropic",
     "LLM_MODEL_FAST": "claude-haiku-5-5",
     "LLM_MODEL_DEEP": "claude-sonnet-5-5",
+    "QUESTIONS_DIR": str(PROJECT_ROOT / "data" / "questions"),
+    "HISTORY_DB_PATH": str(PROJECT_ROOT / "data" / "local" / "history.db"),
 }
 
 
@@ -39,6 +41,8 @@ class Settings:
     llm_provider: str
     llm_model_fast: str
     llm_model_deep: str
+    questions_dir: Path = PROJECT_ROOT / "data" / "questions"
+    history_db_path: Path = PROJECT_ROOT / "data" / "local" / "history.db"
     anthropic_api_key: str | None = field(default=None, repr=False)
     openai_api_key: str | None = field(default=None, repr=False)
 
@@ -47,6 +51,7 @@ class Settings:
             f"Settings(resume_content_path={self.resume_content_path!s}, "
             f"site_path={self.site_path!s}, llm_provider={self.llm_provider!r}, "
             f"llm_model_fast={self.llm_model_fast!r}, llm_model_deep={self.llm_model_deep!r}, "
+            f"questions_dir={self.questions_dir!s}, history_db_path={self.history_db_path!s}, "
             f"anthropic_api_key={_mask(self.anthropic_api_key)}, "
             f"openai_api_key={_mask(self.openai_api_key)})"
         )
@@ -75,6 +80,8 @@ def load_settings(env_file: Path | str | None = None) -> Settings:
         llm_provider=provider,
         llm_model_fast=get("LLM_MODEL_FAST"),
         llm_model_deep=get("LLM_MODEL_DEEP"),
+        questions_dir=_expand(get("QUESTIONS_DIR")),
+        history_db_path=_expand(get("HISTORY_DB_PATH")),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", "").strip() or None,
         openai_api_key=os.getenv("OPENAI_API_KEY", "").strip() or None,
     )

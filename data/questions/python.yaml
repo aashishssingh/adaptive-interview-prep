@@ -62,12 +62,14 @@ questions:
     prompt: |-
       What does this print?
 
+      ```python
       def add_claim(claim, batch=[]):
           batch.append(claim)
           return batch
 
       add_claim("A")
       print(add_claim("B"))
+      ```
     est_minutes: 2
     options:
       - "['A', 'B']"

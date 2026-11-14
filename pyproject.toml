@@ -39,3 +39,7 @@ extend-exclude = [".venv"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Streamlit pages put the project root on sys.path before importing prep.
+"app/**" = ["E402"]

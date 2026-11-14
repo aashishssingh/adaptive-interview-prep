@@ -305,12 +305,14 @@ questions:
     topic: sql
     subtopic: null semantics
     tags: [not in, "null", three-valued logic]
-    prompt: >-
+    prompt: |-
       The subquery below returns ('Medicare', NULL). How many rows does the outer query return,
       if patients has 40 rows and several of them have insurance_type = 'Commercial'?
 
+      ```sql
       SELECT * FROM patients
       WHERE insurance_type NOT IN (SELECT insurance_type FROM excluded_types);
+      ```
     est_minutes: 3
     options:
       - "0 rows"

@@ -6,6 +6,8 @@ difficulty follow prep/meta.py and the role rule in CLAUDE.md (role = what the q
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Annotated, Any, Literal
 
 from pydantic import (
@@ -144,3 +146,9 @@ QUESTION_ADAPTER: TypeAdapter[Question] = TypeAdapter(Question)
 def parse_question(data: Any) -> Question:
     """Validate one question dict (raises pydantic.ValidationError)."""
     return QUESTION_ADAPTER.validate_python(data)
+
+
+def question_hash(q: Any) -> str:
+    """Stable hash of a question's full content, so edits to a question are detectable."""
+    blob = json.dumps(q.model_dump(mode="json"), sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]

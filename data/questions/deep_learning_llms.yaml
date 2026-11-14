@@ -1,7 +1,7 @@
 questions:
   - id: deep_learning_llms-0001
     type: short_answer
-    role: mle
+    role: both
     difficulty: 1
     topic: deep_learning_llms
     subtopic: embeddings
@@ -262,7 +262,7 @@ questions:
 
   - id: deep_learning_llms-0011
     type: free_text
-    role: mle
+    role: both
     difficulty: 7
     topic: deep_learning_llms
     subtopic: llm evaluation
@@ -423,7 +423,7 @@ questions:
 
   - id: deep_learning_llms-0016
     type: free_text
-    role: mle
+    role: both
     difficulty: 10
     topic: deep_learning_llms
     subtopic: llm evaluation methodology

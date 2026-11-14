@@ -12,6 +12,8 @@ ENV_VARS = [
     "LLM_MODEL_DEEP",
     "ANTHROPIC_API_KEY",
     "OPENAI_API_KEY",
+    "QUESTIONS_DIR",
+    "HISTORY_DB_PATH",
 ]
 
 
@@ -33,6 +35,8 @@ def test_defaults(clean_env):
     assert s.llm_model_deep == "claude-sonnet-5-5"
     assert s.anthropic_api_key is None
     assert s.openai_api_key is None
+    assert s.questions_dir == config.PROJECT_ROOT / "data" / "questions"
+    assert s.history_db_path == config.PROJECT_ROOT / "data" / "local" / "history.db"
 
 
 def test_env_file_and_tilde_expansion(clean_env, tmp_path):
@@ -58,3 +62,11 @@ def test_repr_masks_keys(clean_env, monkeypatch):
     assert fake not in str(s)
     assert "anthropic_api_key=<set>" in repr(s)
     assert "openai_api_key=<unset>" in repr(s)
+
+
+def test_path_overrides(clean_env, monkeypatch, tmp_path):
+    monkeypatch.setenv("QUESTIONS_DIR", str(tmp_path / "q"))
+    monkeypatch.setenv("HISTORY_DB_PATH", "~/x/history.db")
+    s = config.load_settings(clean_env)
+    assert s.questions_dir == tmp_path / "q"
+    assert s.history_db_path == Path.home() / "x" / "history.db"

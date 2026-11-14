@@ -1,7 +1,7 @@
 questions:
   - id: algorithms-0001
     type: coding_python
-    role: mle
+    role: both
     difficulty: 2
     topic: algorithms
     subtopic: hashing
@@ -45,7 +45,7 @@ questions:
 
   - id: algorithms-0002
     type: coding_python
-    role: mle
+    role: both
     difficulty: 3
     topic: algorithms
     subtopic: counting
@@ -84,7 +84,7 @@ questions:
 
   - id: algorithms-0003
     type: coding_python
-    role: mle
+    role: both
     difficulty: 4
     topic: algorithms
     subtopic: sorting
@@ -126,7 +126,7 @@ questions:
 
   - id: algorithms-0004
     type: coding_python
-    role: mle
+    role: both
     difficulty: 5
     topic: algorithms
     subtopic: sliding window
@@ -170,7 +170,7 @@ questions:
 
   - id: algorithms-0005
     type: coding_python
-    role: mle
+    role: both
     difficulty: 5
     topic: algorithms
     subtopic: hashing and sorting
@@ -208,7 +208,7 @@ questions:
 
   - id: algorithms-0006
     type: coding_python
-    role: mle
+    role: both
     difficulty: 6
     topic: algorithms
     subtopic: dynamic programming
@@ -251,7 +251,7 @@ questions:
 
   - id: algorithms-0007
     type: coding_python
-    role: mle
+    role: both
     difficulty: 7
     topic: algorithms
     subtopic: dynamic programming
@@ -297,7 +297,7 @@ questions:
 
   - id: algorithms-0008
     type: coding_python
-    role: mle
+    role: both
     difficulty: 8
     topic: algorithms
     subtopic: sliding window
@@ -359,7 +359,7 @@ questions:
 
   - id: algorithms-0009
     type: coding_python
-    role: mle
+    role: both
     difficulty: 8
     topic: algorithms
     subtopic: dynamic programming
