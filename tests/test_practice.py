@@ -94,3 +94,34 @@ def test_badge_contrast_meets_aa_for_every_role():
         assert style.badge in role_badge_html(role)  # text badge always present
     assert badge_text_color("#E69F00") == "#000000"
     assert badge_text_color("#0072B2") == "#FFFFFF"
+
+
+def gen(qid, entity, status="approved", **kw):
+    base = free_text(
+        qid, topic="projects", source="generated", status=status, entity_id=entity, **kw
+    )
+    return parse_question(base)
+
+
+def test_source_entity_and_draft_filters():
+    authored = QS
+    g1 = gen("proj-a-0001", "ent-a")
+    g2 = gen("proj-a-0002", "ent-a", status="draft")
+    g3 = gen("proj-b-0001", "ent-b")
+    g4 = gen("proj-b-0002", "ent-b", status="retired")
+    g5 = gen("proj-b-0003", "ent-b", status="rejected")
+    pool = authored + [g1, g2, g3, g4, g5]
+    assert ids(matching_questions(pool, source="My projects")) == ["proj-a-0001", "proj-b-0001"]
+    assert ids(matching_questions(pool, source="My projects", include_drafts=True)) == [
+        "proj-a-0001",
+        "proj-a-0002",
+        "proj-b-0001",
+    ]
+    assert ids(matching_questions(pool, source="My projects", entities=["ent-b"])) == [
+        "proj-b-0001"
+    ]
+    assert ids(matching_questions(pool, source="Foundational")) == ids(authored)
+    both = ids(matching_questions(pool, source="Both", entities=["ent-a"]))
+    assert both == ids(authored) + ["proj-a-0001"]  # entity filter leaves authored alone
+    with pytest.raises(ValueError):
+        matching_questions(pool, source="Everything")

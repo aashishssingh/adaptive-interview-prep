@@ -7,12 +7,13 @@ Exits 1 on any failure.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from prep.bank.loader import DATASETS_DIR, QUESTIONS_DIR, load_bank_with_errors
+from prep.bank.loader import DATASETS_DIR, QUESTIONS_DIR, generated_dir_for, load_bank_with_errors
 from prep.bank.runner import check_datasets, run_python_question, run_sql_question
 from prep.bank.schema import QUESTION_TYPES, CodingPython, CodingSQL, Question
 from prep.meta import DIFFICULTY_BANDS, ROLES
@@ -49,6 +50,7 @@ def validate(
     report.dataset_sizes = sizes
     report.errors.extend(ds_errors)
 
+    report.errors.extend(check_generated_facts(questions, questions_dir))
     for q in questions:
         if isinstance(q, CodingPython):
             report.errors.extend(run_python_question(q))
@@ -58,6 +60,51 @@ def validate(
             else:
                 report.errors.extend(run_sql_question(q, datasets_dir))
     return report
+
+
+def facts_dir_for(questions_dir: Path) -> Path:
+    return generated_dir_for(questions_dir).parent / "facts"
+
+
+def check_generated_facts(questions: list[Question], questions_dir: Path) -> list[str]:
+    """Every fact_id on a generated question must exist in its entity's facts file."""
+    errors: list[str] = []
+    facts_dir = facts_dir_for(questions_dir)
+    cache: dict[str, set[str] | None] = {}
+    for q in questions:
+        if q.source != "generated" or not q.fact_ids:
+            continue
+        if q.entity_id not in cache:
+            path = facts_dir / f"{q.entity_id}.json"
+            cache[q.entity_id] = (
+                {f["fact_id"] for f in json.loads(path.read_text())["facts"]}
+                if path.exists()
+                else None
+            )
+        known = cache[q.entity_id]
+        if known is None:
+            errors.append(f"{q.id}: facts file for {q.entity_id} not found")
+            continue
+        missing = [f for f in q.fact_ids if f not in known]
+        if missing:
+            errors.append(f"{q.id}: unknown fact_ids {missing}")
+    return errors
+
+
+def generated_summary(questions: list[Question]) -> str:
+    gen = [q for q in questions if q.source == "generated"]
+    if not gen:
+        return "Generated questions: none."
+    by_entity = Counter((q.entity_id, q.status) for q in gen)
+    lines = [f"Generated questions: {len(gen)}"]
+    for entity in sorted({q.entity_id for q in gen}):
+        counts = ", ".join(
+            f"{s} {by_entity[(entity, s)]}"
+            for s in ("draft", "approved", "rejected", "retired")
+            if by_entity[(entity, s)]
+        )
+        lines.append(f"  {entity}: {counts}")
+    return "\n".join(lines)
 
 
 def band_gaps(questions: list[Question], minimum: int = MIN_PER_BAND) -> list[tuple[str, str, int]]:
@@ -107,9 +154,13 @@ def main(argv: list[str] | None = None) -> int:
     report = validate(args.questions, args.datasets)
     for name, tables in report.dataset_sizes.items():
         print(f"dataset {name}: " + ", ".join(f"{t} {n}" for t, n in tables.items()))
+    authored = [q for q in report.questions if q.source == "authored"]
     print()
-    print(coverage_table(report.questions))
-    gaps = band_gaps(report.questions)
+    print("Authored bank coverage:")
+    print(coverage_table(authored))
+    print()
+    print(generated_summary(report.questions))
+    gaps = band_gaps(authored)
     print()
     if gaps:
         print(f"Topic/band cells with fewer than {MIN_PER_BAND} questions:")

@@ -42,6 +42,11 @@ CREATE TABLE IF NOT EXISTS attempts (
     followup_answers_json TEXT NOT NULL DEFAULT '{}'
 );
 CREATE INDEX IF NOT EXISTS idx_attempts_question ON attempts(question_id);
+CREATE TABLE IF NOT EXISTS own_answers (
+    question_id TEXT PRIMARY KEY,
+    answer_text TEXT NOT NULL,
+    saved_at TEXT NOT NULL
+);
 CREATE INDEX IF NOT EXISTS idx_attempts_session ON attempts(session_id);
 """
 
@@ -152,6 +157,23 @@ class History:
                 "UPDATE attempts SET followup_answers_json = ? WHERE id = ?",
                 (json.dumps(cleaned), attempt_id),
             )
+
+    def save_own_answer(self, question_id: str, answer_text: str) -> None:
+        """Your real answer to a "needs your input" question (local only, never committed)."""
+        with self._connect() as con:
+            con.execute(
+                """INSERT INTO own_answers (question_id, answer_text, saved_at) VALUES (?, ?, ?)
+                   ON CONFLICT(question_id) DO UPDATE SET answer_text = excluded.answer_text,
+                   saved_at = excluded.saved_at""",
+                (question_id, answer_text, now_iso()),
+            )
+
+    def own_answer(self, question_id: str) -> str | None:
+        with self._connect() as con:
+            row = con.execute(
+                "SELECT answer_text FROM own_answers WHERE question_id = ?", (question_id,)
+            ).fetchone()
+        return row[0] if row else None
 
     # --- reads -------------------------------------------------------------------------------
 

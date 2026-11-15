@@ -47,7 +47,8 @@ Every question has `role` and `difficulty`, as defined in `prep/meta.py`:
   question or dataset, `python -m prep.bank.validate` must pass. SQL expected results always
   come from running `reference_query`, never hand-written.
 - LLM calls go only through `prep/llm/` so the provider can be swapped. The app must still run
-  with `LLM_PROVIDER=none`.
+  with `LLM_PROVIDER=none`. Tests never call a real API (use `FakeProvider`). Generated questions
+  must follow the grounding rule: no invented facts; use `needs_user_input` + `answer_guidance`.
 - Config comes from `prep/config.py` (`.env` via python-dotenv). Never print key values.
 
 ## Workflow

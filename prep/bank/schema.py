@@ -1,4 +1,5 @@
-"""Question schema for the bank (data/questions/<topic>.yaml).
+"""Question schema for the bank (data/questions/<topic>.yaml) and for generated project
+questions (data/generated/projects/<entity_id>.yaml).
 
 Every question shares the base fields; ``type`` selects the type-specific fields. Role and
 difficulty follow prep/meta.py and the role rule in CLAUDE.md (role = what the question tests).
@@ -25,6 +26,11 @@ from prep.meta import difficulty_band, validate_difficulty, validate_role
 
 TOPIC_PATTERN = r"^[a-z][a-z0-9_]*$"
 ID_PATTERN = r"^[a-z][a-z0-9_]*-\d{4}$"
+GENERATED_ID_PATTERN = r"^proj-[a-z0-9]+(?:-[a-z0-9]+)*-\d{4}$"
+GENERATED_TOPICS = ("projects", "behavioral")
+STATUSES = ("draft", "approved", "rejected", "retired")
+DEPTHS = ("explain", "justify", "challenge", "extend")
+DEPTH_DIFFICULTY = {"explain": (2, 4), "justify": (4, 6), "challenge": (6, 9), "extend": (6, 10)}
 IDENT_PATTERN = r"^[A-Za-z_][A-Za-z0-9_]*$"
 
 QUESTION_TYPES = ("free_text", "multiple_choice", "short_answer", "coding_python", "coding_sql")
@@ -37,7 +43,7 @@ class _Strict(BaseModel):
 
 
 class _QuestionBase(_Strict):
-    id: Annotated[str, Field(pattern=ID_PATTERN)]
+    id: str
     role: str
     difficulty: int
     topic: Annotated[str, Field(pattern=TOPIC_PATTERN)]
@@ -47,8 +53,19 @@ class _QuestionBase(_Strict):
     hints: Annotated[list[NonEmpty], Field(max_length=2)] = []
     follow_ups: Annotated[list[NonEmpty], Field(max_length=3)] = []
     est_minutes: Annotated[StrictInt, Field(ge=1, le=120)]
-    # "generated" is reserved for Phase 4 (LLM-generated questions in data/generated/).
     source: Literal["authored", "generated"] = "authored"
+    # Review status. Authored questions are approved; generated ones start as draft.
+    status: Literal["draft", "approved", "rejected", "retired"] = "approved"
+    # Generated-question metadata (all optional, so authored files are unchanged).
+    entity_id: str | None = None
+    fact_ids: list[NonEmpty] = []
+    depth: Literal["explain", "justify", "challenge", "extend"] | None = None
+    needs_user_input: StrictBool = False
+    answer_guidance: str | None = None
+    generated_by: str | None = None
+    generated_at: str | None = None
+    profile_hash: str | None = None
+    review_notes: list[NonEmpty] = []
 
     @field_validator("role", mode="before")
     @classmethod
@@ -61,10 +78,24 @@ class _QuestionBase(_Strict):
         return validate_difficulty(v)
 
     @model_validator(mode="after")
-    def _id_matches_topic(self):
-        prefix = self.id.rsplit("-", 1)[0]
-        if prefix != self.topic:
-            raise ValueError(f"id prefix {prefix!r} must equal topic {self.topic!r}")
+    def _check_id_and_source(self):
+        import re
+
+        if self.source == "authored":
+            if not re.match(ID_PATTERN, self.id):
+                raise ValueError(f"id {self.id!r} must look like '<topic>-0001'")
+            prefix = self.id.rsplit("-", 1)[0]
+            if prefix != self.topic:
+                raise ValueError(f"id prefix {prefix!r} must equal topic {self.topic!r}")
+        else:
+            if not re.match(GENERATED_ID_PATTERN, self.id):
+                raise ValueError(f"generated id {self.id!r} must look like 'proj-<slug>-0001'")
+            if self.topic not in GENERATED_TOPICS:
+                raise ValueError(f"generated topic must be one of {GENERATED_TOPICS}")
+            if not self.entity_id:
+                raise ValueError("generated questions need entity_id")
+        if self.needs_user_input and not (self.answer_guidance or "").strip():
+            raise ValueError("needs_user_input questions need answer_guidance")
         return self
 
     @property
@@ -74,8 +105,16 @@ class _QuestionBase(_Strict):
 
 class FreeText(_QuestionBase):
     type: Literal["free_text"]
-    model_answer: Annotated[str, Field(min_length=20)]
+    # May be omitted only when needs_user_input is set: then answer_guidance replaces it, so no
+    # answer is fabricated from information the profile does not contain.
+    model_answer: Annotated[str, Field(min_length=20)] | None = None
     rubric: Annotated[list[NonEmpty], Field(min_length=3, max_length=6)]
+
+    @model_validator(mode="after")
+    def _answer_or_guidance(self):
+        if self.model_answer is None and not self.needs_user_input:
+            raise ValueError("model_answer is required unless needs_user_input is true")
+        return self
 
 
 class MultipleChoice(_QuestionBase):
@@ -148,7 +187,13 @@ def parse_question(data: Any) -> Question:
     return QUESTION_ADAPTER.validate_python(data)
 
 
+HASH_EXCLUDE = {"status", "review_notes"}
+
+
 def question_hash(q: Any) -> str:
-    """Stable hash of a question's full content, so edits to a question are detectable."""
-    blob = json.dumps(q.model_dump(mode="json"), sort_keys=True, ensure_ascii=False)
+    """Stable hash of a question's content, so edits are detectable. Review status is not
+    content, and default-valued fields are skipped so adding optional schema fields does not
+    change existing hashes."""
+    data = q.model_dump(mode="json", exclude=HASH_EXCLUDE, exclude_defaults=True)
+    blob = json.dumps(data, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]

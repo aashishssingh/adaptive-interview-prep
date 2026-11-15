@@ -15,16 +15,21 @@ def report():
 
 def test_real_bank_is_valid(report):
     assert report.ok, "\n".join(report.errors)
-    assert len(report.questions) >= 150
+    assert len(authored(report)) >= 150
+
+
+def authored(report):
+    return [q for q in report.questions if q.source == "authored"]
 
 
 def test_every_topic_covers_every_band(report):
-    assert v.band_gaps(report.questions, minimum=1) == []
+    assert v.band_gaps(authored(report), minimum=1) == []
 
 
 def test_mostly_medium_to_hard(report):
-    mid = sum(1 for q in report.questions if 4 <= q.difficulty <= 8)
-    assert mid / len(report.questions) > 0.5
+    qs = authored(report)
+    mid = sum(1 for q in qs if 4 <= q.difficulty <= 8)
+    assert mid / len(qs) > 0.5
 
 
 def test_behavioral_is_free_text_and_coding_topics_are_mostly_code(report):

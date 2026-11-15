@@ -235,7 +235,10 @@ def test_every_real_question_renders(tmp_path, monkeypatch):
         assert any(q.id in m.value for m in at.markdown), q.id
 
 
-@pytest.mark.parametrize("page", ["Home.py", "pages/2_Progress.py", "pages/3_Question_Bank.py"])
+@pytest.mark.parametrize(
+    "page",
+    ["Home.py", "pages/2_Progress.py", "pages/3_Question_Bank.py", "pages/4_Review.py"],
+)
 def test_pages_do_not_rely_on_editable_install(page):
     """Each page must put the project root on sys.path before importing prep: on macOS the
     editable install's .pth can be hidden and skipped, and `streamlit run` does not add the
@@ -244,3 +247,128 @@ def test_pages_do_not_rely_on_editable_install(page):
     assert src.index("sys.path.insert(0, str(_ROOT))") < src.index("from prep")
     depth = int(src.split("parents[")[1][0])
     assert (APP / page).resolve().parents[depth] == APP.parent
+
+
+# --- Phase 4: generated questions -----------------------------------------------------------
+
+ENTITY = "demo-project"
+
+
+def gen_question(n, status="draft", needs_input=False, **kw):
+    q = {
+        "id": f"proj-demo-{n:04d}",
+        "type": "free_text",
+        "role": "mle",
+        "difficulty": 5,
+        "topic": "projects",
+        "subtopic": ENTITY,
+        "tags": ["demo"],
+        "prompt": f"Generated question number {n} about your demo project?",
+        "est_minutes": 4,
+        "source": "generated",
+        "status": status,
+        "entity_id": ENTITY,
+        "fact_ids": ["demo-f01"],
+        "depth": "justify",
+        "rubric": ["point one", "point two", "point three"],
+    }
+    if needs_input:
+        q.update(
+            needs_user_input=True, answer_guidance="Explain your real reason using the demo facts."
+        )
+    else:
+        q["model_answer"] = "A grounded model answer about the demo project."
+    q.update(kw)
+    return q
+
+
+@pytest.fixture
+def gen_env(env, tmp_path):
+    import json
+
+    import yaml
+
+    gdir = tmp_path / "generated" / "projects"
+    gdir.mkdir(parents=True)
+    questions = [
+        gen_question(1),
+        gen_question(2),
+        gen_question(3, needs_input=True),
+        gen_question(4, status="approved"),
+    ]
+    (gdir / f"{ENTITY}.yaml").write_text(
+        yaml.safe_dump({"entity_id": ENTITY, "questions": questions}, sort_keys=False)
+    )
+    fdir = tmp_path / "generated" / "facts"
+    fdir.mkdir()
+    (fdir / f"{ENTITY}.json").write_text(
+        json.dumps(
+            {
+                "entity_id": ENTITY,
+                "facts": [{"fact_id": "demo-f01", "statement": "You built a demo pipeline."}],
+            }
+        )
+    )
+    (tmp_path / "profile.json").write_text(
+        json.dumps({"entities": [{"id": ENTITY, "org": "Demo Project"}]})
+    )
+    return {**env, "gdir": gdir}
+
+
+def statuses(gen_env):
+    import yaml
+
+    data = yaml.safe_load((gen_env["gdir"] / f"{ENTITY}.yaml").read_text())
+    return {q["id"]: q["status"] for q in data["questions"]}
+
+
+def test_review_page_approve_and_reject(gen_env):
+    at = run_page("pages/4_Review.py")
+    assert any("Demo Project (3)" in s.value for s in at.subheader)  # 3 drafts shown
+    assert any("🖐 Needs your input" in m.value for m in at.markdown)
+    assert any("You built a demo pipeline." in m.value for m in at.markdown)  # source facts
+    at.button(key="approve_proj-demo-0001").click().run()
+    assert not at.exception
+    at.button(key="reject_proj-demo-0002").click().run()
+    assert statuses(gen_env) == {
+        "proj-demo-0001": "approved",
+        "proj-demo-0002": "rejected",
+        "proj-demo-0003": "draft",
+        "proj-demo-0004": "approved",
+    }
+    assert any("Demo Project (1)" in s.value for s in at.subheader)
+
+
+def test_review_page_approve_all(gen_env):
+    at = run_page("pages/4_Review.py")
+    at.button(key=f"approve_all_{ENTITY}").click().run()
+    assert not at.exception
+    assert set(statuses(gen_env).values()) == {"approved"}
+
+
+def test_practice_source_filter(gen_env):
+    at = run_page("Home.py")
+    assert any("**6** question(s) match" in m.value for m in at.markdown)  # 5 authored + 1
+    at.radio(key="f_source").set_value("My projects").run()
+    assert any("**1** question(s) match" in m.value for m in at.markdown)  # approved only
+    at.checkbox(key="f_drafts").check().run()
+    assert any("**4** question(s) match" in m.value for m in at.markdown)
+    assert at.multiselect(key="f_projects").options == ["Demo Project"]
+    at.radio(key="f_source").set_value("Foundational").run()
+    assert any("**5** question(s) match" in m.value for m in at.markdown)
+
+
+def test_project_card_and_real_answer(gen_env):
+    at = start_single("proj-demo-0003")
+    header = " ".join(m.value for m in at.markdown)
+    assert "Demo Project" in header and "depth: *justify*" in header
+    at.text_area(key="ft_text_proj-demo-0003").input("My draft answer")
+    click(at, "Show model answer and rubric")
+    assert any("answer guidance" in e.label for e in at.expander)
+    at.checkbox(key="rub_proj-demo-0003_0").check()
+    click(at, "Submit self-grade")
+    at.text_area(key="real_proj-demo-0003").input("The real reason was latency limits.")
+    click(at, "Save my real answer")
+    assert (
+        History(gen_env["db"]).own_answer("proj-demo-0003") == "The real reason was latency limits."
+    )

@@ -1,0 +1,104 @@
+{
+  "entity_id": "vetology-ai-teleradiology--ai-ml-intern-llm-evaluation",
+  "profile_hash": "dc0055165e648106",
+  "generated_by": "claude-sonnet-5-5",
+  "generated_at": "2026-11-15T01:20:13+00:00",
+  "facts": [
+    {
+      "fact_id": "vetology-f01",
+      "statement": "You built a Python application that used OpenAI GPT-4o-mini (temperature 0) to classify free-text veterinary radiology reports for 52 diagnostic conditions across three datasets (canine thorax, feline thorax, canine abdomen), scoring each condition in its own call with nine shared rules and JSON-configurable prompts.",
+      "source_bullets": [
+        0,
+        3,
+        7,
+        10
+      ],
+      "uses_website_text": false,
+      "role_hint": "both",
+      "substantive": true
+    },
+    {
+      "fact_id": "vetology-f02",
+      "statement": "You hand-scored 150 reports into a gold standard of 2,600 condition-level labels, and validated the model outputs against it.",
+      "source_bullets": [
+        0,
+        4,
+        9,
+        11
+      ],
+      "uses_website_text": false,
+      "role_hint": "both",
+      "substantive": true
+    },
+    {
+      "fact_id": "vetology-f03",
+      "statement": "You produced per-condition confusion matrices (accuracy, sensitivity, specificity) in Vetology's output template.",
+      "source_bullets": [
+        1,
+        4,
+        11
+      ],
+      "uses_website_text": false,
+      "role_hint": "both",
+      "substantive": true
+    },
+    {
+      "fact_id": "vetology-f04",
+      "statement": "You showed that accuracy was misleading under class imbalance because positives were only 4% to 10% of labels, so always answering \"normal\" would score 90% to 96%, and you reported per-condition sensitivity and specificity instead, using an offline keyword baseline to show accuracy overstated performance.",
+      "source_bullets": [
+        1,
+        4,
+        12
+      ],
+      "uses_website_text": false,
+      "role_hint": "both",
+      "substantive": true
+    },
+    {
+      "fact_id": "vetology-f05",
+      "statement": "You found that legacy radiologist labels disagreed with the gold standard in about 40% of canine thorax cells.",
+      "source_bullets": [
+        2,
+        12
+      ],
+      "uses_website_text": false,
+      "role_hint": "both",
+      "substantive": true
+    },
+    {
+      "fact_id": "vetology-f06",
+      "statement": "You recommended a radiologist review of the gold standard and fixes for class imbalance and negative bias before the next evaluation, and presented the methodology and results to the Vetology team.",
+      "source_bullets": [
+        2,
+        6,
+        13
+      ],
+      "uses_website_text": false,
+      "role_hint": "both",
+      "substantive": true
+    },
+    {
+      "fact_id": "vetology-f07",
+      "statement": "You rebuilt the original 231-line script with Claude Code into a modular package with unit tests, eight-worker concurrency, a response cache, and credentials moved from code to environment variables, and documented how manual coding compared with AI-assisted development.",
+      "source_bullets": [
+        5,
+        8,
+        14
+      ],
+      "uses_website_text": false,
+      "role_hint": "both",
+      "substantive": true
+    },
+    {
+      "fact_id": "vetology-f08",
+      "statement": "You shipped the codebase to GitHub with controls that keep client data and credentials out of the repository.",
+      "source_bullets": [
+        6,
+        9
+      ],
+      "uses_website_text": false,
+      "role_hint": "both",
+      "substantive": true
+    }
+  ]
+}

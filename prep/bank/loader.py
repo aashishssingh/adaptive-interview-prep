@@ -1,4 +1,5 @@
-"""Load the question bank from YAML and filter it."""
+"""Load the question bank (authored data/questions/ plus generated data/generated/projects/)
+from YAML and filter it."""
 
 from __future__ import annotations
 
@@ -15,6 +16,11 @@ from prep.meta import validate_role
 
 QUESTIONS_DIR = PROJECT_ROOT / "data" / "questions"
 DATASETS_DIR = QUESTIONS_DIR / "datasets"
+
+
+def generated_dir_for(questions_dir: Path) -> Path:
+    """Generated project questions live next to the authored bank: data/generated/projects."""
+    return questions_dir.parent / "generated" / "projects"
 
 
 class BankError(ValueError):
@@ -34,8 +40,9 @@ def _format_validation_error(e: ValidationError) -> str:
     return "; ".join(parts)
 
 
-def load_file(path: Path) -> tuple[list[Question], list[str]]:
-    """Parse one topic file. Returns (valid questions, error messages)."""
+def load_file(path: Path, generated: bool = False) -> tuple[list[Question], list[str]]:
+    """Parse one file. Authored files are named after their topic; generated files after
+    their entity_id. Returns (valid questions, error messages)."""
     errors: list[str] = []
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -52,9 +59,22 @@ def load_file(path: Path) -> tuple[list[Question], list[str]]:
         except ValidationError as e:
             errors.append(f"{path.name}: {qid}: {_format_validation_error(e)}")
             continue
-        if q.topic != path.stem:
-            errors.append(f"{path.name}: {q.id}: topic {q.topic!r} does not match file name")
-            continue
+        if generated:
+            if q.source != "generated" or q.entity_id != path.stem:
+                errors.append(
+                    f"{path.name}: {q.id}: generated files may only hold generated "
+                    f"questions whose entity_id matches the file name"
+                )
+                continue
+        else:
+            if q.source != "authored":
+                errors.append(
+                    f"{path.name}: {q.id}: authored files may only hold authored questions"
+                )
+                continue
+            if q.topic != path.stem:
+                errors.append(f"{path.name}: {q.id}: topic {q.topic!r} does not match file name")
+                continue
         questions.append(q)
     return questions, errors
 
@@ -63,12 +83,18 @@ def question_files(directory: Path = QUESTIONS_DIR) -> list[Path]:
     return sorted(p for p in directory.glob("*.yaml") if not p.name.startswith("."))
 
 
-def load_bank_with_errors(directory: Path = QUESTIONS_DIR) -> tuple[list[Question], list[str]]:
+def load_bank_with_errors(
+    directory: Path = QUESTIONS_DIR, include_generated: bool = True
+) -> tuple[list[Question], list[str]]:
     questions: list[Question] = []
     errors: list[str] = []
     seen: dict[str, str] = {}
-    for path in question_files(directory):
-        qs, errs = load_file(path)
+    files = [(p, False) for p in question_files(directory)]
+    gen_dir = generated_dir_for(directory)
+    if include_generated and gen_dir.is_dir():
+        files += [(p, True) for p in question_files(gen_dir)]
+    for path, generated in files:
+        qs, errs = load_file(path, generated=generated)
         errors.extend(errs)
         for q in qs:
             if q.id in seen:
@@ -79,9 +105,10 @@ def load_bank_with_errors(directory: Path = QUESTIONS_DIR) -> tuple[list[Questio
     return questions, errors
 
 
-def load_bank(directory: Path = QUESTIONS_DIR) -> list[Question]:
-    """Load every topic file. Raises BankError if any question is invalid or duplicated."""
-    questions, errors = load_bank_with_errors(directory)
+def load_bank(directory: Path = QUESTIONS_DIR, include_generated: bool = True) -> list[Question]:
+    """Load every authored topic file and every generated project file (all statuses).
+    Raises BankError if any question is invalid or duplicated."""
+    questions, errors = load_bank_with_errors(directory, include_generated)
     if errors:
         raise BankError(errors)
     return questions

@@ -25,6 +25,7 @@ from prep.history import now_iso
 from prep.practice import (
     FLASHCARD_TYPES,
     MODES,
+    SOURCES,
     TRACKS,
     format_duration,
     matching_questions,
@@ -32,7 +33,9 @@ from prep.practice import (
 )
 from prep.ui.components import (
     MONOSPACE_CSS,
+    NEEDS_INPUT_MARKER,
     datasets_dir,
+    entity_name,
     get_bank,
     get_history,
     question_header,
@@ -164,6 +167,39 @@ with st.sidebar:
     )
     type_options = list(FLASHCARD_TYPES) if mode == "Flashcards" else ALL_TYPES
     types = st.multiselect("Question types", type_options, key="f_types", placeholder="All types")
+    source = st.radio(
+        "Source",
+        SOURCES,
+        index=2,
+        key="f_source",
+        horizontal=True,
+        help="Foundational = the authored bank; My projects = generated questions "
+        "about your own work.",
+    )
+    include_drafts = st.checkbox(
+        "Include drafts",
+        key="f_drafts",
+        help="Also practice generated questions you have not reviewed on the Review page.",
+    )
+    projects: list[str] = []
+    if source != "Foundational":
+        allowed = {"approved", "draft"} if include_drafts else {"approved"}
+        project_ids = sorted(
+            {q.entity_id for q in bank if q.source == "generated" and q.status in allowed}
+        )
+        if project_ids:
+            projects = st.multiselect(
+                "Projects",
+                project_ids,
+                key="f_projects",
+                format_func=entity_name,
+                placeholder="All projects",
+            )
+        else:
+            st.caption(
+                "No project questions available yet. Generate them, then approve them on "
+                "the Review page (or tick Include drafts)."
+            )
     n_questions = st.number_input("Number of questions", 1, 100, 10, key="f_n")
 
 filters = {
@@ -173,8 +209,22 @@ filters = {
     "difficulty": list(difficulty),
     "types": types,
     "mode": mode,
+    "source": source,
+    "projects": projects,
+    "include_drafts": include_drafts,
 }
-matches = matching_questions(bank, track, only_specific, topics, difficulty, types, mode)
+matches = matching_questions(
+    bank,
+    track,
+    only_specific,
+    topics,
+    difficulty,
+    types,
+    mode,
+    source=source,
+    entities=projects,
+    include_drafts=include_drafts,
+)
 
 # A single question requested from the Progress or Question Bank page.
 single = ss.pop("practice_single", None)
@@ -285,8 +335,16 @@ def render_free_text(q: Question) -> None:
     if cur["answer_text"]:
         with st.expander("Your answer", expanded=True):
             st.markdown(cur["answer_text"])
-    with st.expander("Model answer", expanded=True):
-        st.markdown(q.model_answer)
+    if q.model_answer:
+        with st.expander("Model answer", expanded=True):
+            st.markdown(q.model_answer)
+    else:
+        with st.expander(f"{NEEDS_INPUT_MARKER}: answer guidance", expanded=True):
+            st.caption(
+                "There is no model answer: a strong answer needs details from your own "
+                "experience that your profile does not contain."
+            )
+            st.markdown(q.answer_guidance or "")
     if cur["grade"] is None:
         with st.form(f"rubric_{q.id}"):
             st.write("Tick each rubric point your answer covered:")
@@ -419,6 +477,31 @@ def render_coding_sql(q: Question) -> None:
         st.code(q.reference_query, language="sql")
 
 
+def render_needs_input(q: Question) -> str | None:
+    """For "needs your input" questions: guidance plus a box for your real answer."""
+    if not q.needs_user_input:
+        return None
+    st.markdown(f"#### {NEEDS_INPUT_MARKER}")
+    if q.type != "free_text" or q.model_answer:
+        st.info(q.answer_guidance or "")
+    real = st.text_area(
+        "Your real answer",
+        value=history.own_answer(q.id) or "",
+        key=f"real_{q.id}",
+        height=160,
+        help="Saved only on this computer (data/local/history.db), never committed.",
+    )
+    if st.button("Save my real answer", key=f"save_real_{q.id}"):
+        save_real_answer(q, real)
+        st.success("Saved.")
+    return real
+
+
+def save_real_answer(q: Question, text: str | None) -> None:
+    if q.needs_user_input and text and text.strip() and text != history.own_answer(q.id):
+        history.save_own_answer(q.id, text)
+
+
 def render_after_grading(q: Question) -> None:
     cur = ss.cur
     g = cur["grade"]
@@ -428,6 +511,7 @@ def render_after_grading(q: Question) -> None:
     shown_on_reveal = q.type in ("free_text", "short_answer") or ss.run["mode"] == "Flashcards"
     if not shown_on_reveal:
         st.markdown(f"**Explanation.** {q.explanation}")
+    real_answer = render_needs_input(q)
     follow_answers: dict[str, str] = {}
     if q.follow_ups:
         st.markdown("#### Interviewer follow-up")
@@ -440,11 +524,13 @@ def render_after_grading(q: Question) -> None:
     if c1.button("Finish session" if last else "Next question", type="primary", key=f"next_{q.id}"):
         if any(v.strip() for v in follow_answers.values()):
             history.save_followups(cur["attempt_id"], follow_answers)
+        save_real_answer(q, real_answer)
         next_question()
         st.rerun()
     if not last and c2.button("End session", key=f"end_{q.id}"):
         if any(v.strip() for v in follow_answers.values()):
             history.save_followups(cur["attempt_id"], follow_answers)
+        save_real_answer(q, real_answer)
         finish_run()
         st.rerun()
 

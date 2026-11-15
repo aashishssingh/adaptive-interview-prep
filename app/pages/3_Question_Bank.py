@@ -57,6 +57,7 @@ for q in bank:
             "difficulty": difficulty_label(q.difficulty),
             "topic": q.topic,
             "type": q.type,
+            "status": q.status,
             "times attempted": counts.get(q.id, 0),
             "last outcome": last.get(q.id, "—"),
             "prompt": q.prompt[:90] + ("…" if len(q.prompt) > 90 else ""),

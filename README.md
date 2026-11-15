@@ -59,6 +59,16 @@ Progress page also lists missed questions (latest attempt incorrect or partial),
 Browse and search all questions with role, difficulty, topic, type, times attempted and last
 outcome. Pick any question and click **Practice this question**.
 
+### Review (generated questions)
+Generated project questions start as drafts. The Review page groups them by project and shows
+each question's depth, role, difficulty, model answer or answer guidance, and the profile facts
+it came from. **Approve** or **Reject** each one, or **Approve all** for a project; decisions
+are written back to the YAML file. Questions marked 🖐 *Needs your input* have no model answer:
+a strong answer needs details only you know. After answering one in Practice, save
+**Your real answer** (stored locally in `data/local/history.db`, never committed). Practice uses
+only approved questions unless you tick **Include drafts**. Use the **Source** filter
+(Foundational / My projects / Both) and the **Projects** picker to choose what to practice.
+
 ### Troubleshooting
 On macOS, files inside `.venv` can carry the "hidden" flag, which makes Python 3.12+ skip the
 editable install's `.pth` file. The app pages handle this themselves. If `python -m prep...`
@@ -87,6 +97,32 @@ runs every Python reference solution and SQL reference query, prints coverage):
 ```bash
 python -m prep.bank.validate
 ```
+
+## Generate project questions (LLM)
+Turns `data/profile.json` into interview questions about your own projects. This is the only
+part of the app that needs an LLM. Configure `LLM_PROVIDER` (`anthropic` by default, or
+`openai`) and the models `LLM_MODEL_DEEP` / `LLM_MODEL_FAST`.
+
+For Anthropic, either run `ant auth login` (CLI sign-in; leave `ANTHROPIC_API_KEY` unset) or set
+`ANTHROPIC_API_KEY`. Settings report which one is in use (`api key`, `CLI sign-in` or `none`)
+without printing secrets.
+
+```bash
+python -m prep.generate.projects --dry-run                # plan, token and cost estimate; no API calls
+python -m prep.generate.projects --entity vetology --yes  # one project (id or short slug)
+python -m prep.generate.projects --changed-only           # only entities changed by the last profile sync
+```
+
+Without `--yes` the command shows the estimate and asks before spending. Each entity takes two
+calls: one groups bullets and paraphrases into facts (`data/generated/facts/`), and one writes
+questions at four depths (explain, justify, challenge, extend) into
+`data/generated/projects/<entity>.yaml` as drafts.
+- **Grounding:** answers may only use profile facts. Questions needing information the profile
+  lacks are marked "needs your input" with answer guidance, and numbers not found in the profile
+  are flagged for review.
+- **Regeneration:** questions that are no longer produced are retired, never deleted.
+- **Caching:** responses are cached in `data/local/llm_cache/`, so identical reruns are free.
+  Usage is logged to `data/local/llm_usage.jsonl`.
 
 ## Test
 ```bash

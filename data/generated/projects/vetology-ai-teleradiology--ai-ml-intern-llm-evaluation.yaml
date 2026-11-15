@@ -1,0 +1,1803 @@
+entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+profile_hash: dc0055165e648106
+questions:
+- id: proj-vetology-0001
+  type: free_text
+  role: both
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - llm-classification
+  - prompt-design
+  - pipeline
+  prompt: In your Vetology internship, you built a Python application that classified free-text veterinary
+    radiology reports with an LLM. Walk me through what it did and how it was structured.
+  hints:
+  - Cover the model, the number of conditions and datasets, and how each condition was scored.
+  follow_ups:
+  - Which three datasets did it cover?
+  est_minutes: 4
+  source: generated
+  status: retired
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f01
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:17:56+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'I built a Python application that used OpenAI GPT-4o-mini at temperature 0 to classify
+    free-text veterinary radiology reports for 52 diagnostic conditions. It covered three datasets: canine
+    thorax, feline thorax and canine abdomen. Each condition was scored in its own call, with nine shared
+    rules applied across the prompts. The prompts were JSON-configurable, so they could be changed without
+    editing code.'
+  rubric:
+  - Names GPT-4o-mini and temperature 0
+  - States 52 conditions across three datasets (canine thorax, feline thorax, canine abdomen)
+  - Explains one call per condition
+  - Mentions nine shared rules
+  - Mentions JSON-configurable prompts
+- id: proj-vetology-0002
+  type: free_text
+  role: both
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - llm
+  - classification
+  - pipeline
+  prompt: In your Vetology LLM evaluation project, you built a Python application to classify radiology
+    reports. Walk me through what it did, what model and settings it used, and how the scoring was structured.
+  hints:
+  - Mention datasets, number of conditions and how calls were organized.
+  follow_ups:
+  - What did the nine shared rules do?
+  est_minutes: 4
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f01
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'I built a Python application that used OpenAI GPT-4o-mini at temperature 0 to classify
+    free-text veterinary radiology reports for 52 diagnostic conditions across three datasets: canine
+    thorax, feline thorax and canine abdomen. Each condition was scored in its own call, with nine shared
+    rules and prompts configured through JSON.'
+  rubric:
+  - Names GPT-4o-mini at temperature 0
+  - States 52 conditions across three datasets (canine thorax, feline thorax, canine abdomen)
+  - Says each condition was scored in its own call
+  - Mentions nine shared rules and JSON-configurable prompts
+- id: proj-vetology-0003
+  type: free_text
+  role: mle
+  difficulty: 5
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - prompt-design
+  - llm
+  - architecture
+  prompt: In your Vetology project, you scored each of the 52 conditions in its own call, driven by JSON-configurable
+    prompts. Why did you choose that design over alternatives, such as one call per report returning all
+    conditions?
+  hints:
+  - Think about cost, accuracy, flexibility and debuggability.
+  follow_ups:
+  - What did this design cost you?
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f01
+  depth: justify
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts state the design (one call per condition, nine shared rules, JSON-configurable
+    prompts) but not why it was chosen or what alternatives were tried. A strong answer should give your
+    real reasoning, such as isolating conditions, per-condition prompt tweaks without code changes, or
+    easier error analysis. It should also acknowledge the tradeoffs (52 calls per report, cost, latency)
+    and say whether you compared against another design. Draw on the fact that prompts were JSON-configurable
+    and the nine rules were shared across conditions.
+  rubric:
+  - 'States the design accurately: one call per condition, nine shared rules, JSON-configurable prompts'
+  - Gives a genuine reason tied to the project, not a generic one
+  - Names at least one alternative and why it was not used
+  - Acknowledges tradeoffs such as call volume, cost and latency
+- id: proj-vetology-0004
+  type: free_text
+  role: mle
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - determinism
+  - llm
+  - reproducibility
+  prompt: 'An interviewer says: ''You used temperature 0, so your outputs are deterministic and one run
+    per report is enough.'' How do you respond?'
+  hints:
+  - Think about what hosted-model APIs actually guarantee.
+  follow_ups:
+  - How would a response cache help or hurt here?
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f01
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: Temperature 0 makes decoding close to greedy, but it does not guarantee identical outputs
+    from a hosted model. Backend changes, floating-point nondeterminism and model version updates can
+    still change results. To be confident I would run repeat passes on a sample and measure label flip
+    rates, pin the model version, log prompts and responses, and store results so a reported evaluation
+    can be reproduced. A response cache gives exact reproducibility of a stored run, but it hides variability,
+    so I would measure variability before caching. This is general knowledge about LLM APIs, not a result
+    from the project.
+  rubric:
+  - Says temperature 0 reduces but does not guarantee determinism
+  - Suggests measuring run-to-run label flips
+  - Mentions pinning model version and logging
+  - Notes a cache gives reproducibility of a stored run but can hide variability
+- id: proj-vetology-0005
+  type: free_text
+  role: both
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - overfitting
+  - prompt-tuning
+  - evaluation-design
+  prompt: Suppose prompts for your 52 conditions were refined while looking at results on the same reports
+    used to measure performance. How would that inflate your reported numbers, and how would you design
+    the evaluation to avoid it?
+  hints:
+  - Think development set versus held-out test set.
+  follow_ups:
+  - With only 150 reports, how would you split?
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f01
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: If prompts or rules are adjusted against the same labeled reports used for the final metrics,
+    the prompts fit the quirks of those reports and sensitivity and specificity become optimistic. The
+    fix is to split the labeled reports into a development portion for prompt iteration and a held-out
+    portion scored once at the end, freezing prompts and rules before the final run. With a small labeled
+    set, I would stratify the split so rare conditions appear in both parts, or use cross-validation-style
+    rotation. I would also report how many iterations were done. This is general guidance; the facts do
+    not say how prompts were iterated.
+  rubric:
+  - Identifies optimistic bias from tuning on evaluation data
+  - Proposes a dev/held-out split with prompts frozen before final scoring
+  - Notes small samples and rare positives make the split hard, suggesting stratification
+  - Does not claim this was or was not done in the project
+- id: proj-vetology-0006
+  type: free_text
+  role: mle
+  difficulty: 8
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - production
+  - scaling
+  - monitoring
+  - llm
+  prompt: Vetology wants to run your classifier on all incoming reports in production, not a one-off evaluation.
+    With one call per condition across 52 conditions, how would you scale, control cost and monitor it?
+  hints:
+  - Consider throughput, failures, drift and cost per report.
+  follow_ups:
+  - How would you detect quality drift without labels?
+  est_minutes: 8
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f01
+  depth: extend
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: Each report triggers up to 52 calls, so I would batch or queue the work, use bounded concurrency
+    with rate-limit handling, retries with backoff and idempotent request keys, and cache by report, condition,
+    prompt version and model version. To control cost I would consider grouping conditions that can safely
+    share a call, skipping conditions that don't apply to the species or body region, or using a batch
+    API for non-urgent work, validating each change against the gold standard. For monitoring I would
+    log latency, error rates, token cost and the predicted positive rate per condition, alert on shifts
+    in that rate, and periodically re-score a sampled set against radiologist labels. Version prompts
+    and the model, and require regression checks on the gold standard before changes ship. This is general
+    design, not something stated as done in the project.
+  rubric:
+  - Addresses concurrency, rate limits, retries and caching
+  - Proposes cost-control options and validates them against the gold standard
+  - Monitors per-condition positive rate, errors, latency and cost
+  - Includes periodic relabeling or sampled review and prompt/model versioning
+- id: proj-vetology-0007
+  type: multiple_choice
+  role: mle
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - llm
+  - prompt-design
+  - pipeline
+  prompt: In your Vetology application, how was each of the 52 diagnostic conditions scored?
+  hints: []
+  follow_ups: []
+  est_minutes: 2
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f01
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  options:
+  - All 52 conditions were scored together in a single call per report
+  - Each condition was scored in its own call, with nine shared rules and JSON-configurable prompts
+  - One call per dataset, returning labels for every report
+  - A keyword matcher scored conditions and the LLM only resolved ties
+  answer_index: 1
+  explanation: Each condition was scored in its own call with nine shared rules and JSON-configurable
+    prompts. The strongest distractor, one call per report for all conditions, is wrong because it contradicts
+    the per-condition call design. The keyword approach was only an offline baseline, not part of the
+    pipeline.
+- id: proj-vetology-0008
+  type: free_text
+  role: ds
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - gold-standard
+  - annotation
+  - validation
+  prompt: In your Vetology project, you built a gold standard by hand. Describe what it contained, how
+    big it was, and what you used it for.
+  hints: []
+  follow_ups: []
+  est_minutes: 3
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f02
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I hand-scored 150 radiology reports into a gold standard of 2,600 condition-level labels,
+    and I validated the model's outputs against it.
+  rubric:
+  - States 150 reports
+  - States 2,600 condition-level labels
+  - Says it was hand-scored
+  - Says model outputs were validated against it
+- id: proj-vetology-0009
+  type: free_text
+  role: ds
+  difficulty: 5
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - gold-standard
+  - label-quality
+  - sampling
+  prompt: Why did you hand-score 150 reports as your own gold standard rather than validating the model
+    directly against existing labels? Why 150 reports?
+  hints:
+  - Think about trust in the available labels and the effort of annotation.
+  follow_ups:
+  - How were the 150 reports chosen?
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f02
+  depth: justify
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts say you hand-scored 150 reports into 2,600 labels, and separately that legacy
+    radiologist labels disagreed with the gold standard in about 40% of canine thorax cells. They do not
+    state why you chose 150 reports or how they were selected. A strong answer should give your real reasoning
+    (trust in existing labels, annotation effort, coverage of the three datasets), explain how the reports
+    were sampled, and acknowledge the limits of 150 reports.
+  rubric:
+  - Explains why existing labels were not used directly, with the real reason
+  - Explains the choice of 150 and how reports were selected
+  - Connects to the legacy label disagreement finding without overclaiming
+  - Acknowledges limits of the sample size
+- id: proj-vetology-0010
+  type: free_text
+  role: ds
+  difficulty: 8
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - small-sample
+  - confidence-intervals
+  - sensitivity
+  prompt: Your gold standard has 2,600 labels, but positives are only 4% to 10% of labels. A skeptic says
+    150 reports is too small to trust per-condition sensitivity. How many positives are we talking about,
+    and what would you do about it?
+  hints:
+  - Compute the approximate number of positives, then divide across conditions.
+  follow_ups:
+  - Which conditions would you not report on at all?
+  est_minutes: 7
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f02
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: Across 2,600 labels, 4% to 10% positives is roughly 104 to 260 positives overall. Spread
+    over 52 conditions, that is on average only about 2 to 5 positives per condition, and many conditions
+    probably have fewer. Sensitivity per condition rests on very few cases, so a single error swings the
+    estimate widely. I would report exact (for example Clopper-Pearson) confidence intervals with counts
+    alongside every sensitivity, flag or pool conditions with too few positives instead of reading point
+    estimates, and recommend enriching the gold standard with more positives for rare conditions. Specificity
+    is better estimated because negatives are plentiful. The averages are my arithmetic from the stated
+    percentages, not reported figures.
+  rubric:
+  - Estimates roughly 104-260 positives overall from 4%-10% of 2,600
+  - Notes this gives only a handful of positives per condition on average
+  - Recommends confidence intervals and reporting counts
+  - Suggests flagging rare conditions or enriching positives
+  - Notes specificity is better estimated than sensitivity
+  review_notes:
+  - 'Numbers not found in your profile: 104, 260. Check them before approving.'
+- id: proj-vetology-0011
+  type: free_text
+  role: ds
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - label-quality
+  - inter-rater-agreement
+  - annotation
+  prompt: You scored the gold standard yourself. What weaknesses does that introduce, and how would you
+    quantify or reduce them?
+  hints:
+  - Think single annotator, domain expertise and reference-standard error.
+  follow_ups:
+  - What agreement statistic would you use?
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f02
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: A single non-specialist annotator can introduce systematic labeling errors, and any error
+    in the gold standard flows straight into the model's measured sensitivity and specificity. To quantify
+    it I would have a second rater, ideally a radiologist, label an overlapping subset and compute agreement
+    (Cohen's kappa or per-condition percent agreement), then adjudicate disagreements. This lines up with
+    the recommendation I made to have a radiologist review the gold standard. I would also write explicit
+    labeling guidelines so rules are consistent, and report that the metrics are relative to an unreviewed
+    reference standard until review is done.
+  rubric:
+  - Identifies single-annotator and domain expertise risk
+  - Explains that gold standard errors bias measured metrics
+  - Proposes second rater or radiologist review with an agreement statistic
+  - Links to the radiologist review recommendation
+  - Mentions guidelines or adjudication
+- id: proj-vetology-0012
+  type: free_text
+  role: ds
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - bias
+  - annotation
+  - evaluation-design
+  prompt: When you hand-scored the 150 reports, how did you keep your labeling independent of the model's
+    outputs, and what bias would you worry about if you hadn't?
+  hints:
+  - 'Consider the order of operations: label first or look at model output first?'
+  follow_ups: []
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f02
+  depth: challenge
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts do not say whether you labeled before or after seeing model outputs, or whether
+    labeling was blinded. A strong answer should state what you actually did. It should explain the risk
+    of anchoring (if you saw model predictions first, agreement would be inflated) and how blinding or
+    labeling first prevents it. It should also cover how you handled ambiguous cases in the reports.
+  rubric:
+  - States what was actually done about ordering or blinding
+  - Explains anchoring bias toward model predictions
+  - Describes how ambiguous cases were handled
+  - Connects to validity of reported sensitivity and specificity
+- id: proj-vetology-0013
+  type: free_text
+  role: ds
+  difficulty: 8
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - annotation
+  - sampling
+  - gold-standard
+  prompt: With more time and annotator budget, how would you redesign the gold standard to give reliable
+    per-condition estimates across all 52 conditions?
+  hints:
+  - Think about positives per condition and annotator agreement.
+  follow_ups:
+  - How would you pick reports to label next?
+  est_minutes: 8
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f02
+  depth: extend
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I would size the sample by the number of positives needed per condition rather than by
+    total reports, using stratified or enriched sampling (for instance, oversampling reports the model
+    or legacy labels flag as positive, with weights applied when estimating prevalence-dependent metrics).
+    I would have at least two independent raters, including a radiologist, with an adjudication step and
+    written guidelines, and measure agreement per condition. I would keep a frozen held-out portion for
+    final reporting and report confidence intervals. This is a general design suggestion, building on
+    the existing 150-report, 2,600-label set.
+  rubric:
+  - Sizes by positives per condition, not total reports
+  - Uses enriched or stratified sampling with correct weighting
+  - Uses multiple raters with adjudication and measured agreement
+  - Keeps a frozen held-out set and reports intervals
+- id: proj-vetology-0014
+  type: free_text
+  role: ds
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - confusion-matrix
+  - metrics
+  - reporting
+  prompt: In your Vetology project, what evaluation outputs did you produce for each condition, and in
+    what format did you deliver them?
+  hints: []
+  follow_ups:
+  - What does each cell of the matrix represent?
+  est_minutes: 3
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f03
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I produced a confusion matrix for each condition, with accuracy, sensitivity and specificity,
+    and delivered them in Vetology's output template.
+  rubric:
+  - Per-condition confusion matrices
+  - Accuracy, sensitivity and specificity
+  - Delivered in Vetology's output template
+- id: proj-vetology-0015
+  type: short_answer
+  role: ds
+  difficulty: 2
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - sensitivity
+  - confusion-matrix
+  prompt: From a per-condition confusion matrix, which metric tells you the fraction of truly positive
+    reports that the model correctly flagged as positive?
+  hints: []
+  follow_ups: []
+  est_minutes: 2
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f03
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer: 'Sensitivity (recall): true positives divided by true positives plus false negatives.'
+  explanation: Sensitivity is one of the three metrics you reported per condition. Specificity is the
+    matching metric for negatives (true negatives over true negatives plus false positives), and accuracy
+    mixes both.
+- id: proj-vetology-0016
+  type: multiple_choice
+  role: ds
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - metrics
+  - confusion-matrix
+  - reporting
+  prompt: Which set of metrics did you report from each per-condition confusion matrix?
+  hints: []
+  follow_ups: []
+  est_minutes: 2
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f03
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  options:
+  - Accuracy, sensitivity and specificity
+  - AUC, log-loss and calibration error
+  - BLEU, ROUGE and perplexity
+  - Precision, recall and F1 only
+  answer_index: 0
+  explanation: The per-condition matrices reported accuracy, sensitivity and specificity. Precision, recall
+    and F1 is the strongest distractor because recall equals sensitivity, but precision and F1 were not
+    listed among the reported metrics.
+- id: proj-vetology-0017
+  type: free_text
+  role: ds
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - precision
+  - prevalence
+  - metrics
+  prompt: Your per-condition output reports accuracy, sensitivity and specificity but not precision (positive
+    predictive value). Why might a stakeholder care about that gap when positives are only 4% to 10% of
+    labels?
+  hints:
+  - Consider what a flagged positive is worth when positives are rare.
+  follow_ups:
+  - Would PPV on your gold standard transfer to a different dataset?
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f03
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: When positives are rare, even a high specificity can produce many false positives relative
+    to true positives, so most flagged cases could be wrong. Precision, or PPV, answers 'when the model
+    says positive, how often is it right?', which matters if flagged reports go to review. PPV depends
+    on prevalence, so a value measured on this gold standard would not transfer directly to a dataset
+    with different prevalence, while sensitivity and specificity are less prevalence-dependent. I would
+    add precision (or PPV and F1) with confidence intervals, and note the prevalence it was measured at.
+    This is general reasoning; the facts list only accuracy, sensitivity and specificity.
+  rubric:
+  - Explains that rare positives make false positives dominate flagged cases
+  - Defines precision/PPV and why it matters for downstream use
+  - Notes PPV depends on prevalence while sensitivity and specificity depend less
+  - Suggests adding it with intervals
+- id: proj-vetology-0018
+  type: free_text
+  role: ds
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - aggregation
+  - macro-average
+  - communication
+  prompt: You have 52 per-condition confusion matrices across three datasets. A manager asks for one number
+    to summarize model quality. What are the pitfalls, and what would you give instead?
+  hints:
+  - Compare micro and macro averaging.
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f03
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: Pooling all labels (micro-averaging) is dominated by negatives and by the most-labeled
+    conditions, so it would look like the inflated accuracy problem again. Macro-averaging sensitivity
+    and specificity across conditions treats each condition equally but is noisy for conditions with only
+    a few positives, and it hides conditions that fail badly. I would give macro-averaged sensitivity
+    and specificity with intervals, plus the distribution across conditions (for example how many fall
+    below an agreed threshold), and keep the per-condition table available. Results by dataset (canine
+    thorax, feline thorax, canine abdomen) should be shown separately. This is general guidance for the
+    summary, not something reported in the facts.
+  rubric:
+  - Notes pooled or accuracy-based summaries are dominated by negatives
+  - Explains macro-averaging and its noise for rare conditions
+  - Proposes sensitivity and specificity summaries plus the spread across conditions
+  - Keeps dataset-level and per-condition detail
+- id: proj-vetology-0019
+  type: free_text
+  role: mle
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - evaluation
+  - regression-testing
+  - automation
+  prompt: How would you turn your per-condition confusion matrix reporting into an automated evaluation
+    step that runs whenever prompts or the model change?
+  hints:
+  - Think about versioned runs and pass/fail criteria.
+  follow_ups:
+  - What would block a prompt change from shipping?
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f03
+  depth: extend
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I would add an evaluation command that runs the classifier over the gold-standard reports,
+    writes the per-condition confusion matrices (accuracy, sensitivity, specificity) into the output template,
+    and stores them keyed by prompt and model version. Then I would compare each run to the last accepted
+    one and flag conditions whose sensitivity or specificity dropped beyond an agreed tolerance, accounting
+    for sampling noise from small positive counts. The check could run in CI on prompt-config changes,
+    using cached responses to avoid repeat cost. This is a general proposal built on the existing outputs.
+  rubric:
+  - Automated run over the gold standard writing matrices to the template
+  - Results versioned by prompt and model
+  - Compares to a baseline run with tolerances that account for noise
+  - Hooks into CI or change review
+- id: proj-vetology-0020
+  type: free_text
+  role: ds
+  difficulty: 4
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - class-imbalance
+  - accuracy
+  - sensitivity-specificity
+  prompt: In your Vetology project, you argued that accuracy was misleading. Explain the argument with
+    the numbers, and what you reported instead.
+  hints:
+  - Use the always-normal classifier as the example.
+  follow_ups:
+  - What did the offline keyword baseline show?
+  est_minutes: 4
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f04
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: Positives were only 4% to 10% of labels, so a classifier that always answered 'normal'
+    would score 90% to 96% accuracy while finding no disease. Accuracy therefore overstated performance,
+    and an offline keyword baseline showed this. I reported per-condition sensitivity and specificity
+    instead, which expose how well positives and negatives are each handled.
+  rubric:
+  - States positives were 4%-10% of labels
+  - States always-normal would score 90%-96%
+  - Mentions the offline keyword baseline showing accuracy overstated performance
+  - Says per-condition sensitivity and specificity were reported instead
+- id: proj-vetology-0021
+  type: multiple_choice
+  role: ds
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - class-imbalance
+  - baseline
+  - accuracy
+  prompt: Positives were only 4% to 10% of labels in your gold standard. What accuracy would a classifier
+    that always answers 'normal' achieve?
+  hints: []
+  follow_ups: []
+  est_minutes: 2
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f04
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  options:
+  - 4% to 10%
+  - 50%
+  - 90% to 96%
+  - About 40%
+  answer_index: 2
+  explanation: If positives are 4% to 10% of labels, always answering 'normal' is right on the other 90%
+    to 96%. The 4% to 10% option is the positive rate itself, not the accuracy, which is the strongest
+    distractor; the 40% figure is the legacy label disagreement rate for canine thorax, unrelated here.
+- id: proj-vetology-0022
+  type: free_text
+  role: ds
+  difficulty: 5
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - metric-choice
+  - sensitivity-specificity
+  - communication
+  prompt: Why did you choose per-condition sensitivity and specificity as your headline metrics instead
+    of alternatives like F1, precision-recall curves or AUC?
+  hints:
+  - Consider the audience and what each metric reveals.
+  follow_ups:
+  - Would your choice change for a screening versus confirmation use case?
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f04
+  depth: justify
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts say you reported per-condition sensitivity and specificity instead of accuracy,
+    but not why you chose them over other metrics or whether you considered others. A strong answer should
+    give your real reasoning (for example, the output template, how veterinary or clinical readers think
+    about the metrics, or the symmetric view of positives and negatives) and honestly address what those
+    metrics miss, such as precision at low prevalence. It should connect to the 4%-10% positive rate.
+  rubric:
+  - States the real reason for choosing sensitivity and specificity
+  - Ties the choice to the 4%-10% positive rate
+  - Names at least one alternative and why it was not the headline
+  - Acknowledges a limitation, such as no precision or prevalence dependence
+- id: proj-vetology-0023
+  type: free_text
+  role: ds
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - baselines
+  - evaluation-design
+  - class-imbalance
+  prompt: A skeptic says an offline keyword baseline is a strawman, so showing that accuracy overstated
+    performance proves little. How do you defend the conclusion, and what stronger baselines would you
+    add?
+  hints:
+  - Separate the point about accuracy from the point about model quality.
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f04
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'The claim about accuracy does not depend on the baseline being strong. The always-normal
+    rule already scores 90% to 96% given positives of 4% to 10%, so high accuracy cannot distinguish a
+    useful classifier from a useless one. The keyword baseline illustrates this. It does not show the
+    LLM is good, though, so I would add stronger comparisons: a majority-class baseline per condition,
+    a tuned keyword or regex rule set, a simple supervised classifier trained on legacy labels if their
+    quality allows, and prompt variants, all compared on sensitivity and specificity with intervals on
+    the same gold standard. These additional baselines are suggestions, not something I did.'
+  rubric:
+  - Separates the accuracy-is-misleading point from model quality
+  - Uses the 90%-96% always-normal arithmetic
+  - Proposes stronger baselines such as tuned rules or a supervised model
+  - Compares on sensitivity and specificity with the same gold standard
+- id: proj-vetology-0024
+  type: free_text
+  role: ds
+  difficulty: 6
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - class-imbalance
+  - sensitivity-specificity
+  - error-costs
+  prompt: Walk through what accuracy, sensitivity and specificity would be for an always-answer-'normal'
+    classifier on your data. Then explain what asymmetry between the two error types an interviewer might
+    still want you to address.
+  hints:
+  - Compute each metric for the trivial classifier.
+  follow_ups: []
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f04
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'An always-normal classifier makes no positive predictions, so sensitivity is 0%, specificity
+    is 100% and accuracy equals the negative share, 90% to 96% given positives of 4% to 10%. Reporting
+    sensitivity and specificity together exposes this because high accuracy cannot hide zero sensitivity.
+    Beyond that, the two error types may not cost the same: a missed finding (false negative) and a false
+    alarm (false positive) have different consequences, which depends on how Vetology uses the labels.
+    The threshold or prompt behavior should be judged against that tradeoff, not by a single metric. The
+    cost discussion is general reasoning, not a stated project result.'
+  rubric:
+  - Sensitivity 0%, specificity 100%, accuracy 90%-96%
+  - Explains that reporting both metrics exposes the trivial classifier
+  - Discusses unequal costs of false negatives versus false positives
+  - Ties the evaluation choice to downstream use
+  review_notes:
+  - 'Numbers not found in your profile: 100. Check them before approving.'
+- id: proj-vetology-0025
+  type: free_text
+  role: both
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - monitoring
+  - class-imbalance
+  - drift
+  prompt: Looking ahead, how would you monitor a deployed version of this classifier given that positives
+    are rare and accuracy is uninformative?
+  hints:
+  - Think about what you can track without labels and what needs sampled labels.
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f04
+  depth: extend
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I would track the predicted-positive rate per condition against the expected 4% to 10%
+    range and alert on shifts, since a drop toward zero would signal the always-normal failure mode. For
+    quality, I would sample reports, including enriched samples of predicted positives and borderline
+    cases, send them for expert labeling, and estimate per-condition sensitivity and specificity with
+    confidence intervals, using weights to correct for the sampling. I would not rely on overall accuracy
+    in any dashboard. This is a general monitoring design, not something described in the facts.
+  rubric:
+  - Monitors per-condition predicted positive rate against expected prevalence
+  - Uses sampled expert labeling to estimate sensitivity and specificity
+  - Handles sampling weights and intervals
+  - Avoids accuracy as a headline metric
+- id: proj-vetology-0026
+  type: free_text
+  role: ds
+  difficulty: 4
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - label-quality
+  - legacy-labels
+  - analysis
+  prompt: In your Vetology project, you compared legacy radiologist labels with your gold standard. What
+    did you find, and why was it notable?
+  hints: []
+  follow_ups:
+  - Which dataset showed this?
+  est_minutes: 3
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f05
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I found that the legacy radiologist labels disagreed with the gold standard in about 40%
+    of canine thorax cells. That is a large disagreement, which shows that either the legacy labels or
+    the gold standard had substantial quality problems, and that it matters which one is treated as ground
+    truth when evaluating the model.
+  rubric:
+  - States about 40% disagreement
+  - Specifies canine thorax
+  - Notes implications for what counts as ground truth
+- id: proj-vetology-0027
+  type: multiple_choice
+  role: ds
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - legacy-labels
+  - datasets
+  prompt: Where did legacy radiologist labels disagree with your gold standard in about 40% of cells?
+  hints: []
+  follow_ups: []
+  est_minutes: 2
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f05
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  options:
+  - Feline thorax
+  - Canine thorax
+  - Canine abdomen
+  - All three datasets equally
+  answer_index: 1
+  explanation: The roughly 40% disagreement was found in canine thorax cells. The 'all three datasets'
+    option is the strongest distractor, but the finding was stated only for canine thorax.
+- id: proj-vetology-0028
+  type: free_text
+  role: ds
+  difficulty: 8
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - label-quality
+  - reference-standard
+  - disagreement
+  prompt: Legacy radiologist labels disagreed with your gold standard in about 40% of canine thorax cells.
+    A skeptic says that means your hand-scored labels are probably the wrong ones. How do you respond?
+  hints:
+  - Disagreement alone doesn't identify which source is wrong.
+  follow_ups:
+  - What would you need to settle it?
+  est_minutes: 7
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f05
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: The skeptic is right that disagreement alone does not say which source is wrong. It only
+    shows the two sources are inconsistent. I would not claim my labels are correct. I would sample the
+    disagreeing cells and have a radiologist adjudicate them, then break the disagreements down by condition
+    and by direction (legacy says positive while the gold standard says negative, or the reverse) to see
+    whether the differences are systematic, such as different definitions or differing source information,
+    or random. This is consistent with my recommendation of a radiologist review of the gold standard.
+    Until adjudication, model metrics should be reported as relative to my gold standard, with the caveat
+    that the reference standard is itself uncertain.
+  rubric:
+  - Concedes disagreement doesn't identify the wrong source
+  - Proposes radiologist adjudication of a sample of disagreements
+  - Breaks down by condition and direction
+  - Links to the review recommendation and caveats reported metrics
+- id: proj-vetology-0029
+  type: free_text
+  role: ds
+  difficulty: 8
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - data-quality
+  - analysis
+  - denominators
+  prompt: A 40% disagreement rate in canine thorax cells looks large next to positives being only 4% to
+    10% of labels. What would you check before presenting that figure?
+  hints:
+  - Think about what a 'cell' is and what the denominator is.
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f05
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: First I would confirm the exact definition of a cell and the denominator, since a 40%
+    disagreement rate is hard to square with a 4% to 10% positive rate unless the disagreements are concentrated
+    in a subset, or the legacy labels are structured differently from the condition-level labels (for
+    example missing or default values treated as disagreement). I would check whether the figure is over
+    all conditions or a subset, break disagreements down by condition and direction, and check whether
+    blanks or differently coded values are being counted as disagreement. I would compare the rate across
+    the other datasets and report counts alongside the percentage. I cannot say from the facts what drove
+    the figure; these are the checks I would run.
+  rubric:
+  - Clarifies what a cell and the denominator are
+  - Notes the apparent tension with the low positive rate
+  - Checks coding or missing-value artifacts
+  - Breaks down by condition and direction and compares across datasets
+- id: proj-vetology-0030
+  type: free_text
+  role: ds
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - label-noise
+  - bias
+  - evaluation-design
+  prompt: If you had scored the model against the legacy radiologist labels instead of your gold standard,
+    how would label noise have distorted the reported sensitivity and specificity?
+  hints:
+  - Noisy reference labels move both metrics.
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f05
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: Errors in the reference labels are counted as model errors (or correct predictions that
+    match wrong labels are counted as hits). With rare positives, even a modest rate of false positive
+    labels in the reference can add many apparent model false positives or depress apparent specificity,
+    and missed positives in the reference depress apparent sensitivity. The direction and size depend
+    on the structure of the noise, so measured metrics would partly reflect label quality and not model
+    quality. With about 40% disagreement in canine thorax cells, such distortion could be large. This
+    is general reasoning on noisy-label evaluation.
+  rubric:
+  - Explains reference errors are attributed to the model
+  - Notes sensitivity and specificity are both affected, especially with rare positives
+  - Says the noise structure determines direction
+  - Links to the 40% disagreement in canine thorax
+- id: proj-vetology-0031
+  type: free_text
+  role: both
+  difficulty: 8
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - label-audit
+  - data-quality
+  - error-analysis
+  prompt: How would you build a systematic process to audit disagreements between legacy labels, your
+    gold standard and model predictions across all three datasets?
+  hints:
+  - Think of a three-way comparison and triage.
+  follow_ups: []
+  est_minutes: 7
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f05
+  depth: extend
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'I would line up the three sources per report and condition and categorize each cell:
+    all agree, legacy differs, model differs, or all three differ. Cells where the gold standard and model
+    agree but legacy differs point to legacy label problems, while cells where the model differs from
+    both are the likeliest model errors. A radiologist would adjudicate a stratified sample of each category,
+    and I would record an error taxonomy such as ambiguous report wording, definitional differences or
+    reading mistakes. The results would feed fixes to the gold standard, prompts and legacy labeling guidelines,
+    and the audit would be repeated each evaluation cycle. This is a general proposal, not a description
+    of work done.'
+  rubric:
+  - Three-way comparison with categories of agreement and disagreement
+  - Uses patterns to localize likely errors
+  - Radiologist adjudication of stratified samples
+  - Builds an error taxonomy and feeds fixes back
+- id: proj-vetology-0032
+  type: free_text
+  role: ds
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - recommendations
+  - communication
+  - stakeholders
+  prompt: What did you recommend to the Vetology team at the end of your project, and what did you present
+    to them?
+  hints: []
+  follow_ups: []
+  est_minutes: 3
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f06
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I recommended a radiologist review of the gold standard and fixes for class imbalance
+    and negative bias before the next evaluation, and I presented the methodology and results to the Vetology
+    team.
+  rubric:
+  - Radiologist review of the gold standard
+  - Fixes for class imbalance and negative bias
+  - Done before the next evaluation
+  - Presented methodology and results to the team
+- id: proj-vetology-0033
+  type: free_text
+  role: ds
+  difficulty: 5
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - recommendations
+  - gold-standard
+  - label-quality
+  prompt: Why did you recommend a radiologist review of the gold standard before the next evaluation,
+    instead of simply re-running with more reports?
+  hints:
+  - Think about what limits the trustworthiness of your results.
+  follow_ups:
+  - Who would you want reviewing, and on what sample?
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f06
+  depth: justify
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: 'The facts state the recommendation but not the full reasoning. A strong answer should
+    draw on your facts: you hand-scored the 150 reports yourself, and legacy radiologist labels disagreed
+    with it in about 40% of canine thorax cells. It should explain why more data would not fix label quality,
+    what the review would settle, and how it would affect the credibility of the sensitivity and specificity
+    numbers, in your own words about what you observed.'
+  rubric:
+  - Cites that the gold standard was hand-scored by you
+  - Cites the 40% canine thorax disagreement
+  - Explains why more reports would not fix reference-label quality
+  - Describes what the review would change in the evaluation
+- id: proj-vetology-0034
+  type: free_text
+  role: both
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - bias
+  - false-negatives
+  - prompt-design
+  prompt: You recommended fixing 'negative bias' before the next evaluation. What does negative bias mean
+    in your classifier's results, how would you detect it, and how would you reduce it?
+  hints:
+  - Relate it to sensitivity and specificity.
+  follow_ups:
+  - Could the bias be in the labels rather than the model?
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f06
+  depth: challenge
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts mention fixing negative bias but do not describe how it showed up or its
+    numbers. A strong answer should explain in your own words what you observed (for example a tendency
+    toward 'normal'/negative answers, or low sensitivity relative to specificity), how you detected it
+    (per-condition sensitivity versus specificity, comparison against the gold standard), and plausible
+    fixes (prompt wording, rules, examples, thresholds). It should also consider whether bias could come
+    from the labels. Do not cite numbers that are not in your facts.
+  rubric:
+  - Defines negative bias as observed in the project, in the candidate's own words
+  - Detects it via per-condition sensitivity versus specificity against the gold standard
+  - Proposes concrete mitigations such as prompt changes or thresholds
+  - Considers label bias as an alternative explanation
+- id: proj-vetology-0035
+  type: free_text
+  role: ds
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - prioritization
+  - label-review
+  - sampling
+  prompt: Radiologist time is expensive and the gold standard has 2,600 labels. How would you prioritize
+    what the radiologist reviews first?
+  hints:
+  - Not all cells are equally informative.
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f06
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'I would prioritize cells where review changes conclusions most: the disagreements between
+    legacy labels and the gold standard (about 40% of canine thorax cells), all labeled positives for
+    rare conditions since they drive sensitivity, and cells where the model disagrees with the gold standard.
+    I would include a random sample of agreed cells to estimate the error rate among them, and stratify
+    by condition so that no condition is unchecked. Reviewing the canine thorax dataset first follows
+    from where the largest disagreement was found. This prioritization is general reasoning rather than
+    a documented plan.'
+  rubric:
+  - Prioritizes disagreement cells including legacy-versus-gold standard
+  - Includes positives for rare conditions
+  - Includes a random sample of agreed cells to estimate hidden errors
+  - Stratifies by condition or dataset
+- id: proj-vetology-0036
+  type: free_text
+  role: both
+  difficulty: 8
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - class-imbalance
+  - evaluation-design
+  - llm
+  prompt: Beyond the review, how would you fix the class imbalance problem for the next evaluation of
+    a prompt-based LLM classifier where positives are 4% to 10% of labels?
+  hints:
+  - An LLM is not trained here, so think about evaluation design and prompting, not loss weighting.
+  follow_ups:
+  - How would you report metrics from an enriched sample?
+  est_minutes: 7
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f06
+  depth: extend
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'Since the model is prompted rather than trained, the main fix is in evaluation design:
+    enrich the labeled set with more positive cases for each condition (for example by selecting reports
+    through legacy labels or keyword hits, then labeling them), and weight results to prevalence when
+    estimating prevalence-dependent metrics. Sensitivity and specificity can be estimated separately on
+    positive and negative strata with intervals. On the prompting side, check per-condition prompts for
+    a tendency to default to negative, and tune decision rules or add examples using a development split,
+    then confirm on held-out data. Report counts of positives per condition. This is a general proposal,
+    not a description of work done.'
+  rubric:
+  - Recognizes that the fix is in evaluation sampling since the model is prompted
+  - Enriches positives with stratified estimation and weighting
+  - Reports sensitivity and specificity with intervals and counts
+  - Tunes prompts against defaulting to negative on a dev split, confirming on held-out data
+- id: proj-vetology-0037
+  type: short_answer
+  role: ds
+  difficulty: 2
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - recommendations
+  - class-imbalance
+  prompt: Which two problems did you recommend fixing before the next evaluation, in addition to a radiologist
+    review of the gold standard?
+  hints: []
+  follow_ups: []
+  est_minutes: 2
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f06
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer: Class imbalance and negative bias.
+  explanation: The recommendation was a radiologist review of the gold standard plus fixes for class imbalance
+    and negative bias, all before the next evaluation.
+- id: proj-vetology-0038
+  type: free_text
+  role: mle
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - refactoring
+  - software-engineering
+  - testing
+  prompt: In your Vetology internship, you rebuilt the original script. What was the starting point, and
+    what did the rebuilt version include?
+  hints: []
+  follow_ups: []
+  est_minutes: 4
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f07
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I rebuilt the original 231-line script, using Claude Code, into a modular package with
+    unit tests, eight-worker concurrency, a response cache, and credentials moved from code to environment
+    variables. I also documented how manual coding compared with AI-assisted development.
+  rubric:
+  - 231-line original script
+  - Modular package with unit tests
+  - Eight-worker concurrency and a response cache
+  - Credentials moved to environment variables
+  - Used Claude Code and documented the comparison
+- id: proj-vetology-0039
+  type: free_text
+  role: mle
+  difficulty: 5
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - concurrency
+  - caching
+  - api-limits
+  prompt: Why eight workers for concurrency, and why a response cache? Defend those choices against alternatives.
+  hints:
+  - Think about API limits, run time and repeated runs.
+  follow_ups:
+  - What would you change if you had 50 conditions times 10,000 reports?
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f07
+  depth: justify
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts state eight-worker concurrency and a response cache but not why eight, what
+    limits you hit, or measured speedups. A strong answer should give your real reasoning (API rate limits,
+    run time with many per-condition calls, cost of reruns during evaluation), any measured effect you
+    remember, and the tradeoffs of other worker counts. Do not state speedup numbers unless you actually
+    measured them.
+  rubric:
+  - Explains the reason for concurrency tied to the many per-condition calls
+  - Explains the reason for caching, such as repeat runs and cost
+  - Gives the real basis for eight workers and the tradeoff versus other counts
+  - Does not invent measured numbers
+- id: proj-vetology-0040
+  type: free_text
+  role: mle
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - caching
+  - reproducibility
+  - llm
+  prompt: A response cache for LLM calls can silently return stale or wrong results. How would you design
+    the cache key and invalidation so evaluation results stay trustworthy?
+  hints:
+  - What inputs determine the response?
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f07
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'The key should include everything that can change the response: the report text (or a
+    hash of it), the condition, the full rendered prompt including the shared rules, the model name and
+    version, and generation parameters such as temperature. Changing a prompt in the JSON config must
+    therefore invalidate the relevant entries automatically, which hashing the rendered prompt achieves.
+    I would store metadata (timestamp, model, prompt version) with each entry, offer a force-refresh flag,
+    and avoid caching failed or malformed responses. I would also test that cache hits return the same
+    parsed results as live calls. Note that a cache hides run-to-run model variability, so variability
+    studies should bypass it. This is general design, not a description of the project''s implementation.'
+  rubric:
+  - Key includes report, condition, rendered prompt, model and parameters
+  - Prompt or config changes invalidate entries
+  - Stores metadata, supports forced refresh and skips failed responses
+  - Notes variability studies must bypass the cache
+- id: proj-vetology-0041
+  type: free_text
+  role: mle
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - testing
+  - ai-assisted-development
+  - verification
+  prompt: You used Claude Code to rebuild a 231-line script into a package. How did you verify the rebuilt
+    version behaves the same as the original and that AI-written code was correct?
+  hints:
+  - Think about what the unit tests covered and how you compared outputs.
+  follow_ups:
+  - What bug, if any, did the tests catch?
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f07
+  depth: challenge
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts say the rebuild included unit tests and that you documented how manual coding
+    compared with AI-assisted development. They do not say what the tests covered, whether outputs were
+    compared against the original, or what you caught. A strong answer should describe what you actually
+    did to verify behavior (unit tests on parsing and prompt building, comparing outputs on the same reports
+    before and after, code review of generated code) and any issues found. It should state limits, such
+    as untested paths like live API behavior. Do not invent bugs or results.
+  rubric:
+  - Describes real verification steps, including tests and any before/after comparison
+  - Says what the unit tests covered and did not cover
+  - Describes reviewing AI-generated code rather than trusting it
+  - Gives honest examples of issues found, or says none
+- id: proj-vetology-0042
+  type: free_text
+  role: mle
+  difficulty: 8
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - concurrency
+  - reliability
+  - rate-limits
+  prompt: How would you harden the eight-worker concurrent LLM client for a much larger run, covering
+    rate limits, failures and cost?
+  hints:
+  - Think about retries, backoff and idempotency.
+  follow_ups: []
+  est_minutes: 7
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f07
+  depth: extend
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: I would make worker count and rate limits configurable and add a shared rate limiter tied
+    to the provider's request and token limits. Transient errors (timeouts, rate-limit and server errors)
+    get retries with exponential backoff and jitter, while permanent errors are logged and recorded rather
+    than retried. Requests should be idempotent and keyed in the cache so a crashed run can resume without
+    repeating paid calls. Malformed model outputs should be validated against the expected JSON schema
+    and either retried a limited number of times or marked failed. For non-urgent volume I would consider
+    a batch API, and I would log per-call latency, tokens and cost to monitor budgets. This is a general
+    design, beyond the eight-worker cache version described.
+  rubric:
+  - Shared rate limiting and configurable concurrency
+  - Retries with backoff for transient errors only
+  - Resumable, idempotent runs via the cache
+  - Output validation and failure handling
+  - Cost and latency logging or batch API option
+- id: proj-vetology-0043
+  type: free_text
+  role: mle
+  difficulty: 5
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - ai-assisted-development
+  - engineering-practice
+  - reflection
+  prompt: You documented how manual coding compared with AI-assisted development for this rebuild. What
+    did you conclude, and when would you not use an AI coding assistant?
+  hints:
+  - Be concrete about speed, correctness and review effort.
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f07
+  depth: justify
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts say you documented the comparison but not its findings. A strong answer should
+    state your actual conclusions (for example about time, code quality, or the effort of reviewing generated
+    code) drawn from that documentation, give specific examples from the 231-line script rebuild, and
+    describe where you would be cautious about using an AI assistant (security-sensitive code, handling
+    of credentials or client data, poorly tested areas). Do not invent measurements.
+  rubric:
+  - States real conclusions from the documented comparison
+  - Uses specific examples from the rebuild
+  - Explains the review and verification burden of generated code
+  - Names situations where an assistant should be limited
+- id: proj-vetology-0044
+  type: multiple_choice
+  role: mle
+  difficulty: 3
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - refactoring
+  - concurrency
+  - security
+  prompt: Which set of changes describes your rebuild of the original 231-line script?
+  hints: []
+  follow_ups: []
+  est_minutes: 2
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f07
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  options:
+  - A modular package with unit tests, eight-worker concurrency, a response cache and credentials moved
+    to environment variables
+  - A single larger script with a GUI and a database backend
+  - A fine-tuned local model replacing the OpenAI calls
+  - A package with 52 parallel workers and credentials in a config file
+  answer_index: 0
+  explanation: The rebuild was a modular package with unit tests, eight-worker concurrency, a response
+    cache and environment-variable credentials. The 52 workers option is the strongest distractor, as
+    it echoes the 52 conditions but the concurrency was eight workers, and credentials moved out of code.
+- id: proj-vetology-0045
+  type: free_text
+  role: mle
+  difficulty: 4
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - github
+  - security
+  - data-governance
+  prompt: You shipped the Vetology codebase to GitHub. What safeguards did you put in place for client
+    data and credentials, and how did they work?
+  hints:
+  - Be specific about the mechanisms you used.
+  follow_ups:
+  - How did you check nothing sensitive was already committed?
+  est_minutes: 4
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f08
+  depth: explain
+  needs_user_input: true
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer_guidance: The facts say the codebase was shipped to GitHub with controls that keep client data
+    and credentials out of the repository, and that credentials were moved from code to environment variables.
+    They do not list the specific controls. A strong answer should name what you actually put in place
+    (for example ignore rules, where data and outputs live, example config files, checks before committing)
+    and how you verified that no client data or secrets were in the repository or its history. Do not
+    claim controls you did not use.
+  rubric:
+  - Names the actual controls used
+  - Explains how client data is kept out of the repo
+  - Explains credentials via environment variables
+  - Describes how it was verified
+- id: proj-vetology-0046
+  type: free_text
+  role: mle
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - git-history
+  - secrets
+  - security
+  prompt: A colleague says 'we deleted the key and the data file from the latest commit, so the repo is
+    clean.' Is that enough? What would you do?
+  hints:
+  - Think about what git keeps.
+  follow_ups: []
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f08
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: No. Git history retains earlier commits, so a secret or data file removed from the latest
+    commit is still retrievable from history, forks and clones. I would rotate and revoke any credential
+    that was ever committed, since it must be treated as compromised, then scan the full history with
+    a secret-scanning tool. If client data was committed, I would rewrite history (for example with git
+    filter-repo) or recreate the repository, force-push, and ask collaborators to re-clone, while also
+    checking whether the data has been exposed elsewhere and informing the data owner. Preventive controls
+    like ignore rules and pre-commit scanning should follow. This is general git security practice, not
+    a description of what happened in the project.
+  rubric:
+  - Explains history keeps removed files
+  - Rotates and revokes exposed credentials
+  - Scans full history and rewrites it if needed
+  - Notes forks and clones and informing the data owner
+  - Adds preventive controls
+- id: proj-vetology-0047
+  type: free_text
+  role: mle
+  difficulty: 6
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - reproducibility
+  - testing
+  - synthetic-data
+  prompt: With client data and credentials kept out of the repository, how can someone else clone it and
+    still verify the code works and the evaluation is reproducible?
+  hints:
+  - Think about what tests need.
+  follow_ups: []
+  est_minutes: 5
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f08
+  depth: challenge
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: The repository can include unit tests that run on small synthetic or fabricated example
+    reports and mocked LLM responses, so no client data or live API key is needed. Configuration should
+    read credentials from environment variables, and an example config or documentation should say what
+    to set. The real evaluation requires the data and key supplied separately, so I would document how
+    to point the tool at a local data directory and the expected input and output formats, such as the
+    output template. This is a general approach; the facts only state that controls keep client data and
+    credentials out.
+  rubric:
+  - Tests use synthetic examples and mocked API responses
+  - Credentials come from environment variables with documented setup
+  - Documents input and output formats for the real data
+  - Acknowledges the full evaluation needs data supplied separately
+- id: proj-vetology-0048
+  type: free_text
+  role: mle
+  difficulty: 7
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - pre-commit
+  - ci
+  - secret-scanning
+  prompt: How would you automate protections so client data and credentials can never be committed to
+    the repository by a future contributor?
+  hints:
+  - Layer preventive, detective and structural controls.
+  follow_ups: []
+  est_minutes: 6
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f08
+  depth: extend
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  model_answer: 'I would layer controls: ignore rules for data and output directories, pre-commit hooks
+    that run secret scanners and block files matching data patterns, CI checks that scan every pull request
+    and the history, and branch protection requiring those checks. Structurally, I would keep data and
+    outputs outside the repository directory and access them through configured paths, and keep credentials
+    in environment variables or a secrets manager rather than files. I would add repository-level secret
+    scanning alerts, and a short contributor guide with an incident process for rotating keys. This is
+    a general proposal that extends the controls described in the facts.'
+  rubric:
+  - Ignore rules and pre-commit hooks
+  - CI scanning with required checks
+  - Keeps data and secrets structurally outside the repo
+  - Includes an incident or rotation process
+- id: proj-vetology-0049
+  type: short_answer
+  role: mle
+  difficulty: 2
+  topic: projects
+  subtopic: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  tags:
+  - github
+  - security
+  prompt: What two kinds of sensitive content did the controls on your GitHub repository keep out?
+  hints: []
+  follow_ups: []
+  est_minutes: 2
+  source: generated
+  status: draft
+  entity_id: vetology-ai-teleradiology--ai-ml-intern-llm-evaluation
+  fact_ids:
+  - vetology-f08
+  depth: explain
+  needs_user_input: false
+  generated_by: claude-sonnet-5-5
+  generated_at: '2026-11-15T01:20:13+00:00'
+  profile_hash: dc0055165e648106
+  answer: Client data and credentials.
+  explanation: The codebase was shipped to GitHub with controls that keep client data and credentials
+    out of the repository.

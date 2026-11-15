@@ -16,6 +16,7 @@ TRACKS: dict[str, tuple[str, ...]] = {
 }
 MODES = ("Practice", "Flashcards")
 FLASHCARD_TYPES = ("short_answer", "multiple_choice")
+SOURCES = ("Foundational", "My projects", "Both")
 
 
 def roles_for(track: str, only_role_specific: bool = False) -> set[str]:
@@ -36,8 +37,22 @@ def matching_questions(
     difficulty: tuple[int, int] = (1, 10),
     types: Sequence[str] | None = None,
     mode: str = "Practice",
+    source: str = "Both",
+    entities: Sequence[str] | None = None,
+    include_drafts: bool = False,
 ) -> list[Question]:
+    """Questions eligible for practice. Only approved questions are used unless
+    include_drafts; rejected and retired questions never are. ``entities`` limits project
+    questions to the chosen projects (authored questions are unaffected)."""
+    if source not in SOURCES:
+        raise ValueError(f"unknown source {source!r}")
     roles = roles_for(track, only_role_specific)
+    statuses = {"approved", "draft"} if include_drafts else {"approved"}
+    sources = {
+        "Foundational": {"authored"},
+        "My projects": {"generated"},
+        "Both": {"authored", "generated"},
+    }[source]
     allowed_types = set(types) if types else None
     if mode == "Flashcards":
         allowed_types = (allowed_types or set(FLASHCARD_TYPES)) & set(FLASHCARD_TYPES)
@@ -45,7 +60,10 @@ def matching_questions(
     return [
         q
         for q in questions
-        if q.role in roles
+        if q.status in statuses
+        and q.source in sources
+        and (q.source == "authored" or not entities or q.entity_id in entities)
+        and q.role in roles
         and (not topics or q.topic in topics)
         and lo <= q.difficulty <= hi
         and (allowed_types is None or q.type in allowed_types)

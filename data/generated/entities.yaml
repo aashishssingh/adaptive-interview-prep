@@ -1,0 +1,49 @@
+# Short slugs (used in generated question ids: proj-<slug>-0001) and generation priority
+# for profile entities. Keep slugs stable once questions exist. Entities not listed get
+# an automatic slug. priority: high = the most questions per fact.
+entities:
+  ucla-alumni-association--data-processing-and-analysis-intern:
+    slug: ucla-alumni
+    priority: normal
+  vetology-ai-teleradiology--ai-ml-intern-llm-evaluation:
+    slug: vetology
+    priority: high
+  vectorsurv-uc-davis--research-assistant:
+    slug: vectorsurv
+    priority: normal
+  m-s-thesis-ordinal-prediction-of-chest-radiograph-urgency:
+    slug: thesis
+    priority: high
+  the-99-cent-question-kalshi-prediction-markets-stats-414:
+    slug: kalshi
+    priority: high
+  pneumonia-detection-with-llm-and-deep-learning:
+    slug: pneumonia
+    priority: normal
+  predicting-heart-failure-mortality-for-actuarial-risk:
+    slug: heart-failure
+    priority: normal
+  civic-engagement-survey-analysis-stats-141xp-consulting:
+    slug: civic
+    priority: normal
+  american-statistical-association-asa-datafest-at-ucla--volunteer-mentor:
+    slug: datafest
+    priority: normal
+  asucla--senior-service-supervisor:
+    slug: asucla
+    priority: normal
+  yoloberry-yogurt--store-lead:
+    slug: yoloberry
+    priority: normal
+  bluebird-limo-inc--office-assistant:
+    slug: bluebird
+    priority: normal
+  costco-wholesale--night-merchandise-associate:
+    slug: costco
+    priority: normal
+  amazon--processing-lead-transportation-logistics:
+    slug: amazon
+    priority: normal
+  ymca-of-the-usa--referee-and-coach:
+    slug: ymca
+    priority: normal

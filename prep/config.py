@@ -43,6 +43,8 @@ class Settings:
     llm_model_deep: str
     questions_dir: Path = PROJECT_ROOT / "data" / "questions"
     history_db_path: Path = PROJECT_ROOT / "data" / "local" / "history.db"
+    # Where Anthropic credentials come from: "api key", "CLI sign-in" or "none" (no secret).
+    credential_source: str = "none"
     anthropic_api_key: str | None = field(default=None, repr=False)
     openai_api_key: str | None = field(default=None, repr=False)
 
@@ -52,6 +54,7 @@ class Settings:
             f"site_path={self.site_path!s}, llm_provider={self.llm_provider!r}, "
             f"llm_model_fast={self.llm_model_fast!r}, llm_model_deep={self.llm_model_deep!r}, "
             f"questions_dir={self.questions_dir!s}, history_db_path={self.history_db_path!s}, "
+            f"credential_source={self.credential_source!r}, "
             f"anthropic_api_key={_mask(self.anthropic_api_key)}, "
             f"openai_api_key={_mask(self.openai_api_key)})"
         )
@@ -64,6 +67,8 @@ def load_settings(env_file: Path | str | None = None) -> Settings:
 
     Existing environment variables take precedence over values in the .env file.
     """
+    from prep.llm.credentials import detect_anthropic_credential_source  # avoids import cycle
+
     load_dotenv(env_file if env_file is not None else PROJECT_ROOT / ".env", override=False)
 
     def get(name: str) -> str:
@@ -82,6 +87,7 @@ def load_settings(env_file: Path | str | None = None) -> Settings:
         llm_model_deep=get("LLM_MODEL_DEEP"),
         questions_dir=_expand(get("QUESTIONS_DIR")),
         history_db_path=_expand(get("HISTORY_DB_PATH")),
+        credential_source=detect_anthropic_credential_source(),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", "").strip() or None,
         openai_api_key=os.getenv("OPENAI_API_KEY", "").strip() or None,
     )
